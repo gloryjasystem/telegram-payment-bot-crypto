@@ -31,11 +31,21 @@ class Config:
     )
     
     # ========================================
-    # CRYPTOMUS API SETTINGS
+    # CRYPTOMUS API SETTINGS (Legacy - можно удалить после миграции)
     # ========================================
     CRYPTOMUS_API_KEY: str = os.getenv("CRYPTOMUS_API_KEY", "")
     CRYPTOMUS_MERCHANT_ID: str = os.getenv("CRYPTOMUS_MERCHANT_ID", "")
     CRYPTOMUS_WEBHOOK_SECRET: str = os.getenv("CRYPTOMUS_WEBHOOK_SECRET", "")
+    
+    # ========================================
+    # NOWPAYMENTS API SETTINGS
+    # ========================================
+    NOWPAYMENTS_API_KEY: str = os.getenv("NOWPAYMENTS_API_KEY", "")
+    NOWPAYMENTS_IPN_SECRET: str = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
+    NOWPAYMENTS_WEBHOOK_URL: str = os.getenv(
+        "NOWPAYMENTS_WEBHOOK_URL",
+        "https://telegram-payment-bot-production-2c8f.up.railway.app/webhook/nowpayments"
+    )
     
     # ========================================
     # WEBHOOK SETTINGS (для продакшн)
@@ -45,6 +55,10 @@ class Config:
     CRYPTOMUS_WEBHOOK_PATH: str = os.getenv(
         "CRYPTOMUS_WEBHOOK_PATH", 
         "/webhook/cryptomus"
+    )
+    NOWPAYMENTS_WEBHOOK_PATH: str = os.getenv(
+        "NOWPAYMENTS_WEBHOOK_PATH",
+        "/webhook/nowpayments"
     )
     WEB_SERVER_HOST: str = os.getenv("WEB_SERVER_HOST", "0.0.0.0")
     WEB_SERVER_PORT: int = int(os.getenv("WEB_SERVER_PORT", "8080"))

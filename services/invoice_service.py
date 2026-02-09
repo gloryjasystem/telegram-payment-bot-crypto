@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 from database import Invoice, User, Payment, get_session
 from utils.logger import bot_logger, log_admin_action
 from utils.helpers import generate_invoice_id
-from services.payment_service import payment_service
+from services.nowpayments_service import nowpayments_service as payment_service
 
 
 class InvoiceService:
@@ -66,12 +66,12 @@ class InvoiceService:
                 session.add(invoice)
                 await session.flush()  # Получаем ID инвойса
                 
-                # Создание платежной ссылки через Cryptomus
+                # Создание платежной ссылки через NOWPayments
                 payment_result = await payment_service.create_payment(invoice)
                 
                 if payment_result['success']:
                     invoice.payment_url = payment_result['payment_url']
-                    invoice.cryptomus_invoice_id = payment_result['cryptomus_invoice_id']
+                    invoice.cryptomus_invoice_id = payment_result['payment_id']  # Используем то же поле
                 else:
                     bot_logger.error(f"Failed to create payment: {payment_result.get('error')}")
                     # Инвойс все равно создаем, но без payment_url
