@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncEngine
 )
+from sqlalchemy import text
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import logging
@@ -58,8 +59,49 @@ async def init_db() -> None:
         autoflush=False,  # Ручное управление flush
         autocommit=False  # Ручное управление commit
     )
-    
-    logger.info("База данных инициализирована успешно")
+
+
+async def check_and_migrate_table() -> None:
+    """
+    Проверка и миграция таблицы users (добавление новых колонок)
+    """
+    if _engine is None:
+        return
+        
+    try:
+        # Пытаемся проверить только для PostgreSQL
+        if "postgresql" not in Config.DATABASE_URL.lower():
+            return
+
+        async with _engine.begin() as conn:
+            # Проверяем наличие колонки is_admin
+            try:
+                result = await conn.execute(text(
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_name='users' AND column_name='is_admin';"
+                ))
+                column_exists = result.scalar() is not None
+                
+                if not column_exists:
+                    logger.warning("⚠️ Обнаружена устаревшая схема БД. Выполняю миграцию...")
+                    
+                    # Добавляем колонки
+                    await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;"))
+                    await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN DEFAULT FALSE;"))
+                    await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS blocked_at TIMESTAMP WITHOUT TIME ZONE;"))
+                    await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS blocked_by BIGINT;"))
+                    
+                    # Создаем индекс
+                    await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_is_blocked ON users (is_blocked);"))
+                    
+                    logger.info("✅ Миграция базы данных выполнена успешно")
+                else:
+                    logger.info("✅ Структура базы данных актуальна")
+            except Exception as e:
+                logger.error(f"Ошибка проверки схемы БД: {e}")
+                
+    except Exception as e:
+        logger.error(f"Critical error during migration check: {e}")
 
 
 async def create_tables() -> None:
@@ -77,7 +119,10 @@ async def create_tables() -> None:
         # Создание всех таблиц, определенных в Base.metadata
         await conn.run_sync(Base.metadata.create_all)
     
-    logger.info("Таблицы базы данных созданы успешно")
+    # Проверка миграций
+    await check_and_migrate_table()
+    
+    logger.info("Таблицы базы данных готовы")
 
 
 async def drop_tables() -> None:
@@ -102,15 +147,6 @@ async def drop_tables() -> None:
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Асинхронный context manager для получения database session
-    
-    Использование:
-        async with get_session() as session:
-            # Выполнение операций с БД
-            user = await session.get(User, user_id)
-            await session.commit()
-    
-    Yields:
-        AsyncSession: Асинхронная сессия SQLAlchemy
     """
     if _async_session_factory is None:
         raise RuntimeError("Session factory not initialized. Call init_db() first.")
@@ -130,8 +166,6 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 async def close_db() -> None:
     """
     Закрытие подключения к базе данных
-    
-    Вызывайте при завершении работы бота для корректного закрытия соединений
     """
     global _engine
     
@@ -141,8 +175,6 @@ async def close_db() -> None:
         _engine = None
         logger.info("Подключение к базе данных закрыто")
 
-
-# Вспомогательные функции для удобства
 
 async def get_engine() -> AsyncEngine:
     """Получить engine базы данных"""
@@ -154,14 +186,10 @@ async def get_engine() -> AsyncEngine:
 async def check_db_connection() -> bool:
     """
     Проверка подключения к базе данных
-    
-    Returns:
-        bool: True если подключение успешно, False в противном случае
     """
     try:
         async with get_session() as session:
-            # Простой запрос для проверки соединения
-            await session.execute("SELECT 1")
+            await session.execute(text("SELECT 1"))
         logger.info("✅ Подключение к базе данных активно")
         return True
     except Exception as e:
