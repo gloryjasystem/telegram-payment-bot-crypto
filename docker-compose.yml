@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: payment_bot_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-payment_bot}
+      POSTGRES_USER: ${DB_USER:-bot_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-bot_user} -d ${DB_NAME:-payment_bot}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bot_network
+
+  # Telegram Bot
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Database connection (использует postgres service name как хост)
+      DB_HOST: postgres
+      DB_PORT: 5432
+    volumes:
+      # Логи
+      - ./data/logs:/app/data/logs
+      # База данных SQLite (если используется вместо PostgreSQL)
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bot_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  bot_network:
+    driver: bridge

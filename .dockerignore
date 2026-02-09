@@ -1,0 +1,79 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+data/logs/
+*.log.*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Documentation (build artifacts)
+docs/_build/
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Other
+*.bak
+*.backup
+README.md
+CLAUDE.md
+.dockerignore
+docker-compose.override.yml
