@@ -33,6 +33,12 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(255), nullable=False)
     last_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     
+    # Admin и блокировка
+    is_admin: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_blocked: Mapped[bool] = mapped_column(default=False, nullable=False, index=True)
+    blocked_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    blocked_by: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    
     # Временные метки
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(

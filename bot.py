@@ -9,13 +9,14 @@ from aiogram.client.default import DefaultBotProperties
 
 from config import Config
 from database import init_db, create_tables, close_db
-from handlers import user_router, admin_router, callback_router
+from handlers import user_router, admin_router, admin_commands_router, callback_router
 from middlewares import (
     LoggingMiddleware,
     UserAuthMiddleware,
     AdminAuthMiddleware,
     AntiSpamMiddleware,
-    ThrottlingMiddleware
+    ThrottlingMiddleware,
+    BlockCheckMiddleware
 )
 from services import invoice_service
 from utils.logger import bot_logger
@@ -113,6 +114,10 @@ def setup_middlewares(dp: Dispatcher):
     dp.message.middleware(UserAuthMiddleware())
     dp.callback_query.middleware(UserAuthMiddleware())
     
+    # Проверка блокировки (третьим - блокирует доступ)
+    dp.message.middleware(BlockCheckMiddleware())
+    dp.callback_query.middleware(BlockCheckMiddleware())
+    
     # Антиспам для обычных пользователей
     # Настройки: максимум 3 запроса в секунду, блокировка на 60 секунд
     dp.message.middleware(AntiSpamMiddleware(time_window=1, max_requests=3))
@@ -133,6 +138,10 @@ def setup_admin_middlewares():
     admin_router.message.middleware(AdminAuthMiddleware())
     admin_router.callback_query.middleware(AdminAuthMiddleware())
     
+    # Защита расширенных админских команд
+    admin_commands_router.message.middleware(AdminAuthMiddleware())
+    admin_commands_router.callback_query.middleware(AdminAuthMiddleware())
+    
     bot_logger.info("✅ Admin middlewares registered")
 
 
@@ -144,6 +153,7 @@ def setup_routers(dp: Dispatcher):
     """
     # Админские команды (приоритет)
     dp.include_router(admin_router)
+    dp.include_router(admin_commands_router)
     
     # Пользовательские команды
     dp.include_router(user_router)

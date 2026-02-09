@@ -6,6 +6,7 @@ Middlewares package
 from .auth_middleware import AdminAuthMiddleware, UserAuthMiddleware
 from .antispam_middleware import AntiSpamMiddleware, ThrottlingMiddleware
 from .logging_middleware import LoggingMiddleware, PerformanceMiddleware
+from .block_check_middleware import BlockCheckMiddleware
 
 __all__ = [
     "AdminAuthMiddleware",
@@ -13,5 +14,6 @@ __all__ = [
     "AntiSpamMiddleware",
     "ThrottlingMiddleware",
     "LoggingMiddleware",
-    "PerformanceMiddleware"
+    "PerformanceMiddleware",
+    "BlockCheckMiddleware"
 ]
