@@ -66,6 +66,11 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
             )
             
             if success:
+                # Обновляем локальный объект инвойса, чтобы в уведомлении была дата
+                from datetime import datetime
+                invoice.status = 'paid'
+                invoice.paid_at = datetime.utcnow()
+
                 bot_logger.info(f"✅ Invoice {order_id} marked as paid. Sending notifications...")
                 
                 # Создаем экземпляр NotificationService

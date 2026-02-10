@@ -214,6 +214,11 @@ async def check_payments_task():
                         )
                         
                         if success and bot:
+                            # Обновляем локальный объект инвойса
+                            from datetime import datetime
+                            inv.status = 'paid'
+                            inv.paid_at = datetime.utcnow()
+                            
                             bot_logger.info(f"✅ POLL: Invoice {invoice.invoice_id} marked as paid. Sending notifications...")
                             notifier = NotificationService(bot)
                             
