@@ -73,8 +73,9 @@ class NOWPaymentsService:
                 "order_id": invoice.invoice_id,
                 "order_description": invoice.service_description[:255],  # Max 255 символов
                 "ipn_callback_url": ipn_url,
-                "success_url": f"https://t.me/{Config.SUPPORT_USERNAME}",
-                "cancel_url": f"https://t.me/{Config.SUPPORT_USERNAME}",
+                # success_url и cancel_url не указываем — 
+                # NOWPayments покажет свою страницу "Payment successful",
+                # а бот сам отправит уведомление через IPN/polling
             }
             
             # Удаляем None значения
