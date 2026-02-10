@@ -144,7 +144,10 @@ class NOWPaymentsService:
     
     async def check_payment_status(self, payment_id: str) -> Dict[str, Any]:
         """
-        Проверка статуса платежа в NOWPayments
+        Проверка статуса платежа через NOWPayments API
+        
+        Используем GET /invoice/{id} т.к. create_payment создаёт invoice
+        и возвращает invoice ID (не payment ID)
         
         Args:
             payment_id: ID инвойса в NOWPayments (из create_payment)
@@ -164,50 +167,27 @@ class NOWPaymentsService:
             }
             
             async with aiohttp.ClientSession() as session:
-                # Пробуем получить статус через invoice endpoint
+                # Используем /invoice/{id} — правильный endpoint для наших ID
                 async with session.get(
-                    f"{self.BASE_URL}/payment/{payment_id}",
+                    f"{self.BASE_URL}/invoice/{payment_id}",
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
                     result = await response.json()
                     
                     if response.status != 200:
-                        # Если /payment/ не работает, пробуем /invoice-payment/
-                        bot_logger.info(f"Payment endpoint returned {response.status}, trying invoice-payment...")
-                        async with session.get(
-                            f"{self.BASE_URL}/invoice-payment/{payment_id}",
-                            headers=headers,
-                            timeout=aiohttp.ClientTimeout(total=10)
-                        ) as resp2:
-                            result2 = await resp2.json()
-                            
-                            if resp2.status != 200:
-                                bot_logger.error(f"NOWPayments API error: status={resp2.status}, body={result2}")
-                                return {
-                                    'success': False,
-                                    'error': f'API returned {resp2.status}'
-                                }
-                            
-                            # invoice-payment returns a list of payments
-                            if isinstance(result2, list) and len(result2) > 0:
-                                payment = result2[0]
-                            elif isinstance(result2, dict):
-                                payment = result2
-                            else:
-                                return {'success': False, 'error': 'Unexpected response format'}
-                            
-                            payment_status = payment.get('payment_status', '')
-                            return {
-                                'success': True,
-                                'status': payment_status,
-                                'is_paid': payment_status in ['finished', 'confirmed'],
-                                'is_failed': payment_status in ['failed', 'expired', 'refunded'],
-                                'amount': payment.get('price_amount'),
-                                'currency': payment.get('pay_currency', payment.get('price_currency'))
-                            }
+                        bot_logger.error(f"NOWPayments /invoice/{payment_id} error: status={response.status}, body={result}")
+                        return {
+                            'success': False,
+                            'error': f'API returned {response.status}'
+                        }
                     
+                    # NOWPayments invoice response содержит поля:
+                    # payment_status, price_amount, pay_currency и т.д.
                     payment_status = result.get('payment_status', '')
+                    
+                    bot_logger.info(f"📊 Invoice {payment_id} status: {payment_status}")
+                    
                     return {
                         'success': True,
                         'status': payment_status,
