@@ -10,7 +10,7 @@ from config import Config
 from utils.logger import bot_logger
 from services.nowpayments_service import nowpayments_service
 from services.invoice_service import invoice_service
-from services.notification_service import notification_service
+from services.notification_service import NotificationService
 from database.models import Invoice
 
 router = Router()
@@ -65,21 +65,20 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
             )
             
             if success:
-                # Отправка уведомлений
-                await notification_service.notify_payment_success(
-                    bot=bot,
-                    user_telegram_id=user.telegram_id,
-                    invoice=invoice
+                # Создаем экземпляр NotificationService
+                notifier = NotificationService(bot)
+                
+                # Отправка уведомления клиенту
+                await notifier.notify_client_payment_success(
+                    invoice=invoice,
+                    user=user
                 )
                 
-                # Уведомление админа
-                for admin_id in Config.ADMIN_IDS:
-                    await notification_service.notify_admin_payment(
-                        bot=bot,
-                        admin_id=admin_id,
-                        invoice=invoice,
-                        user=user
-                    )
+                # Уведомление всех админов
+                await notifier.notify_admins_payment_received(
+                    invoice=invoice,
+                    user=user
+                )
                 
                 bot_logger.info(f"✅ Payment processed successfully: {order_id}")
             else:
