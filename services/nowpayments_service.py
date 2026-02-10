@@ -87,6 +87,8 @@ class NOWPaymentsService:
             }
             
             bot_logger.info(f"Creating NOWPayments invoice for {invoice.invoice_id}")
+            bot_logger.info(f"📌 IPN callback URL: {ipn_url}")
+            bot_logger.info(f"📌 Payload: {payload}")
             
             # HTTP запрос
             async with aiohttp.ClientSession() as session:

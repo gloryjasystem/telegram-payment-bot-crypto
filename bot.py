@@ -150,6 +150,96 @@ async def expire_invoices_task():
             bot_logger.error(f"Error in invoice expiration task: {e}", exc_info=True)
 
 
+async def check_payments_task():
+    """
+    Фоновая задача: проверка статусов платежей через NOWPayments API
+    
+    Работает как FALLBACK если IPN от NOWPayments не приходит.
+    Каждые 60 секунд проверяет все pending инвойсы.
+    """
+    from services.nowpayments_service import nowpayments_service
+    from services.notification_service import NotificationService
+    
+    # Ждём 30 секунд при старте чтобы всё инициализировалось
+    await asyncio.sleep(30)
+    bot_logger.info("🔄 Payment status polling task started")
+    
+    while True:
+        try:
+            await asyncio.sleep(60)  # Проверяем каждые 60 секунд
+            
+            # Получаем все pending инвойсы
+            pending = await invoice_service.get_pending_invoices()
+            
+            if not pending:
+                continue
+            
+            bot_logger.info(f"🔍 Checking {len(pending)} pending invoice(s)...")
+            
+            for invoice in pending:
+                try:
+                    # Пропускаем если нет payment_id (ещё не оплачивали)
+                    if not invoice.cryptomus_invoice_id:
+                        continue
+                    
+                    # Запрашиваем статус у NOWPayments
+                    status_result = await nowpayments_service.check_payment_status(
+                        str(invoice.cryptomus_invoice_id)
+                    )
+                    
+                    if not status_result.get('success'):
+                        continue
+                    
+                    payment_status = status_result.get('status', '')
+                    
+                    if status_result.get('is_paid'):
+                        bot_logger.info(f"💰 POLL: Invoice {invoice.invoice_id} is PAID (status: {payment_status})")
+                        
+                        # Получаем инвойс с пользователем
+                        invoice_data = await invoice_service.get_invoice_with_user(invoice.invoice_id)
+                        if not invoice_data:
+                            continue
+                        
+                        inv, user = invoice_data
+                        
+                        # Проверяем что ещё не помечен как оплаченный
+                        if inv.status == 'paid':
+                            continue
+                        
+                        # Помечаем как оплаченный
+                        success = await invoice_service.mark_invoice_as_paid(
+                            invoice_id=invoice.invoice_id,
+                            transaction_id=str(invoice.cryptomus_invoice_id),
+                            payment_method=status_result.get('currency', 'crypto')
+                        )
+                        
+                        if success and bot:
+                            bot_logger.info(f"✅ POLL: Invoice {invoice.invoice_id} marked as paid. Sending notifications...")
+                            notifier = NotificationService(bot)
+                            
+                            try:
+                                await notifier.notify_client_payment_success(invoice=inv, user=user)
+                                bot_logger.info(f"✅ POLL: Client notification sent to {user.telegram_id}")
+                            except Exception as e:
+                                bot_logger.error(f"❌ POLL: Client notification failed: {e}")
+                            
+                            try:
+                                await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                                bot_logger.info(f"✅ POLL: Admin notifications sent")
+                            except Exception as e:
+                                bot_logger.error(f"❌ POLL: Admin notification failed: {e}")
+                
+                except Exception as e:
+                    bot_logger.error(f"Error checking invoice {invoice.invoice_id}: {e}")
+                    continue
+        
+        except asyncio.CancelledError:
+            bot_logger.info("Payment status polling task cancelled")
+            break
+        except Exception as e:
+            bot_logger.error(f"Error in payment polling task: {e}", exc_info=True)
+
+
 def setup_middlewares(dp: Dispatcher):
     """
     Настройка middlewares
@@ -330,16 +420,19 @@ async def run_webhook():
     # Настройка aiogram webhook в aiohttp
     setup_application(app, dp, bot=bot)
     
-    # Запуск фоновой задачи для истечения инвойсов
+    # Запуск фоновых задач
     async def start_background_tasks(app):
         app['invoice_expiration_task'] = asyncio.create_task(expire_invoices_task())
+        app['payment_polling_task'] = asyncio.create_task(check_payments_task())
     
     async def cleanup_background_tasks(app):
-        app['invoice_expiration_task'].cancel()
-        try:
-            await app['invoice_expiration_task']
-        except asyncio.CancelledError:
-            pass
+        for task_name in ['invoice_expiration_task', 'payment_polling_task']:
+            if task_name in app:
+                app[task_name].cancel()
+                try:
+                    await app[task_name]
+                except asyncio.CancelledError:
+                    pass
     
     app.on_startup.append(start_background_tasks)
     app.on_cleanup.append(cleanup_background_tasks)
