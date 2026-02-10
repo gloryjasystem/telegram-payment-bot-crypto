@@ -194,14 +194,18 @@ class NOWPaymentsService:
             return False
         
         try:
+            # NOWPayments требует сортировку ключей перед вычислением подписи
+            data = json.loads(request_body)
+            sorted_data = json.dumps(data, sort_keys=True, separators=(',', ':'))
+            
             # Вычисляем ожидаемую подпись HMAC SHA512
             expected_signature = hmac.new(
                 self.ipn_secret.encode('utf-8'),
-                request_body,
+                sorted_data.encode('utf-8'),
                 hashlib.sha512
             ).hexdigest()
             
-            # Сравниваем
+            # Сравниваем (защита от timing-атак)
             is_valid = hmac.compare_digest(signature, expected_signature)
             
             if not is_valid:

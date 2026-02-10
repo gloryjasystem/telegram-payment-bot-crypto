@@ -30,7 +30,7 @@ async def init_db() -> None:
     """
     global _engine, _async_session_factory
     
-    logger.info(f"Инициализация базы данных: {Config.DATABASE_URL}")
+    logger.info(f"Инициализация базы данных: {Config.DATABASE_URL.split('@')[0].split('://')[0]}://***")
     
     # Определяем параметры engine в зависимости от типа БД
     engine_kwargs = {

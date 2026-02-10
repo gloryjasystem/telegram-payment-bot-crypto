@@ -5,6 +5,7 @@
 - Polling (локальная разработка) - fallback если WEBHOOK_URL не задан
 """
 import asyncio
+import hashlib
 import sys
 from aiohttp import web
 from aiogram import Bot, Dispatcher
@@ -16,6 +17,7 @@ from config import Config
 from database import init_db, create_tables, close_db
 from handlers import user_router, admin_router, admin_commands_router, callback_router
 from handlers.webhook_handlers import handle_nowpayments_webhook
+from services.nowpayments_service import nowpayments_service
 from middlewares import (
     LoggingMiddleware,
     UserAuthMiddleware,
@@ -56,14 +58,16 @@ async def on_startup_webhook(**kwargs):
         bot_logger.error(f"❌ Database initialization failed: {e}", exc_info=True)
         sys.exit(1)
     
-    # Установка webhook
+    # Установка webhook с секретным токеном для защиты
     config = Config()
     webhook_url = f"{config.BASE_WEBHOOK_URL}{Config.WEBHOOK_PATH}"
+    webhook_secret = hashlib.sha256(Config.BOT_TOKEN.encode()).hexdigest()
     
     await bot.set_webhook(
         url=webhook_url,
         allowed_updates=dp.resolve_used_update_types(),
-        drop_pending_updates=True
+        drop_pending_updates=True,
+        secret_token=webhook_secret
     )
     
     bot_info = await bot.get_me()
@@ -223,8 +227,22 @@ async def handle_nowpayments_ipn(request: web.Request) -> web.Response:
     POST /webhook/nowpayments
     """
     try:
-        data = await request.json()
-        bot_logger.info(f"📥 NOWPayments IPN received: {data.get('payment_status', 'unknown')}")
+        # Читаем тело запроса для проверки подписи
+        raw_body = await request.read()
+        
+        # Проверка IPN подписи (КРИТИЧНО для безопасности!)
+        signature = request.headers.get('x-nowpayments-sig', '')
+        if not signature:
+            bot_logger.warning("⚠️ NOWPayments IPN without signature - REJECTED")
+            return web.json_response({'status': 'error', 'message': 'Missing signature'}, status=403)
+        
+        if not nowpayments_service.verify_ipn_signature(raw_body, signature):
+            bot_logger.warning("⚠️ NOWPayments IPN invalid signature - REJECTED")
+            return web.json_response({'status': 'error', 'message': 'Invalid signature'}, status=403)
+        
+        import json
+        data = json.loads(raw_body)
+        bot_logger.info(f"📥 NOWPayments IPN received (verified): {data.get('payment_status', 'unknown')}")
         
         result = await handle_nowpayments_webhook(data, bot)
         
@@ -243,11 +261,7 @@ async def handle_health(request: web.Request) -> web.Response:
     Health check endpoint - Railway использует для проверки состояния сервиса
     GET /health
     """
-    return web.json_response({
-        'status': 'ok',
-        'bot': 'running',
-        'mode': 'webhook'
-    })
+    return web.json_response({'status': 'ok'})
 
 
 async def handle_root(request: web.Request) -> web.Response:
@@ -255,11 +269,7 @@ async def handle_root(request: web.Request) -> web.Response:
     Root endpoint
     GET /
     """
-    return web.json_response({
-        'status': 'ok',
-        'service': 'Telegram Payment Bot',
-        'mode': 'webhook'
-    })
+    return web.json_response({'status': 'ok'})
 
 
 # ========================================
@@ -296,9 +306,13 @@ async def run_webhook():
     app = web.Application()
     
     # Настройка webhook handler для Telegram
+    # Секретный токен для защиты webhook от подделки
+    webhook_secret = hashlib.sha256(Config.BOT_TOKEN.encode()).hexdigest()
+    
     webhook_handler = SimpleRequestHandler(
         dispatcher=dp,
-        bot=bot
+        bot=bot,
+        secret_token=webhook_secret
     )
     webhook_handler.register(app, path=Config.WEBHOOK_PATH)
     
