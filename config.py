@@ -94,11 +94,11 @@ class Config:
     # ========================================
     TERMS_OF_SERVICE_URL: str = os.getenv(
         "TERMS_OF_SERVICE_URL",
-        "https://telegra.ph/MarketFilter-Terms-of-Service-01-01"
+        "https://telegra.ph/Usloviya-obsluzhivaniya-i-Politika-vozvrata--MarketFilter-02-08"
     )
     REFUND_POLICY_URL: str = os.getenv(
         "REFUND_POLICY_URL",
-        "https://telegra.ph/MarketFilter-Refund-Policy-01-01"
+        "https://telegra.ph/POLITIKA-VOZVRATA--Servis-MarketFilter-02-09"
     )
     SUPPORT_USERNAME: str = os.getenv("SUPPORT_USERNAME", "MarketFilterSupport")
     
