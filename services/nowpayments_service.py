@@ -142,15 +142,15 @@ class NOWPaymentsService:
                 'error': f"Unexpected error: {str(e)}"
             }
     
-    async def check_payment_status(self, payment_id: str) -> Dict[str, Any]:
+    async def check_payment_status(self, invoice_id: str) -> Dict[str, Any]:
         """
         Проверка статуса платежа через NOWPayments API
         
-        Используем GET /invoice/{id} т.к. create_payment создаёт invoice
-        и возвращает invoice ID (не payment ID)
+        Используем GET /v1/payment/?invoiceId={id} т.к. мы храним
+        ID инвойса NOWPayments, а не ID платежа
         
         Args:
-            payment_id: ID инвойса в NOWPayments (из create_payment)
+            invoice_id: ID инвойса в NOWPayments (из create_payment)
         
         Returns:
             dict: Информация о платеже
@@ -167,34 +167,54 @@ class NOWPaymentsService:
             }
             
             async with aiohttp.ClientSession() as session:
-                # Используем /invoice/{id} — правильный endpoint для наших ID
+                # GET /v1/payment/?invoiceId={id} — список платежей по инвойсу
                 async with session.get(
-                    f"{self.BASE_URL}/invoice/{payment_id}",
+                    f"{self.BASE_URL}/payment/",
+                    params={
+                        "invoiceId": invoice_id,
+                        "limit": 1,
+                        "sortBy": "created_at",
+                        "orderBy": "desc"
+                    },
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
                     result = await response.json()
                     
                     if response.status != 200:
-                        bot_logger.error(f"NOWPayments /invoice/{payment_id} error: status={response.status}, body={result}")
+                        bot_logger.error(f"NOWPayments API error: status={response.status}, body={result}")
                         return {
                             'success': False,
                             'error': f'API returned {response.status}'
                         }
                     
-                    # NOWPayments invoice response содержит поля:
-                    # payment_status, price_amount, pay_currency и т.д.
-                    payment_status = result.get('payment_status', '')
+                    # Ответ содержит {"data": [...], "total": N, ...}
+                    payments = result.get('data', [])
                     
-                    bot_logger.info(f"📊 Invoice {payment_id} status: {payment_status}")
+                    if not payments:
+                        # Нет платежей — пользователь ещё не начал оплату
+                        return {
+                            'success': True,
+                            'status': 'waiting',
+                            'is_paid': False,
+                            'is_failed': False,
+                            'amount': None,
+                            'currency': None
+                        }
+                    
+                    # Берём последний платёж
+                    payment = payments[0]
+                    payment_status = payment.get('payment_status', '')
+                    
+                    bot_logger.info(f"📊 Invoice {invoice_id} payment status: {payment_status}")
                     
                     return {
                         'success': True,
                         'status': payment_status,
                         'is_paid': payment_status in ['finished', 'confirmed'],
                         'is_failed': payment_status in ['failed', 'expired', 'refunded'],
-                        'amount': result.get('price_amount'),
-                        'currency': result.get('pay_currency', result.get('price_currency'))
+                        'amount': payment.get('price_amount'),
+                        'currency': payment.get('pay_currency', payment.get('price_currency'))
                     }
         
         except Exception as e:
