@@ -33,7 +33,7 @@ bot: Bot | None = None
 dp: Dispatcher | None = None
 
 
-async def on_startup_webhook(bot_instance: Bot):
+async def on_startup_webhook(**kwargs):
     """
     Действия при запуске бота в режиме webhook
     """
@@ -60,13 +60,13 @@ async def on_startup_webhook(bot_instance: Bot):
     config = Config()
     webhook_url = f"{config.BASE_WEBHOOK_URL}{Config.WEBHOOK_PATH}"
     
-    await bot_instance.set_webhook(
+    await bot.set_webhook(
         url=webhook_url,
         allowed_updates=dp.resolve_used_update_types(),
         drop_pending_updates=True
     )
     
-    bot_info = await bot_instance.get_me()
+    bot_info = await bot.get_me()
     bot_logger.info(f"✅ Bot started successfully!")
     bot_logger.info(f"Bot username: @{bot_info.username}")
     bot_logger.info(f"Webhook URL: {webhook_url}")
