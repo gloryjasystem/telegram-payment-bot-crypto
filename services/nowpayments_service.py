@@ -5,6 +5,7 @@ import aiohttp
 import hashlib
 import hmac
 import json
+import os
 from typing import Optional, Dict, Any
 from datetime import datetime
 
@@ -146,83 +147,79 @@ class NOWPaymentsService:
         """
         Проверка статуса платежа через NOWPayments API
         
-        Используем GET /v1/payment/?invoiceId={id} т.к. мы храним
-        ID инвойса NOWPayments, а не ID платежа
+        GET /v1/payment/ требует JWT авторизацию (email + пароль),
+        поэтому сначала получаем токен через POST /v1/auth
         
         Args:
             invoice_id: ID инвойса в NOWPayments (из create_payment)
-        
-        Returns:
-            dict: Информация о платеже
         """
         if not self.is_configured:
-            return {
-                'success': False,
-                'error': 'Payment gateway not configured'
-            }
+            return {'success': False, 'error': 'Not configured'}
+        
+        # Проверка наличия credentials для JWT
+        email = getattr(Config, 'NOWPAYMENTS_EMAIL', None) or os.environ.get('NOWPAYMENTS_EMAIL')
+        password = getattr(Config, 'NOWPAYMENTS_PASSWORD', None) or os.environ.get('NOWPAYMENTS_PASSWORD')
+        
+        if not email or not password:
+            # Без JWT auth polling не работает — тихо пропускаем
+            return {'success': False, 'error': 'JWT credentials not configured'}
         
         try:
-            headers = {
-                "x-api-key": self.api_key
-            }
-            
             async with aiohttp.ClientSession() as session:
-                # GET /v1/payment/?invoiceId={id} — список платежей по инвойсу
-                async with session.get(
+                # Шаг 1: Получаем JWT токен
+                auth_resp = await session.post(
+                    f"{self.BASE_URL}/auth",
+                    json={"email": email, "password": password},
+                    timeout=aiohttp.ClientTimeout(total=10)
+                )
+                auth_data = await auth_resp.json()
+                
+                if auth_resp.status != 200 or 'token' not in auth_data:
+                    bot_logger.error(f"NOWPayments auth failed: {auth_data}")
+                    return {'success': False, 'error': 'Auth failed'}
+                
+                jwt_token = auth_data['token']
+                
+                # Шаг 2: Запрашиваем платежи по invoiceId
+                headers = {
+                    "Authorization": f"Bearer {jwt_token}",
+                    "x-api-key": self.api_key
+                }
+                
+                pay_resp = await session.get(
                     f"{self.BASE_URL}/payment/",
-                    params={
-                        "invoiceId": invoice_id,
-                        "limit": 1,
-                        "sortBy": "created_at",
-                        "orderBy": "desc"
-                    },
+                    params={"invoiceId": invoice_id, "limit": 1, "sortBy": "created_at", "orderBy": "desc"},
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=10)
-                ) as response:
-                    result = await response.json()
-                    
-                    if response.status != 200:
-                        bot_logger.error(f"NOWPayments API error: status={response.status}, body={result}")
-                        return {
-                            'success': False,
-                            'error': f'API returned {response.status}'
-                        }
-                    
-                    # Ответ содержит {"data": [...], "total": N, ...}
-                    payments = result.get('data', [])
-                    
-                    if not payments:
-                        # Нет платежей — пользователь ещё не начал оплату
-                        return {
-                            'success': True,
-                            'status': 'waiting',
-                            'is_paid': False,
-                            'is_failed': False,
-                            'amount': None,
-                            'currency': None
-                        }
-                    
-                    # Берём последний платёж
-                    payment = payments[0]
-                    payment_status = payment.get('payment_status', '')
-                    
-                    bot_logger.info(f"📊 Invoice {invoice_id} payment status: {payment_status}")
-                    
-                    return {
-                        'success': True,
-                        'status': payment_status,
-                        'is_paid': payment_status in ['finished', 'confirmed'],
-                        'is_failed': payment_status in ['failed', 'expired', 'refunded'],
-                        'amount': payment.get('price_amount'),
-                        'currency': payment.get('pay_currency', payment.get('price_currency'))
-                    }
+                )
+                result = await pay_resp.json()
+                
+                if pay_resp.status != 200:
+                    bot_logger.error(f"NOWPayments API error: {result}")
+                    return {'success': False, 'error': f'API {pay_resp.status}'}
+                
+                payments = result.get('data', [])
+                
+                if not payments:
+                    return {'success': True, 'status': 'waiting', 'is_paid': False, 'is_failed': False}
+                
+                payment = payments[0]
+                payment_status = payment.get('payment_status', '')
+                
+                bot_logger.info(f"📊 Invoice {invoice_id} payment status: {payment_status}")
+                
+                return {
+                    'success': True,
+                    'status': payment_status,
+                    'is_paid': payment_status in ['finished', 'confirmed'],
+                    'is_failed': payment_status in ['failed', 'expired', 'refunded'],
+                    'amount': payment.get('price_amount'),
+                    'currency': payment.get('pay_currency', payment.get('price_currency'))
+                }
         
         except Exception as e:
             bot_logger.error(f"Error checking payment status: {e}")
-            return {
-                'success': False,
-                'error': str(e)
-            }
+            return {'success': False, 'error': str(e)}
     
     def verify_ipn_signature(self, request_body: bytes, signature: str) -> bool:
         """
