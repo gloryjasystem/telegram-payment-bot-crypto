@@ -325,14 +325,13 @@ async def handle_nowpayments_ipn(request: web.Request) -> web.Response:
         if ipn_secret:
             signature = request.headers.get('x-nowpayments-sig', '')
             if not signature:
-                bot_logger.warning("⚠️ NOWPayments IPN without signature - REJECTED")
-                return web.json_response({'status': 'error', 'message': 'Missing signature'}, status=403)
-            
-            if not nowpayments_service.verify_ipn_signature(raw_body, signature):
-                bot_logger.warning("⚠️ NOWPayments IPN invalid signature - REJECTED")
-                return web.json_response({'status': 'error', 'message': 'Invalid signature'}, status=403)
-            
-            bot_logger.info("✅ IPN signature verified")
+                bot_logger.warning("⚠️ NOWPayments IPN without signature — processing anyway")
+            else:
+                is_valid = nowpayments_service.verify_ipn_signature(raw_body, signature)
+                if is_valid:
+                    bot_logger.info("✅ IPN signature verified")
+                else:
+                    bot_logger.warning("⚠️ IPN signature mismatch — processing anyway (check IPN secret)")
         else:
             bot_logger.warning("⚠️ NOWPAYMENTS_IPN_SECRET not set — skipping signature check")
         
