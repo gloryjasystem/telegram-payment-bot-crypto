@@ -227,22 +227,28 @@ async def handle_nowpayments_ipn(request: web.Request) -> web.Response:
     POST /webhook/nowpayments
     """
     try:
-        # Читаем тело запроса для проверки подписи
+        # Читаем тело запроса
         raw_body = await request.read()
         
-        # Проверка IPN подписи (КРИТИЧНО для безопасности!)
-        signature = request.headers.get('x-nowpayments-sig', '')
-        if not signature:
-            bot_logger.warning("⚠️ NOWPayments IPN without signature - REJECTED")
-            return web.json_response({'status': 'error', 'message': 'Missing signature'}, status=403)
-        
-        if not nowpayments_service.verify_ipn_signature(raw_body, signature):
-            bot_logger.warning("⚠️ NOWPayments IPN invalid signature - REJECTED")
-            return web.json_response({'status': 'error', 'message': 'Invalid signature'}, status=403)
+        # Проверка IPN подписи (если IPN secret настроен)
+        ipn_secret = Config.NOWPAYMENTS_IPN_SECRET
+        if ipn_secret:
+            signature = request.headers.get('x-nowpayments-sig', '')
+            if not signature:
+                bot_logger.warning("⚠️ NOWPayments IPN without signature - REJECTED")
+                return web.json_response({'status': 'error', 'message': 'Missing signature'}, status=403)
+            
+            if not nowpayments_service.verify_ipn_signature(raw_body, signature):
+                bot_logger.warning("⚠️ NOWPayments IPN invalid signature - REJECTED")
+                return web.json_response({'status': 'error', 'message': 'Invalid signature'}, status=403)
+            
+            bot_logger.info("✅ IPN signature verified")
+        else:
+            bot_logger.warning("⚠️ NOWPAYMENTS_IPN_SECRET not set — skipping signature check")
         
         import json
         data = json.loads(raw_body)
-        bot_logger.info(f"📥 NOWPayments IPN received (verified): {data.get('payment_status', 'unknown')}")
+        bot_logger.info(f"📥 NOWPayments IPN received: status={data.get('payment_status', 'unknown')}, order={data.get('order_id', '?')}")
         
         result = await handle_nowpayments_webhook(data, bot)
         

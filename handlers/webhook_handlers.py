@@ -47,10 +47,11 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
             invoice_data = await invoice_service.get_invoice_with_user(order_id)
             
             if not invoice_data:
-                bot_logger.error(f"Invoice {order_id} not found")
+                bot_logger.error(f"❌ Invoice {order_id} not found in database!")
                 return {'status': 'error', 'message': 'Invoice not found'}
             
             invoice, user = invoice_data
+            bot_logger.info(f"📋 Found invoice {order_id} for user {user.telegram_id}")
             
             # Проверяем что инвойс еще не оплачен
             if invoice.status == 'paid':
@@ -65,24 +66,34 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
             )
             
             if success:
+                bot_logger.info(f"✅ Invoice {order_id} marked as paid. Sending notifications...")
+                
                 # Создаем экземпляр NotificationService
                 notifier = NotificationService(bot)
                 
                 # Отправка уведомления клиенту
-                await notifier.notify_client_payment_success(
-                    invoice=invoice,
-                    user=user
-                )
+                try:
+                    await notifier.notify_client_payment_success(
+                        invoice=invoice,
+                        user=user
+                    )
+                    bot_logger.info(f"✅ Client notification sent to {user.telegram_id}")
+                except Exception as e:
+                    bot_logger.error(f"❌ Failed to send client notification: {e}", exc_info=True)
                 
                 # Уведомление всех админов
-                await notifier.notify_admins_payment_received(
-                    invoice=invoice,
-                    user=user
-                )
+                try:
+                    await notifier.notify_admins_payment_received(
+                        invoice=invoice,
+                        user=user
+                    )
+                    bot_logger.info(f"✅ Admin notifications sent")
+                except Exception as e:
+                    bot_logger.error(f"❌ Failed to send admin notifications: {e}", exc_info=True)
                 
                 bot_logger.info(f"✅ Payment processed successfully: {order_id}")
             else:
-                bot_logger.error(f"Failed to mark invoice {order_id} as paid")
+                bot_logger.error(f"❌ Failed to mark invoice {order_id} as paid in DB")
         
         elif result.get('is_failed'):
             # Платеж провалился

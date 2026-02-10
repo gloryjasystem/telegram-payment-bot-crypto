@@ -58,13 +58,21 @@ class NOWPaymentsService:
             }
         
         try:
+            # Динамический IPN callback URL (из Railway домена)
+            config = Config()
+            ipn_url = None
+            if config.BASE_WEBHOOK_URL:
+                ipn_url = f"{config.BASE_WEBHOOK_URL}{Config.NOWPAYMENTS_WEBHOOK_PATH}"
+            elif Config.NOWPAYMENTS_WEBHOOK_URL:
+                ipn_url = Config.NOWPAYMENTS_WEBHOOK_URL
+            
             # Данные для создания инвойса
             payload = {
                 "price_amount": float(invoice.amount),
                 "price_currency": invoice.currency.lower(),
                 "order_id": invoice.invoice_id,
                 "order_description": invoice.service_description[:255],  # Max 255 символов
-                "ipn_callback_url": Config.NOWPAYMENTS_WEBHOOK_URL if hasattr(Config, 'NOWPAYMENTS_WEBHOOK_URL') else None,
+                "ipn_callback_url": ipn_url,
                 "success_url": f"https://t.me/{Config.SUPPORT_USERNAME}",
                 "cancel_url": f"https://t.me/{Config.SUPPORT_USERNAME}",
             }
