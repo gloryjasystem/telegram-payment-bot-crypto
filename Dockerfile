@@ -17,8 +17,8 @@ WORKDIR /app
 # Установка системных зависимостей
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gcc \
-        postgresql-client \
+    gcc \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Копирование requirements.txt и установка зависимостей
@@ -31,9 +31,9 @@ COPY . .
 # Создание директории для логов
 RUN mkdir -p /app/data/logs
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import sys; sys.exit(0)"
+# Healthcheck - проверяем HTTP endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
 
 # Запуск бота
 CMD ["python", "bot.py"]

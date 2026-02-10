@@ -50,8 +50,21 @@ class Config:
     # ========================================
     # WEBHOOK SETTINGS (для продакшн)
     # ========================================
+    # В Railway публичный домен доступен через RAILWAY_PUBLIC_DOMAIN
+    RAILWAY_PUBLIC_DOMAIN: str = os.getenv("RAILWAY_PUBLIC_DOMAIN", "")
+    
+    # Автоматическое определение URL вебхука
+    @property
+    def BASE_WEBHOOK_URL(self) -> str:
+        if self.WEBHOOK_URL:
+            return self.WEBHOOK_URL
+        if self.RAILWAY_PUBLIC_DOMAIN:
+            return f"https://{self.RAILWAY_PUBLIC_DOMAIN}"
+        return ""
+
     WEBHOOK_URL: str = os.getenv("WEBHOOK_URL", "")
     WEBHOOK_PATH: str = os.getenv("WEBHOOK_PATH", "/webhook/telegram")
+    
     CRYPTOMUS_WEBHOOK_PATH: str = os.getenv(
         "CRYPTOMUS_WEBHOOK_PATH", 
         "/webhook/cryptomus"
@@ -60,8 +73,9 @@ class Config:
         "NOWPAYMENTS_WEBHOOK_PATH",
         "/webhook/nowpayments"
     )
+    
     WEB_SERVER_HOST: str = os.getenv("WEB_SERVER_HOST", "0.0.0.0")
-    WEB_SERVER_PORT: int = int(os.getenv("WEB_SERVER_PORT", "8080"))
+    WEB_SERVER_PORT: int = int(os.getenv("PORT", "8080"))  # Railway использует PORT
     
     # ========================================
     # LOGGING SETTINGS
@@ -106,8 +120,11 @@ class Config:
     
     @classmethod
     def is_webhook_mode(cls) -> bool:
-        """Проверка, используется ли режим webhook"""
-        return bool(cls.WEBHOOK_URL)
+        """Проверка, используется ли режим webhook
+        
+        Автоматически включается если задан WEBHOOK_URL или RAILWAY_PUBLIC_DOMAIN
+        """
+        return bool(cls.WEBHOOK_URL or cls.RAILWAY_PUBLIC_DOMAIN)
 
 
 # Валидация конфигурации при импорте
