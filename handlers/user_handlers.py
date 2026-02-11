@@ -1,13 +1,14 @@
 """
 Обработчики команд пользователя
 """
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
 from database.models import User
-from services import NotificationService
-from keyboards import get_welcome_keyboard, get_help_keyboard
+from services import NotificationService, invoice_service
+from keyboards import get_welcome_keyboard, get_help_keyboard, get_history_keyboard
+from utils.helpers import format_currency, format_datetime
 from utils.logger import log_user_action, bot_logger
 
 
@@ -21,6 +22,7 @@ async def cmd_start(message: Message, db_user: User):
     Обработчик команды /start
     
     Отправляет приветственное сообщение с кнопками:
+    - Мои платежи
     - Условия обслуживания
     - Политика возврата
     - Поддержка
@@ -94,6 +96,7 @@ async def cmd_help(message: Message):
 **Доступные команды:**
 /start - Начать работу с ботом
 /help - Показать эту справку
+/history - История платежей
 /terms - Условия обслуживания
 /refund - Политика возврата
 """
@@ -103,6 +106,131 @@ async def cmd_help(message: Message):
         reply_markup=get_help_keyboard(),
         parse_mode="Markdown"
     )
+
+
+@user_router.message(Command("history"))
+async def cmd_history(message: Message):
+    """
+    Обработчик команды /history
+    
+    Показывает историю платежей пользователя
+    """
+    log_user_action(message.from_user.id, message.from_user.username, "requested payment history")
+    
+    invoices = await invoice_service.get_user_invoices(message.from_user.id)
+    
+    if not invoices:
+        text = (
+            "📜 **История платежей**\n\n"
+            "У вас пока нет платежей.\n\n"
+            "Когда администратор создаст для вас инвойс "
+            "и вы его оплатите — он появится здесь."
+        )
+    else:
+        status_emoji = {
+            "paid": "✅",
+            "pending": "⏳",
+            "cancelled": "❌",
+            "expired": "⌛"
+        }
+        
+        total_paid = sum(inv.amount for inv in invoices if inv.status == "paid")
+        
+        text = f"📜 **История платежей** ({len(invoices)})\n"
+        text += "━━━━━━━━━━━━━━━━━━━━\n\n"
+        
+        for i, inv in enumerate(invoices, 1):
+            emoji = status_emoji.get(inv.status, "❓")
+            date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
+            
+            text += f"{i}. {emoji} {inv.service_description}\n"
+            text += f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}\n\n"
+        
+        if total_paid > 0:
+            text += f"💰 Всего оплачено: **{format_currency(total_paid, 'USD')}**"
+    
+    await message.answer(
+        text,
+        reply_markup=get_history_keyboard(),
+        parse_mode="Markdown"
+    )
+
+
+@user_router.callback_query(F.data == "payment_history")
+async def callback_payment_history(callback: CallbackQuery):
+    """
+    Обработчик кнопки 'Мои платежи' из главного меню
+    """
+    invoices = await invoice_service.get_user_invoices(callback.from_user.id)
+    
+    if not invoices:
+        text = (
+            "📜 **История платежей**\n\n"
+            "У вас пока нет платежей.\n\n"
+            "Когда администратор создаст для вас инвойс "
+            "и вы его оплатите — он появится здесь."
+        )
+    else:
+        status_emoji = {
+            "paid": "✅",
+            "pending": "⏳",
+            "cancelled": "❌",
+            "expired": "⌛"
+        }
+        
+        total_paid = sum(inv.amount for inv in invoices if inv.status == "paid")
+        
+        text = f"📜 **История платежей** ({len(invoices)})\n"
+        text += "━━━━━━━━━━━━━━━━━━━━\n\n"
+        
+        for i, inv in enumerate(invoices, 1):
+            emoji = status_emoji.get(inv.status, "❓")
+            date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
+            
+            text += f"{i}. {emoji} {inv.service_description}\n"
+            text += f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}\n\n"
+        
+        if total_paid > 0:
+            text += f"💰 Всего оплачено: **{format_currency(total_paid, 'USD')}**"
+    
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_history_keyboard(),
+        parse_mode="Markdown"
+    )
+    await callback.answer()
+
+
+@user_router.callback_query(F.data == "back_to_main")
+async def callback_back_to_main(callback: CallbackQuery):
+    """
+    Обработчик кнопки 'Назад' — возвращает в главное меню
+    """
+    welcome_text = f"""
+Привет, {callback.from_user.first_name}! 👋
+
+Добро пожаловать в платежного бота **MarketFilter**.
+
+Здесь вы можете:
+• Получать счета за услуги от администраторов
+• Оплачивать их удобным способом (криптовалюта)
+• Просматривать историю платежей
+
+📋 После получения инвойса вы увидите кнопку для оплаты.
+
+⚡️ Процесс оплаты быстрый и безопасный - все транзакции защищены.
+
+Ознакомьтесь с условиями обслуживания и политикой возврата ниже.
+
+Если у вас есть вопросы - обращайтесь в поддержку! 💬
+"""
+    
+    await callback.message.edit_text(
+        welcome_text,
+        reply_markup=get_welcome_keyboard(),
+        parse_mode="Markdown"
+    )
+    await callback.answer()
 
 
 @user_router.message(Command("terms"))

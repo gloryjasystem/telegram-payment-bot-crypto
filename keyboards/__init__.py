@@ -9,6 +9,7 @@ from .user_keyboards import (
     get_invoice_keyboard,
     get_help_keyboard,
     get_payment_success_keyboard,
+    get_history_keyboard,
     get_terms_keyboard,
     get_refund_policy_keyboard
 )
@@ -30,6 +31,7 @@ __all__ = [
     "get_invoice_keyboard",
     "get_help_keyboard",
     "get_payment_success_keyboard",
+    "get_history_keyboard",
     "get_terms_keyboard",
     "get_refund_policy_keyboard",
     # Admin keyboards
