@@ -518,15 +518,6 @@ async def cmd_cancel_invoice(message: Message, state: FSMContext):
             invoice, user = invoice_data
             try:
                 bot = message.bot
-                cancel_text = (
-                    f"🚫 **Инвойс отменен**\n\n"
-                    f"📋 **Invoice ID:** `{invoice_id}`\n"
-                    f"📝 **Услуга:** {invoice.service_description}\n"
-                    f"💵 **Сумма:** {invoice.amount} {invoice.currency}\n\n"
-                    f"❌ Данный инвойс более не активен.\n"
-                    f"Оплата по нему невозможна.\n\n"
-                    f"Если у вас есть вопросы — обратитесь в поддержку."
-                )
                 
                 # Редактируем оригинальное сообщение с кнопкой оплаты
                 if invoice.bot_message_id:
@@ -549,12 +540,6 @@ async def cmd_cancel_invoice(message: Message, state: FSMContext):
                     except Exception as e:
                         bot_logger.warning(f"Could not edit original message: {e}")
                 
-                # Отправляем отдельное уведомление пользователю
-                await bot.send_message(
-                    chat_id=user.telegram_id,
-                    text=cancel_text,
-                    parse_mode="Markdown"
-                )
                 bot_logger.info(f"User {user.telegram_id} notified about cancelled invoice {invoice_id}")
             except Exception as e:
                 bot_logger.error(f"Failed to notify user about cancelled invoice: {e}")
