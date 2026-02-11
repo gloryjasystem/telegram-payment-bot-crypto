@@ -314,8 +314,15 @@ async def cancel_fsm(callback: CallbackQuery, state: FSMContext):
 @admin_router.message(Command("cancel"))
 async def cmd_cancel(message: Message, state: FSMContext):
     """
-    Отмена любого активного FSM процесса через команду
+    Отмена любого активного FSM процесса через команду.
+    Если передан аргумент (invoice_id), пропускает — обрабатывает admin_commands.
     """
+    args = message.text.split(maxsplit=1)
+    
+    # Если передан аргумент — это отмена инвойса, не FSM
+    if len(args) >= 2:
+        return  # Пропускаем, обработает admin_commands_router
+    
     current_state = await state.get_state()
     
     if current_state is None:

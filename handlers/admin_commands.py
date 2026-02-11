@@ -493,13 +493,40 @@ async def cmd_cancel_invoice(message: Message):
         return
     
     invoice_id = args[1].strip()
+    admin_id = message.from_user.id
+    
+    # Получаем инвойс с данными пользователя перед отменой
+    invoice_data = await invoice_service.get_invoice_with_user(invoice_id)
     
     # Отмена через invoice_service
-    success = await invoice_service.cancel_invoice(invoice_id)
+    success = await invoice_service.cancel_invoice(invoice_id, admin_id)
     
     if success:
         await message.answer(f"✅ Инвойс `{invoice_id}` отменен", parse_mode="Markdown")
-        log_admin_action(message.from_user.id, f"cancelled invoice {invoice_id}")
+        log_admin_action(admin_id, f"cancelled invoice {invoice_id}")
+        
+        # Уведомляем пользователя об отмене
+        if invoice_data:
+            invoice, user = invoice_data
+            try:
+                from aiogram import Bot
+                bot = Bot.get_current() or message.bot
+                cancel_text = (
+                    f"❌ **Инвойс отменен**\n\n"
+                    f"📋 **Invoice ID:** `{invoice_id}`\n"
+                    f"📝 **Услуга:** {invoice.service_description}\n"
+                    f"💵 **Сумма:** {invoice.amount} {invoice.currency}\n\n"
+                    f"Данный инвойс более не активен.\n"
+                    f"Если у вас есть вопросы — обратитесь в поддержку."
+                )
+                await bot.send_message(
+                    chat_id=user.telegram_id,
+                    text=cancel_text,
+                    parse_mode="Markdown"
+                )
+                bot_logger.info(f"User {user.telegram_id} notified about cancelled invoice {invoice_id}")
+            except Exception as e:
+                bot_logger.error(f"Failed to notify user about cancelled invoice: {e}")
     else:
         await message.answer(f"❌ Не удалось отменить инвойс (возможно не найден или уже оплачен)")
 
