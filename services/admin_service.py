@@ -5,6 +5,7 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from decimal import Decimal
 from sqlalchemy import select, func, and_, or_
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_session
@@ -306,7 +307,7 @@ class AdminService:
                     start_date = now - timedelta(days=30)
                 
                 # Базовый запрос
-                query = select(Invoice).where(Invoice.status == 'paid')
+                query = select(Invoice).where(Invoice.status == 'paid').options(selectinload(Invoice.payments))
                 
                 if start_date:
                     query = query.where(Invoice.paid_at >= start_date)
