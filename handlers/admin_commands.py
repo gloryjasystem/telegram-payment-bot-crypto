@@ -517,16 +517,39 @@ async def cmd_cancel_invoice(message: Message, state: FSMContext):
         if invoice_data:
             invoice, user = invoice_data
             try:
-                from aiogram import Bot
-                bot = Bot.get_current() or message.bot
+                bot = message.bot
                 cancel_text = (
-                    f"❌ **Инвойс отменен**\n\n"
+                    f"🚫 **Инвойс отменен**\n\n"
                     f"📋 **Invoice ID:** `{invoice_id}`\n"
                     f"📝 **Услуга:** {invoice.service_description}\n"
                     f"💵 **Сумма:** {invoice.amount} {invoice.currency}\n\n"
-                    f"Данный инвойс более не активен.\n"
+                    f"❌ Данный инвойс более не активен.\n"
+                    f"Оплата по нему невозможна.\n\n"
                     f"Если у вас есть вопросы — обратитесь в поддержку."
                 )
+                
+                # Редактируем оригинальное сообщение с кнопкой оплаты
+                if invoice.bot_message_id:
+                    try:
+                        edited_text = (
+                            f"🚫 **Инвойс #{invoice_id} — ОТМЕНЕН**\n\n"
+                            f"💰 **Сумма:** {invoice.amount} {invoice.currency}\n"
+                            f"📝 **Услуга:** {invoice.service_description}\n\n"
+                            f"❌ Этот инвойс был отменен администратором.\n"
+                            f"Оплата более невозможна."
+                        )
+                        await bot.edit_message_text(
+                            chat_id=user.telegram_id,
+                            message_id=invoice.bot_message_id,
+                            text=edited_text,
+                            parse_mode="Markdown",
+                            reply_markup=None  # Убираем кнопку оплаты
+                        )
+                        bot_logger.info(f"Edited original invoice message for {invoice_id}")
+                    except Exception as e:
+                        bot_logger.warning(f"Could not edit original message: {e}")
+                
+                # Отправляем отдельное уведомление пользователю
                 await bot.send_message(
                     chat_id=user.telegram_id,
                     text=cancel_text,

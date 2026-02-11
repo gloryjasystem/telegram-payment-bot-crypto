@@ -83,6 +83,9 @@ class Invoice(Base):
     # Администратор, создавший инвойс
     admin_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     
+    # ID сообщения бота в чате пользователя (для редактирования при отмене)
+    bot_message_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    
     # Временные метки
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

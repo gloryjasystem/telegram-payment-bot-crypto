@@ -97,6 +97,11 @@ async def check_and_migrate_table() -> None:
                     logger.info("✅ Миграция базы данных выполнена успешно")
                 else:
                     logger.info("✅ Структура базы данных актуальна")
+                
+                # Миграция: bot_message_id для инвойсов
+                await conn.execute(text(
+                    "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS bot_message_id BIGINT;"
+                ))
             except Exception as e:
                 logger.error(f"Ошибка проверки схемы БД: {e}")
                 

@@ -46,12 +46,29 @@ class NotificationService:
 """
             
             # Отправка сообщения с кнопкой оплаты
-            await self.bot.send_message(
+            sent_message = await self.bot.send_message(
                 chat_id=user.telegram_id,
                 text=message_text,
                 reply_markup=get_invoice_keyboard(invoice.payment_url),
                 parse_mode="Markdown"
             )
+            
+            # Сохраняем ID сообщения для возможности редактирования при отмене
+            try:
+                from database import get_session
+                from sqlalchemy import update as sql_update
+                from database.models import Invoice as InvoiceModel
+                
+                async with get_session() as session:
+                    await session.execute(
+                        sql_update(InvoiceModel)
+                        .where(InvoiceModel.invoice_id == invoice.invoice_id)
+                        .values(bot_message_id=sent_message.message_id)
+                    )
+                    await session.commit()
+                bot_logger.info(f"Saved bot_message_id={sent_message.message_id} for invoice {invoice.invoice_id}")
+            except Exception as e:
+                bot_logger.warning(f"Could not save bot_message_id: {e}")
             
             bot_logger.info(f"Invoice {invoice.invoice_id} sent to user {user.telegram_id}")
             return True
