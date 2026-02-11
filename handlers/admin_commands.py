@@ -4,6 +4,7 @@
 from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
 from decimal import Decimal
 
 from config import Config
@@ -480,16 +481,23 @@ async def cmd_notify_user(message: Message, bot: Bot):
 
 
 @admin_commands_router.message(Command("cancel"))
-async def cmd_cancel_invoice(message: Message):
-    """Отмена инвойса"""
+async def cmd_cancel_invoice(message: Message, state: FSMContext):
+    """Отмена инвойса или FSM-процесса"""
     args = message.text.split(maxsplit=1)
     
+    # Если нет аргумента — отменяем FSM процесс
     if len(args) < 2:
-        await message.answer(
-            "❌ Использование: `/cancel <invoice_id>`\n\n"
-            "Пример: `/cancel INV-1739115123`",
-            parse_mode="Markdown"
-        )
+        current_state = await state.get_state()
+        if current_state is None:
+            await message.answer(
+                "❌ Использование: `/cancel <invoice_id>`\n\n"
+                "Пример: `/cancel INV-1739115123`",
+                parse_mode="Markdown"
+            )
+        else:
+            await state.clear()
+            await message.answer("✅ Текущий процесс отменен.")
+            log_admin_action(message.from_user.id, "cancelled FSM via /cancel command")
         return
     
     invoice_id = args[1].strip()
