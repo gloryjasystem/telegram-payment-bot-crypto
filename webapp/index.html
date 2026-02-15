@@ -34,9 +34,24 @@
         };
     </script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .material-symbols-outlined {
@@ -160,16 +175,16 @@
     </style>
 </head>
 
-<body class="bg-[#F2F2F7] text-slate-900 min-h-screen flex items-center justify-center p-4">
+<body class="bg-[#F2F2F7] text-slate-900">
 
-    <div class="w-full max-w-[440px]">
-        <div class="bg-white rounded-[2rem] shadow-card border border-slate-200/60 overflow-hidden">
+    <div class="w-full max-w-[440px] mx-auto p-2 pt-2 pb-2">
+        <div class="bg-white rounded-[1.5rem] shadow-card border border-slate-200/60 overflow-hidden">
 
             <!-- ===== PAGE 1: Method & Email ===== -->
             <div class="page active" id="page-1">
-                <div class="p-8">
+                <div class="p-5 pb-4">
                     <!-- Stepper -->
-                    <div class="stepper-container mb-10 px-2">
+                    <div class="stepper-container mb-6 px-2">
                         <div class="stepper-line-track">
                             <div class="line-segment bg-slate-200" id="line-1-2"></div>
                             <div class="w-10"></div>
@@ -202,20 +217,20 @@
                     </div>
 
                     <!-- Service name -->
-                    <div class="mb-8">
+                    <div class="mb-5">
                         <p class="text-[11px] text-slate-400 mb-1 uppercase tracking-[0.1em] font-bold">Наименование
                             услуги</p>
-                        <h1 class="text-[22px] font-bold text-slate-800" id="service-name-1">Загрузка...</h1>
+                        <h1 class="text-[18px] font-bold text-slate-800" id="service-name-1">Загрузка...</h1>
                     </div>
 
                     <!-- Payment method -->
-                    <div class="mb-8">
+                    <div class="mb-5">
                         <p class="text-[11px] text-slate-400 mb-4 uppercase tracking-[0.1em] font-bold">Метод оплаты</p>
                         <div class="grid grid-cols-2 gap-4 method-selector">
                             <div class="relative">
                                 <input checked id="bank-ru" name="payment-method" type="radio" class="hidden" />
                                 <label
-                                    class="flex flex-col items-center justify-center py-6 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 text-center h-full group"
+                                    class="flex flex-col items-center justify-center py-4 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 text-center h-full group"
                                     for="bank-ru">
                                     <div
                                         class="icon-container mb-3 text-slate-400 group-hover:text-primary transition-colors">
@@ -227,7 +242,7 @@
                             <div class="relative">
                                 <input id="bank-int" name="payment-method" type="radio" class="hidden" />
                                 <label
-                                    class="flex flex-col items-center justify-center py-6 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 text-center h-full group"
+                                    class="flex flex-col items-center justify-center py-4 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 text-center h-full group"
                                     for="bank-int">
                                     <div
                                         class="icon-container mb-3 text-slate-400 group-hover:text-primary transition-colors">
@@ -240,28 +255,28 @@
                     </div>
 
                     <!-- Email -->
-                    <div class="mb-8">
+                    <div class="mb-5">
                         <label class="block text-[11px] text-slate-400 mb-2 uppercase tracking-[0.1em] font-bold"
                             for="email">Ваш E-mail</label>
                         <div class="relative">
                             <input
-                                class="w-full px-5 py-4 bg-white border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-[1.25rem] outline-none transition-all placeholder:text-slate-300 text-base"
+                                class="w-full px-4 py-3 bg-white border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-[1rem] outline-none transition-all placeholder:text-slate-300 text-[15px]"
                                 id="email" placeholder="example@gmail.com" type="email" />
                         </div>
                         <p class="text-error text-xs mt-2 hidden" id="email-error">Заполните это поле</p>
                     </div>
 
                     <!-- Price -->
-                    <div class="mb-10">
+                    <div class="mb-6">
                         <p class="text-[11px] text-slate-400 mb-1 uppercase tracking-[0.1em] font-bold">Стоимость</p>
-                        <div class="text-[42px] font-bold text-slate-900 leading-none" id="price-display-1">...</div>
+                        <div class="text-[28px] font-bold text-slate-900 leading-none" id="price-display-1">...</div>
                     </div>
 
                     <!-- Button -->
-                    <div class="space-y-6">
+                    <div class="space-y-3">
                         <button id="btn-next-1"
-                            class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4.5 rounded-[1.25rem] transition-all active:scale-[0.98] shadow-lg shadow-primary/20 flex items-center justify-center gap-2 h-14">
-                            <span class="text-[17px]">Далее</span>
+                            class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3.5 rounded-[1rem] transition-all active:scale-[0.98] shadow-lg shadow-primary/20 flex items-center justify-center gap-2 h-12">
+                            <span class="text-[15px]">Далее</span>
                             <span class="material-symbols-outlined text-[20px]">chevron_right</span>
                         </button>
                         <p class="text-center text-slate-400 text-[11px] leading-relaxed max-w-[280px] mx-auto">
@@ -273,9 +288,9 @@
 
             <!-- ===== PAGE 2: Data Review ===== -->
             <div class="page" id="page-2">
-                <div class="p-8">
+                <div class="p-5 pb-3">
                     <!-- Stepper (step 2 active) -->
-                    <div class="stepper-container mb-10 px-2">
+                    <div class="stepper-container mb-6 px-2">
                         <div class="stepper-line-track">
                             <div class="line-segment bg-primary"></div>
                             <div class="line-segment bg-slate-200" id="line-2-3-p2"></div>
@@ -304,13 +319,13 @@
                         </div>
                     </div>
 
-                    <h1 class="text-[22px] font-bold text-center mb-2 tracking-tight">Проверка данных</h1>
-                    <p class="text-slate-500 text-[15px] text-center px-4 leading-snug">Пожалуйста, проверьте детали
+                    <h1 class="text-[18px] font-bold text-center mb-1 tracking-tight">Проверка данных</h1>
+                    <p class="text-slate-500 text-[13px] text-center px-4 leading-snug">Пожалуйста, проверьте детали
                         заказа перед тем, как перейти к оплате.</p>
                 </div>
 
-                <div class="px-6 py-4">
-                    <div class="bg-[#F8F9FA] rounded-[20px] p-5 space-y-4 border border-slate-100">
+                <div class="px-5 py-3">
+                    <div class="bg-[#F8F9FA] rounded-[16px] p-4 space-y-3 border border-slate-100">
                         <div class="flex flex-col">
                             <span
                                 class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Наименование
@@ -342,9 +357,9 @@
                                 <span
                                     class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Стоимость</span>
                                 <div class="flex items-baseline gap-1.5">
-                                    <span class="text-[28px] font-extrabold text-primary tracking-tight"
+                                    <span class="text-[24px] font-extrabold text-primary tracking-tight"
                                         id="review-amount">—</span>
-                                    <span class="text-[18px] font-extrabold text-primary tracking-tight"
+                                    <span class="text-[15px] font-extrabold text-primary tracking-tight"
                                         id="review-currency">USD</span>
                                 </div>
                             </div>
@@ -352,9 +367,9 @@
                     </div>
                 </div>
 
-                <div class="px-6 pt-4 pb-8 flex flex-col gap-3">
+                <div class="px-5 pt-3 pb-5 flex flex-col gap-2">
                     <button id="btn-next-2"
-                        class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-[18px] transition-all shadow-md shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2 text-base">
+                        class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3.5 rounded-[1rem] transition-all shadow-md shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2 text-[15px]">
                         <span id="btn-next-2-text">Перейти к оплате</span>
                         <span class="material-icons text-lg" id="btn-next-2-icon">arrow_forward</span>
                     </button>
@@ -364,7 +379,7 @@
                     </button>
                 </div>
 
-                <div class="bg-[#F8F9FA] px-6 py-4 flex items-start gap-3 border-t border-slate-100">
+                <div class="bg-[#F8F9FA] px-5 py-3 flex items-start gap-3 border-t border-slate-100">
                     <span class="material-icons text-slate-400 text-sm mt-0.5">lock</span>
                     <p class="text-[11px] text-slate-400 leading-normal font-medium">
                         Ваши данные надежно защищены. Нажимая кнопку «Перейти к оплате», вы соглашаетесь с условиями
@@ -375,9 +390,9 @@
 
             <!-- ===== PAGE 3: Payment Waiting ===== -->
             <div class="page" id="page-3">
-                <div class="p-8">
+                <div class="p-5 pb-3">
                     <!-- Stepper (all complete) -->
-                    <div class="stepper-container mb-10 px-2">
+                    <div class="stepper-container mb-6 px-2">
                         <div class="stepper-line-track">
                             <div class="line-segment bg-[#34D399]"></div>
                             <div class="line-segment bg-[#34D399]"></div>
@@ -407,13 +422,13 @@
                     </div>
 
                     <!-- Hourglass icon -->
-                    <div class="flex justify-center mb-10 mt-4">
+                    <div class="flex justify-center mb-6 mt-2">
                         <div class="hourglass-pulse relative">
-                            <div class="w-40 h-40 rounded-full flex items-center justify-center"
+                            <div class="w-28 h-28 rounded-full flex items-center justify-center"
                                 style="background: radial-gradient(circle, rgba(52, 211, 153, 0.15) 0%, rgba(52, 211, 153, 0.05) 60%, transparent 100%);">
-                                <div class="w-32 h-32 rounded-full flex items-center justify-center shadow-xl"
-                                    style="background: linear-gradient(145deg, #6EE7B7 0%, #34D399 40%, #10B981 100%); box-shadow: 0 8px 32px rgba(52, 211, 153, 0.35), inset 0 2px 4px rgba(255,255,255,0.25);">
-                                    <svg width="56" height="56" viewBox="0 0 64 64" fill="none"
+                                <div class="w-22 h-22 rounded-full flex items-center justify-center shadow-xl"
+                                    style="width:88px;height:88px;background: linear-gradient(145deg, #6EE7B7 0%, #34D399 40%, #10B981 100%); box-shadow: 0 8px 32px rgba(52, 211, 153, 0.35), inset 0 2px 4px rgba(255,255,255,0.25);">
+                                    <svg width="40" height="40" viewBox="0 0 64 64" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <rect x="14" y="8" width="36" height="4" rx="2" fill="white" opacity="0.95" />
                                         <rect x="14" y="52" width="36" height="4" rx="2" fill="white" opacity="0.95" />
@@ -446,14 +461,14 @@
                         </div>
                     </div>
 
-                    <div class="text-center mb-8">
-                        <h1 class="text-[22px] font-bold mb-3 tracking-tight">Перенаправление на оплату...</h1>
-                        <p class="text-slate-500 text-[15px] leading-relaxed max-w-[300px] mx-auto">
+                    <div class="text-center mb-5">
+                        <h1 class="text-[18px] font-bold mb-2 tracking-tight">Перенаправление на оплату...</h1>
+                        <p class="text-slate-500 text-[13px] leading-relaxed max-w-[280px] mx-auto">
                             Переход на страницу платёжной системы. Пожалуйста, подождите.
                         </p>
                     </div>
 
-                    <div class="text-center mb-6">
+                    <div class="text-center mb-4">
                         <a href="#"
                             class="inline-flex items-center gap-1.5 text-primary font-semibold text-[15px] hover:underline transition-colors"
                             id="payment-link" target="_blank">
@@ -472,7 +487,7 @@
                     </div>
                 </div>
 
-                <div class="bg-[#F8F9FA] px-8 py-4 flex items-center justify-center gap-2 border-t border-slate-100">
+                <div class="bg-[#F8F9FA] px-5 py-3 flex items-center justify-center gap-2 border-t border-slate-100">
                     <span class="material-icons text-slate-400 text-sm">lock</span>
                     <p class="text-[11px] text-slate-400 leading-normal font-medium">
                         Безопасная оплата через шлюз
