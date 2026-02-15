@@ -53,28 +53,35 @@ def get_welcome_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_invoice_keyboard(payment_url: str) -> InlineKeyboardMarkup:
+def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> InlineKeyboardMarkup:
     """
-    Клавиатура для инвойса с кнопкой оплаты через Web App
+    Клавиатура для инвойса с кнопками оплаты
     
     Args:
-        payment_url: URL страницы оплаты Cryptomus
+        payment_url: URL страницы оплаты крипто (NOWPayments)
+        card_webapp_url: URL Mini App для оплаты картой (опционально)
     
     Returns:
-        InlineKeyboardMarkup: Клавиатура с кнопкой оплаты и поддержкой
-    
-    Note:
-        Использует WebApp для встроенной оплаты (открывается внутри Telegram)
+        InlineKeyboardMarkup: Клавиатура с кнопками оплаты и поддержкой
     """
     builder = InlineKeyboardBuilder()
     
-    # Кнопка оплаты с WebApp (открывается внутри Telegram)
+    # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
     builder.row(
         InlineKeyboardButton(
-            text="💳 Оплатить",
+            text="🪙 Оплатить крипто",
             web_app=WebAppInfo(url=payment_url)
         )
     )
+    
+    # Кнопка оплаты картой через Mini App
+    if card_webapp_url:
+        builder.row(
+            InlineKeyboardButton(
+                text="💳 Оплатить картой",
+                web_app=WebAppInfo(url=card_webapp_url)
+            )
+        )
     
     # Кнопка поддержки (на случай вопросов)
     builder.row(

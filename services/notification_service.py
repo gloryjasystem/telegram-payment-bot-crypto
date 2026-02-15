@@ -45,11 +45,30 @@ class NotificationService:
 Для оплаты нажмите кнопку ниже:
 """
             
-            # Отправка сообщения с кнопкой оплаты
+            # Формируем URL для WebApp карточной оплаты
+            import urllib.parse
+            config = Config()
+            base_url = config.BASE_WEBHOOK_URL
+            card_webapp_url = None
+            
+            if base_url:
+                card_params = urllib.parse.urlencode({
+                    'service': invoice.service_description,
+                    'amount': str(invoice.amount),
+                    'currency': invoice.currency,
+                    'invoice_id': invoice.invoice_id,
+                    'rate': str(Config.USD_TO_RUB_RATE)
+                })
+                card_webapp_url = f"{base_url}/webapp/index.html?{card_params}"
+            
+            # Отправка сообщения с кнопками оплаты (крипто + карта)
             sent_message = await self.bot.send_message(
                 chat_id=user.telegram_id,
                 text=message_text,
-                reply_markup=get_invoice_keyboard(invoice.payment_url),
+                reply_markup=get_invoice_keyboard(
+                    payment_url=invoice.payment_url,
+                    card_webapp_url=card_webapp_url
+                ),
                 parse_mode="Markdown"
             )
             

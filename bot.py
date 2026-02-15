@@ -373,6 +373,188 @@ async def handle_root(request: web.Request) -> web.Response:
 
 
 # ========================================
+# CARD PAYMENT HANDLERS
+# ========================================
+
+async def handle_create_card_payment(request: web.Request) -> web.Response:
+    """
+    API endpoint для создания карточного платежа из Mini App
+    POST /api/create-card-payment
+    Body: {invoice_id, method, email, amount_usd, amount_rub, service}
+    """
+    try:
+        import json
+        from services.card_payment_service import card_payment_service
+        
+        data = await request.json()
+        bot_logger.info(f"📥 Card payment request: {data}")
+        
+        invoice_id = data.get('invoice_id', '')
+        method = data.get('method', '')  # 'ru' or 'international'
+        email = data.get('email', '')
+        amount_usd = float(data.get('amount_usd', 0))
+        amount_rub = float(data.get('amount_rub', 0))
+        service = data.get('service', 'Оплата услуги')
+        
+        if not invoice_id or not method or not email:
+            return web.json_response(
+                {'success': False, 'error': 'Missing required fields'},
+                status=400
+            )
+        
+        if method == 'ru':
+            # Lava.top — рубли
+            result = await card_payment_service.create_lava_payment(
+                invoice_id=invoice_id,
+                amount_rub=amount_rub,
+                email=email,
+                description=service
+            )
+        else:
+            # WayForPay — доллары
+            result = await card_payment_service.create_waypay_payment(
+                invoice_id=invoice_id,
+                amount_usd=amount_usd,
+                email=email,
+                description=service
+            )
+        
+        if result.get('success'):
+            bot_logger.info(f"✅ Card payment created: {method} — {result.get('payment_url', '')[:80]}")
+            return web.json_response({
+                'success': True,
+                'payment_url': result['payment_url']
+            })
+        else:
+            bot_logger.warning(f"⚠️ Card payment failed: {result.get('error')}")
+            return web.json_response({
+                'success': False,
+                'error': result.get('error', 'Payment creation failed')
+            }, status=400)
+    
+    except Exception as e:
+        bot_logger.error(f"Error in card payment handler: {e}", exc_info=True)
+        return web.json_response(
+            {'success': False, 'error': str(e)},
+            status=500
+        )
+
+
+async def handle_lava_webhook(request: web.Request) -> web.Response:
+    """
+    Webhook endpoint для Lava.top
+    POST /webhook/lava
+    """
+    try:
+        import json
+        from services.card_payment_service import card_payment_service
+        from services.notification_service import NotificationService
+        
+        raw_body = await request.read()
+        signature = request.headers.get('Signature', '')
+        data = json.loads(raw_body)
+        
+        bot_logger.info(f"📥 Lava.top webhook: {data}")
+        
+        # Проверка подписи
+        if signature and not card_payment_service.verify_lava_webhook(data, signature):
+            bot_logger.warning("⚠️ Lava webhook signature mismatch")
+        
+        # Проверяем статус оплаты
+        status = data.get('status', '')
+        order_id = data.get('orderId', '') or data.get('order_id', '')
+        
+        if status in ('success', 'completed') and order_id:
+            # Помечаем инвойс как оплаченный
+            success = await invoice_service.mark_invoice_as_paid(
+                invoice_id=order_id,
+                transaction_id=data.get('id', str(data.get('invoice_id', ''))),
+                payment_method='card_ru_lava'
+            )
+            
+            if success and bot:
+                invoice_data = await invoice_service.get_invoice_with_user(order_id)
+                if invoice_data:
+                    inv, user = invoice_data
+                    from datetime import datetime
+                    inv.status = 'paid'
+                    inv.paid_at = datetime.utcnow()
+                    
+                    notifier = NotificationService(bot)
+                    try:
+                        await notifier.notify_client_payment_success(invoice=inv, user=user)
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                        bot_logger.info(f"✅ Lava payment confirmed for {order_id}")
+                    except Exception as e:
+                        bot_logger.error(f"Notification error after Lava payment: {e}")
+        
+        return web.json_response({'status': 'ok'})
+    
+    except Exception as e:
+        bot_logger.error(f"Error in Lava webhook: {e}", exc_info=True)
+        return web.json_response({'status': 'error'}, status=500)
+
+
+async def handle_waypay_webhook(request: web.Request) -> web.Response:
+    """
+    Webhook endpoint для WayForPay
+    POST /webhook/waypay
+    """
+    try:
+        import json
+        from services.card_payment_service import card_payment_service
+        from services.notification_service import NotificationService
+        
+        data = await request.json()
+        bot_logger.info(f"📥 WayForPay webhook: {data}")
+        
+        # Проверка подписи
+        if not card_payment_service.verify_waypay_webhook(data):
+            bot_logger.warning("⚠️ WayForPay webhook signature mismatch")
+        
+        transaction_status = data.get('transactionStatus', '')
+        order_ref = data.get('orderReference', '')
+        
+        if transaction_status == 'Approved' and order_ref:
+            success = await invoice_service.mark_invoice_as_paid(
+                invoice_id=order_ref,
+                transaction_id=str(data.get('transactionId', '')),
+                payment_method='card_int_waypay'
+            )
+            
+            if success and bot:
+                invoice_data = await invoice_service.get_invoice_with_user(order_ref)
+                if invoice_data:
+                    inv, user = invoice_data
+                    from datetime import datetime
+                    inv.status = 'paid'
+                    inv.paid_at = datetime.utcnow()
+                    
+                    notifier = NotificationService(bot)
+                    try:
+                        await notifier.notify_client_payment_success(invoice=inv, user=user)
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                        bot_logger.info(f"✅ WayForPay payment confirmed for {order_ref}")
+                    except Exception as e:
+                        bot_logger.error(f"Notification error after WayForPay payment: {e}")
+            
+            # WayForPay требует ответ определённого формата
+            import time
+            return web.json_response({
+                'orderReference': order_ref,
+                'status': 'accept',
+                'time': int(time.time()),
+                'signature': ''  # Подпись ответа
+            })
+        
+        return web.json_response({'status': 'ok'})
+    
+    except Exception as e:
+        bot_logger.error(f"Error in WayForPay webhook: {e}", exc_info=True)
+        return web.json_response({'status': 'error'}, status=500)
+
+
+# ========================================
 # STARTUP FUNCTIONS
 # ========================================
 
@@ -420,6 +602,18 @@ async def run_webhook():
     app.router.add_post(Config.NOWPAYMENTS_WEBHOOK_PATH, handle_nowpayments_ipn)
     app.router.add_get("/health", handle_health)
     app.router.add_get("/", handle_root)
+    
+    # Карточные платежи: API + вебхуки
+    app.router.add_post('/api/create-card-payment', handle_create_card_payment)
+    app.router.add_post(Config.LAVA_WEBHOOK_PATH, handle_lava_webhook)
+    app.router.add_post(Config.WAYPAY_WEBHOOK_PATH, handle_waypay_webhook)
+    
+    # Статические файлы для WebApp Mini App
+    import os
+    webapp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webapp')
+    if os.path.isdir(webapp_dir):
+        app.router.add_static('/webapp/', webapp_dir)
+        bot_logger.info(f"📱 WebApp Mini App served from /webapp/")
     
     # Настройка aiogram webhook в aiohttp
     setup_application(app, dp, bot=bot)

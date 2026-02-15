@@ -48,6 +48,25 @@ class Config:
     )
     
     # ========================================
+    # LAVA.TOP SETTINGS (Card payments RU — Рубли)
+    # ========================================
+    LAVA_SECRET_KEY: str = os.getenv("LAVA_SECRET_KEY", "")
+    LAVA_PROJECT_ID: str = os.getenv("LAVA_PROJECT_ID", "")
+    LAVA_WEBHOOK_PATH: str = os.getenv("LAVA_WEBHOOK_PATH", "/webhook/lava")
+    
+    # ========================================
+    # WAYPAY SETTINGS (Card payments International — USD)
+    # ========================================
+    WAYPAY_MERCHANT_LOGIN: str = os.getenv("WAYPAY_MERCHANT_LOGIN", "")
+    WAYPAY_MERCHANT_SECRET: str = os.getenv("WAYPAY_MERCHANT_SECRET", "")
+    WAYPAY_WEBHOOK_PATH: str = os.getenv("WAYPAY_WEBHOOK_PATH", "/webhook/waypay")
+    
+    # ========================================
+    # CURRENCY CONVERSION
+    # ========================================
+    USD_TO_RUB_RATE: float = float(os.getenv("USD_TO_RUB_RATE", "95.0"))
+    
+    # ========================================
     # WEBHOOK SETTINGS (для продакшн)
     # ========================================
     # В Railway публичный домен доступен через RAILWAY_PUBLIC_DOMAIN

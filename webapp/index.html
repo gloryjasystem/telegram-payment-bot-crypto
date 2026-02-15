@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>MarketFilter — Оплата</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "bg-main": "#F2F2F7",
+                        "text-gray": "#94A3B8",
+                        "border-light": "#E2E8F0",
+                        "error": "#EF4444",
+                        "success": "#34D399",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Step 1: method selector */
+        .method-selector input:checked+label {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 1px #3B82F6;
+            background-color: #3B82F6;
+            color: white;
+        }
+
+        .method-selector input:checked+label .icon-container {
+            color: white;
+        }
+
+        .shadow-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Stepper */
+        .stepper-container {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .stepper-line-track {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            height: 2px;
+            z-index: 0;
+            display: flex;
+            padding: 0 32px;
+        }
+
+        .line-segment {
+            height: 100%;
+            flex-grow: 1;
+            transition: background-color 0.4s ease;
+        }
+
+        /* Page transitions */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hourglass animation for step 3 */
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.06);
+                opacity: 0.85;
+            }
+        }
+
+        .hourglass-pulse {
+            animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes spin-slow {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin-slow {
+            animation: spin-slow 3s linear infinite;
+        }
+
+        /* Input error state */
+        .input-error {
+            border-color: #EF4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        /* Loading spinner for button */
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin-slow 0.8s linear infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-[#F2F2F7] text-slate-900 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-[440px]">
+        <div class="bg-white rounded-[2rem] shadow-card border border-slate-200/60 overflow-hidden">
+
+            <!-- ===== PAGE 1: Method & Email ===== -->
+            <div class="page active" id="page-1">
+                <div class="p-8">
+                    <!-- Stepper -->
+                    <div class="stepper-container mb-10 px-2">
+                        <div class="stepper-line-track">
+                            <div class="line-segment bg-slate-200" id="line-1-2"></div>
+                            <div class="w-10"></div>
+                            <div class="line-segment bg-slate-200" id="line-2-3"></div>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white shadow-sm ring-4 ring-blue-50"
+                                id="step-dot-1">
+                                <span class="material-icons text-[18px]">check</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-primary uppercase tracking-tight"
+                                id="step-label-1">Выбор</span>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-400"
+                                id="step-dot-2">
+                                <span class="text-[13px] font-bold" id="step-dot-2-text">2</span>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight"
+                                id="step-label-2">Данные</span>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-400"
+                                id="step-dot-3">
+                                <span class="text-[13px] font-bold" id="step-dot-3-text">3</span>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight"
+                                id="step-label-3">Оплата</span>
+                        </div>
+                    </div>
+
+                    <!-- Service name -->
+                    <div class="mb-8">
+                        <p class="text-[11px] text-slate-400 mb-1 uppercase tracking-[0.1em] font-bold">Наименование
+                            услуги</p>
+                        <h1 class="text-[22px] font-bold text-slate-800" id="service-name-1">Загрузка...</h1>
+                    </div>
+
+                    <!-- Payment method -->
+                    <div class="mb-8">
+                        <p class="text-[11px] text-slate-400 mb-4 uppercase tracking-[0.1em] font-bold">Метод оплаты</p>
+                        <div class="grid grid-cols-2 gap-4 method-selector">
+                            <div class="relative">
+                                <input checked id="bank-ru" name="payment-method" type="radio" class="hidden" />
+                                <label
+                                    class="flex flex-col items-center justify-center py-6 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 text-center h-full group"
+                                    for="bank-ru">
+                                    <div
+                                        class="icon-container mb-3 text-slate-400 group-hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined text-[32px]">account_balance</span>
+                                    </div>
+                                    <span class="font-bold text-sm tracking-tight">Банк РФ</span>
+                                </label>
+                            </div>
+                            <div class="relative">
+                                <input id="bank-int" name="payment-method" type="radio" class="hidden" />
+                                <label
+                                    class="flex flex-col items-center justify-center py-6 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 text-center h-full group"
+                                    for="bank-int">
+                                    <div
+                                        class="icon-container mb-3 text-slate-400 group-hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined text-[32px]">public</span>
+                                    </div>
+                                    <span class="font-bold text-sm tracking-tight">Иностранный</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-8">
+                        <label class="block text-[11px] text-slate-400 mb-2 uppercase tracking-[0.1em] font-bold"
+                            for="email">Ваш E-mail</label>
+                        <div class="relative">
+                            <input
+                                class="w-full px-5 py-4 bg-white border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-[1.25rem] outline-none transition-all placeholder:text-slate-300 text-base"
+                                id="email" placeholder="example@gmail.com" type="email" />
+                        </div>
+                        <p class="text-error text-xs mt-2 hidden" id="email-error">Заполните это поле</p>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-10">
+                        <p class="text-[11px] text-slate-400 mb-1 uppercase tracking-[0.1em] font-bold">Стоимость</p>
+                        <div class="text-[42px] font-bold text-slate-900 leading-none" id="price-display-1">...</div>
+                    </div>
+
+                    <!-- Button -->
+                    <div class="space-y-6">
+                        <button id="btn-next-1"
+                            class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4.5 rounded-[1.25rem] transition-all active:scale-[0.98] shadow-lg shadow-primary/20 flex items-center justify-center gap-2 h-14">
+                            <span class="text-[17px]">Далее</span>
+                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </button>
+                        <p class="text-center text-slate-400 text-[11px] leading-relaxed max-w-[280px] mx-auto">
+                            Нажимая «Далее», вы соглашаетесь с условиями обслуживания
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE 2: Data Review ===== -->
+            <div class="page" id="page-2">
+                <div class="p-8">
+                    <!-- Stepper (step 2 active) -->
+                    <div class="stepper-container mb-10 px-2">
+                        <div class="stepper-line-track">
+                            <div class="line-segment bg-primary"></div>
+                            <div class="line-segment bg-slate-200" id="line-2-3-p2"></div>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div
+                                class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white shadow-sm ring-4 ring-blue-50">
+                                <span class="material-icons text-[18px]">check</span>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">Выбор</span>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div
+                                class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white shadow-sm ring-4 ring-primary/15">
+                                <span class="material-icons text-[18px]">check</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-primary uppercase tracking-tight">Данные</span>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div
+                                class="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                                <span class="text-[13px] font-bold">3</span>
+                            </div>
+                            <span
+                                class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">Оплата</span>
+                        </div>
+                    </div>
+
+                    <h1 class="text-[22px] font-bold text-center mb-2 tracking-tight">Проверка данных</h1>
+                    <p class="text-slate-500 text-[15px] text-center px-4 leading-snug">Пожалуйста, проверьте детали
+                        заказа перед тем, как перейти к оплате.</p>
+                </div>
+
+                <div class="px-6 py-4">
+                    <div class="bg-[#F8F9FA] rounded-[20px] p-5 space-y-4 border border-slate-100">
+                        <div class="flex flex-col">
+                            <span
+                                class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Наименование
+                                услуги</span>
+                            <span class="text-[15px] font-semibold" id="review-service">—</span>
+                        </div>
+                        <div class="h-px bg-slate-200/60 w-full"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Метод
+                                оплаты</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-icons text-primary text-[20px]"
+                                    id="review-method-icon">account_balance</span>
+                                <span class="text-[15px] font-semibold" id="review-method-text">Банк РФ</span>
+                            </div>
+                        </div>
+                        <div class="h-px bg-slate-200/60 w-full"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Ваш
+                                E-mail</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">mail</span>
+                                <span class="text-[15px] font-semibold" id="review-email">user@example.com</span>
+                            </div>
+                        </div>
+                        <div class="h-px bg-slate-200/60 w-full"></div>
+                        <div class="flex justify-between items-end pt-1">
+                            <div class="flex flex-col">
+                                <span
+                                    class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Стоимость</span>
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-[28px] font-extrabold text-primary tracking-tight"
+                                        id="review-amount">—</span>
+                                    <span class="text-[18px] font-extrabold text-primary tracking-tight"
+                                        id="review-currency">USD</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 pt-4 pb-8 flex flex-col gap-3">
+                    <button id="btn-next-2"
+                        class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-[18px] transition-all shadow-md shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2 text-base">
+                        <span id="btn-next-2-text">Перейти к оплате</span>
+                        <span class="material-icons text-lg" id="btn-next-2-icon">arrow_forward</span>
+                    </button>
+                    <button id="btn-back-2"
+                        class="w-full py-2 text-slate-500 hover:text-primary font-semibold text-[15px] transition-colors active:scale-[0.98]">
+                        Вернуться назад
+                    </button>
+                </div>
+
+                <div class="bg-[#F8F9FA] px-6 py-4 flex items-start gap-3 border-t border-slate-100">
+                    <span class="material-icons text-slate-400 text-sm mt-0.5">lock</span>
+                    <p class="text-[11px] text-slate-400 leading-normal font-medium">
+                        Ваши данные надежно защищены. Нажимая кнопку «Перейти к оплате», вы соглашаетесь с условиями
+                        оферты.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ===== PAGE 3: Payment Waiting ===== -->
+            <div class="page" id="page-3">
+                <div class="p-8">
+                    <!-- Stepper (all complete) -->
+                    <div class="stepper-container mb-10 px-2">
+                        <div class="stepper-line-track">
+                            <div class="line-segment bg-[#34D399]"></div>
+                            <div class="line-segment bg-[#34D399]"></div>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div
+                                class="w-9 h-9 rounded-full bg-[#34D399] flex items-center justify-center text-white shadow-sm ring-4 ring-emerald-50">
+                                <span class="material-icons text-[18px]">check</span>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">Выбор</span>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div
+                                class="w-9 h-9 rounded-full bg-[#34D399] flex items-center justify-center text-white shadow-sm ring-4 ring-emerald-50">
+                                <span class="material-icons text-[18px]">check</span>
+                            </div>
+                            <span
+                                class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">Данные</span>
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center gap-1.5 w-16">
+                            <div
+                                class="w-9 h-9 rounded-full bg-[#34D399] flex items-center justify-center text-white shadow-sm ring-4 ring-emerald-50">
+                                <span class="material-icons text-[18px]">check</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-[#34D399] uppercase tracking-tight">Оплата</span>
+                        </div>
+                    </div>
+
+                    <!-- Hourglass icon -->
+                    <div class="flex justify-center mb-10 mt-4">
+                        <div class="hourglass-pulse relative">
+                            <div class="w-40 h-40 rounded-full flex items-center justify-center"
+                                style="background: radial-gradient(circle, rgba(52, 211, 153, 0.15) 0%, rgba(52, 211, 153, 0.05) 60%, transparent 100%);">
+                                <div class="w-32 h-32 rounded-full flex items-center justify-center shadow-xl"
+                                    style="background: linear-gradient(145deg, #6EE7B7 0%, #34D399 40%, #10B981 100%); box-shadow: 0 8px 32px rgba(52, 211, 153, 0.35), inset 0 2px 4px rgba(255,255,255,0.25);">
+                                    <svg width="56" height="56" viewBox="0 0 64 64" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="14" y="8" width="36" height="4" rx="2" fill="white" opacity="0.95" />
+                                        <rect x="14" y="52" width="36" height="4" rx="2" fill="white" opacity="0.95" />
+                                        <path d="M18 12 C18 12 18 24 32 32 C46 24 46 12 46 12" stroke="white"
+                                            stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9" />
+                                        <path d="M18 52 C18 52 18 40 32 32 C46 40 46 52 46 52" stroke="white"
+                                            stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9" />
+                                        <path d="M22 14 C22 14 22.5 22 32 28 C41.5 22 42 14 42 14 Z" fill="white"
+                                            opacity="0.3">
+                                            <animate attributeName="opacity" values="0.3;0.15;0.3" dur="3s"
+                                                repeatCount="indefinite" />
+                                        </path>
+                                        <line x1="32" y1="28" x2="32" y2="36" stroke="white" stroke-width="2"
+                                            opacity="0.6" stroke-linecap="round">
+                                            <animate attributeName="opacity" values="0.6;0.3;0.6" dur="1.5s"
+                                                repeatCount="indefinite" />
+                                        </line>
+                                        <path d="M22 50 C22 50 23 44 32 40 C41 44 42 50 42 50 Z" fill="white"
+                                            opacity="0.5">
+                                            <animate attributeName="opacity" values="0.35;0.55;0.35" dur="3s"
+                                                repeatCount="indefinite" />
+                                        </path>
+                                        <path d="M24 15 C24 15 23 21 28 26" stroke="white" stroke-width="1.5"
+                                            fill="none" opacity="0.25" stroke-linecap="round" />
+                                        <path d="M24 49 C24 49 23 45 28 41" stroke="white" stroke-width="1.5"
+                                            fill="none" opacity="0.2" stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <h1 class="text-[22px] font-bold mb-3 tracking-tight">Перенаправление на оплату...</h1>
+                        <p class="text-slate-500 text-[15px] leading-relaxed max-w-[300px] mx-auto">
+                            Переход на страницу платёжной системы. Пожалуйста, подождите.
+                        </p>
+                    </div>
+
+                    <div class="text-center mb-6">
+                        <a href="#"
+                            class="inline-flex items-center gap-1.5 text-primary font-semibold text-[15px] hover:underline transition-colors"
+                            id="payment-link" target="_blank">
+                            <span>Открыть страницу оплаты</span>
+                            <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                        </a>
+                        <p class="text-slate-400 text-[12px] mt-2">Если переход не произошел автоматически</p>
+                    </div>
+
+                    <!-- Error message (hidden by default) -->
+                    <div class="text-center mb-4 hidden" id="payment-error">
+                        <div class="bg-red-50 text-red-600 rounded-2xl px-5 py-4 text-sm font-medium">
+                            <span class="material-icons text-base align-middle mr-1">error_outline</span>
+                            <span id="payment-error-text">Ошибка создания платежа</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#F8F9FA] px-8 py-4 flex items-center justify-center gap-2 border-t border-slate-100">
+                    <span class="material-icons text-slate-400 text-sm">lock</span>
+                    <p class="text-[11px] text-slate-400 leading-normal font-medium">
+                        Безопасная оплата через шлюз
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ========== Telegram WebApp Init ==========
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // ========== Read URL Parameters ==========
+        const urlParams = new URLSearchParams(window.location.search);
+        const serviceName = urlParams.get('service') || 'Услуга';
+        const amountUSD = parseFloat(urlParams.get('amount') || '0');
+        const currency = urlParams.get('currency') || 'USD';
+        const invoiceId = urlParams.get('invoice_id') || '';
+        const usdToRubRate = parseFloat(urlParams.get('rate') || '95');
+
+        // Calculate RUB amount
+        const amountRUB = Math.round(amountUSD * usdToRubRate);
+
+        // ========== Populate Initial Data ==========
+        // Service name on page 1
+        document.getElementById('service-name-1').textContent = serviceName;
+
+        // Update price display based on selected method
+        function updatePriceDisplay() {
+            const isRu = document.getElementById('bank-ru').checked;
+            const priceEl = document.getElementById('price-display-1');
+            if (isRu) {
+                priceEl.textContent = amountRUB.toLocaleString('ru-RU') + ' ₽';
+            } else {
+                priceEl.textContent = amountUSD.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' $';
+            }
+        }
+
+        // Listen for method change to update price
+        document.getElementById('bank-ru').addEventListener('change', updatePriceDisplay);
+        document.getElementById('bank-int').addEventListener('change', updatePriceDisplay);
+        updatePriceDisplay(); // initial
+
+        // ========== Page Navigation ==========
+        const pages = [
+            document.getElementById('page-1'),
+            document.getElementById('page-2'),
+            document.getElementById('page-3'),
+        ];
+        let currentPage = 0;
+
+        function showPage(index) {
+            pages[currentPage].classList.remove('visible');
+            setTimeout(() => {
+                pages[currentPage].classList.remove('active');
+                currentPage = index;
+                pages[currentPage].classList.add('active');
+                void pages[currentPage].offsetWidth;
+                requestAnimationFrame(() => {
+                    pages[currentPage].classList.add('visible');
+                });
+            }, 200);
+        }
+
+        // Show first page immediately
+        requestAnimationFrame(() => {
+            pages[0].classList.add('visible');
+        });
+
+        // ========== Step 1 → Step 2 ==========
+        document.getElementById('btn-next-1').addEventListener('click', () => {
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('email-error');
+            const email = emailInput.value.trim();
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                emailInput.classList.add('input-error');
+                emailError.textContent = !email ? 'Заполните это поле' : 'Пожалуйста, введите действительный e-mail';
+                emailError.classList.remove('hidden');
+                emailInput.focus();
+                return;
+            }
+
+            emailInput.classList.remove('input-error');
+            emailError.classList.add('hidden');
+
+            // Populate review page
+            const isRu = document.getElementById('bank-ru').checked;
+
+            document.getElementById('review-service').textContent = serviceName;
+            document.getElementById('review-email').textContent = email;
+            document.getElementById('review-method-text').textContent = isRu ? 'Банк РФ' : 'Иностранный банк';
+            document.getElementById('review-method-icon').textContent = isRu ? 'account_balance' : 'public';
+
+            if (isRu) {
+                document.getElementById('review-amount').textContent = amountRUB.toLocaleString('ru-RU');
+                document.getElementById('review-currency').textContent = 'RUB';
+            } else {
+                document.getElementById('review-amount').textContent = amountUSD.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+                document.getElementById('review-currency').textContent = 'USD';
+            }
+
+            showPage(1);
+        });
+
+        // ========== Step 2 → Step 3 (Create payment & redirect) ==========
+        document.getElementById('btn-next-2').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-next-2');
+            const btnText = document.getElementById('btn-next-2-text');
+            const btnIcon = document.getElementById('btn-next-2-icon');
+
+            // Show loading state
+            btn.classList.add('btn-loading');
+            btnText.textContent = 'Создание платежа...';
+            btnIcon.style.display = 'none';
+
+            const isRu = document.getElementById('bank-ru').checked;
+            const email = document.getElementById('email').value.trim();
+            const method = isRu ? 'ru' : 'international';
+
+            try {
+                // Build API URL relative to current origin
+                const apiUrl = window.location.origin + '/api/create-card-payment';
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        invoice_id: invoiceId,
+                        method: method,
+                        email: email,
+                        amount_usd: amountUSD,
+                        amount_rub: amountRUB,
+                        service: serviceName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.payment_url) {
+                    // Show step 3 with spinner
+                    showPage(2);
+
+                    // Set the manual payment link
+                    document.getElementById('payment-link').href = data.payment_url;
+                    document.getElementById('payment-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (tg) {
+                            tg.openLink(data.payment_url);
+                        } else {
+                            window.open(data.payment_url, '_blank');
+                        }
+                    });
+
+                    // Auto-redirect after a short delay
+                    setTimeout(() => {
+                        if (tg) {
+                            tg.openLink(data.payment_url);
+                        } else {
+                            window.open(data.payment_url, '_blank');
+                        }
+                    }, 1500);
+                } else {
+                    throw new Error(data.error || 'Не удалось создать платёж');
+                }
+            } catch (err) {
+                // Show error on page 3
+                showPage(2);
+                document.getElementById('payment-error').classList.remove('hidden');
+                document.getElementById('payment-error-text').textContent = err.message || 'Ошибка создания платежа. Попробуйте позже.';
+
+                // Reset button
+                btn.classList.remove('btn-loading');
+                btnText.textContent = 'Перейти к оплате';
+                btnIcon.style.display = '';
+            }
+        });
+
+        // ========== Step 2 → Step 1 (back) ==========
+        document.getElementById('btn-back-2').addEventListener('click', () => {
+            showPage(0);
+        });
+
+        // ========== Email input: clear error on type ==========
+        document.getElementById('email').addEventListener('input', function () {
+            this.classList.remove('input-error');
+            document.getElementById('email-error').classList.add('hidden');
+        });
+    </script>
+
+</body>
+
+</html>
