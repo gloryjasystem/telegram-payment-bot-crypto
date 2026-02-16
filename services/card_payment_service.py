@@ -123,7 +123,7 @@ class CardPaymentService:
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "Authorization": f"Bearer {Config.LAVA_API_KEY}"
+                "Authorization": f"ApiKey {Config.LAVA_API_KEY}"
             }
             
             body_json = json.dumps(payload)
