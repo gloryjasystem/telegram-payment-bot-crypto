@@ -521,7 +521,7 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
         if transaction_status == 'Approved' and invoice_id:
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=invoice_id,
-                transaction_id=str(data.get('transactionId', '')),
+                transaction_id=order_ref,
                 payment_method='card_int_waypay'
             )
             

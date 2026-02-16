@@ -11,8 +11,8 @@ def generate_invoice_id() -> str:
     """
     Генерация уникального ID инвойса
     
-    Формат: INV-{unix_timestamp_ms}
-    Например: INV-1707398400123
+    Формат: INV-YYMMDD-XXXX
+    Например: INV-260216-A7B3
     
     Returns:
         str: Уникальный ID инвойса
@@ -21,11 +21,14 @@ def generate_invoice_id() -> str:
         >>> invoice_id = generate_invoice_id()
         >>> invoice_id.startswith('INV-')
         True
-        >>> len(invoice_id) > 10
+        >>> len(invoice_id) == 16
         True
     """
-    timestamp_ms = int(time.time() * 1000)  # Unix timestamp в миллисекундах
-    return f"INV-{timestamp_ms}"
+    import random
+    import string
+    date_part = datetime.now().strftime("%y%m%d")
+    random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    return f"INV-{date_part}-{random_part}"
 
 
 def format_currency(amount: Decimal | float, currency: str = "USD") -> str:

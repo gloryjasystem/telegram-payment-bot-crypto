@@ -200,8 +200,8 @@ def validate_invoice_id(invoice_id: str) -> bool:
     """
     Валидация формата Invoice ID
     
-    Формат: INV-{timestamp}
-    Например: INV-1707398400
+    Форматы: INV-YYMMDD-XXXX или INV-{timestamp}
+    Например: INV-260216-A7B3 или INV-1707398400
     
     Args:
         invoice_id: ID инвойса
@@ -210,13 +210,17 @@ def validate_invoice_id(invoice_id: str) -> bool:
         bool: True если формат корректен
     
     Examples:
+        >>> validate_invoice_id("INV-260216-A7B3")
+        True
+        
         >>> validate_invoice_id("INV-1707398400")
         True
         
         >>> validate_invoice_id("invoice-123")
         False
     """
-    pattern = r'^INV-\d{10,}$'
+    # New format: INV-YYMMDD-XXXX or old format: INV-{digits}
+    pattern = r'^INV-(\d{6}-[A-Z0-9]{4}|\d{10,})$'
     return bool(re.match(pattern, invoice_id))
 
 
