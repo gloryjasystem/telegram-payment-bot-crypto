@@ -60,6 +60,7 @@ class Config:
     WAYPAY_MERCHANT_LOGIN: str = os.getenv("WAYPAY_MERCHANT_LOGIN", "")
     WAYPAY_MERCHANT_SECRET: str = os.getenv("WAYPAY_MERCHANT_SECRET", "")
     WAYPAY_WEBHOOK_PATH: str = os.getenv("WAYPAY_WEBHOOK_PATH", "/webhook/waypay")
+    WAYPAY_TEST_MODE: bool = os.getenv("WAYPAY_TEST_MODE", "false").lower() == "true"
     
     # ========================================
     # CURRENCY CONVERSION

@@ -136,6 +136,18 @@ class CardPaymentService:
             dict: {'success': bool, 'payment_url': str} или {'success': False, 'error': str}
         """
         try:
+            # ========== TEST MODE: simulate successful payment ==========
+            if Config.WAYPAY_TEST_MODE:
+                config = Config()
+                base_url = config.BASE_WEBHOOK_URL
+                test_url = f"{base_url}/test/waypay-success?invoice_id={invoice_id}&amount={amount_usd}&email={email}&service={description}"
+                bot_logger.info(f"🧪 WAYPAY TEST MODE: Returning test payment URL for {invoice_id}")
+                return {
+                    'success': True,
+                    'payment_url': test_url,
+                    'payment_id': f'TEST-{invoice_id}'
+                }
+            
             if not Config.WAYPAY_MERCHANT_LOGIN or not Config.WAYPAY_MERCHANT_SECRET:
                 return {'success': False, 'error': 'WayForPay credentials не настроены'}
             

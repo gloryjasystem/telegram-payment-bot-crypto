@@ -557,6 +557,70 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
         return web.json_response({'status': 'error'}, status=500)
 
 
+async def handle_waypay_test_success(request: web.Request) -> web.Response:
+    """
+    TEST ONLY: Simulates a successful WayForPay payment.
+    GET /test/waypay-success?invoice_id=INV-xxx&amount=150&email=test@test.com&service=...
+    """
+    if not Config.WAYPAY_TEST_MODE:
+        return web.json_response({'error': 'Test mode is disabled'}, status=403)
+    
+    try:
+        from services.notification_service import NotificationService
+        
+        inv_id = request.query.get('invoice_id', '')
+        amount = request.query.get('amount', '0')
+        email = request.query.get('email', '')
+        service = request.query.get('service', '')
+        
+        bot_logger.info(f"🧪 TEST: Simulating successful payment for {inv_id}")
+        
+        if inv_id:
+            # Mark invoice as paid
+            success = await invoice_service.mark_invoice_as_paid(
+                invoice_id=inv_id,
+                transaction_id=f'TEST-{inv_id}',
+                payment_method='card_int_waypay_TEST'
+            )
+            
+            if success and bot:
+                invoice_data = await invoice_service.get_invoice_with_user(inv_id)
+                if invoice_data:
+                    inv, user = invoice_data
+                    from datetime import datetime
+                    inv.status = 'paid'
+                    inv.paid_at = datetime.utcnow()
+                    
+                    notifier = NotificationService(bot)
+                    try:
+                        await notifier.notify_client_payment_success(invoice=inv, user=user)
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                        bot_logger.info(f"✅ TEST: Payment confirmed + notifications sent for {inv_id}")
+                    except Exception as e:
+                        bot_logger.error(f"TEST: Notification error: {e}")
+        
+        # Return a simple HTML page
+        html = f"""
+        <html><head><meta charset="utf-8"><title>Тестовая оплата</title>
+        <style>body{{font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f0fdf4;}}
+        .card{{background:white;border-radius:16px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.08);text-align:center;max-width:400px;}}
+        h1{{color:#16a34a;font-size:24px;}}p{{color:#64748b;font-size:14px;}}</style></head>
+        <body><div class="card">
+        <h1>✅ Тестовая оплата успешна!</h1>
+        <p><b>Инвойс:</b> {inv_id}</p>
+        <p><b>Сумма:</b> {amount} USD</p>
+        <p><b>Email:</b> {email}</p>
+        <p><b>Услуга:</b> {service}</p>
+        <p style="margin-top:20px;color:#16a34a;">Инвойс помечен как оплаченный.<br>Уведомления отправлены.</p>
+        </div></body></html>
+        """
+        return web.Response(text=html, content_type='text/html')
+    
+    except Exception as e:
+        bot_logger.error(f"Error in test payment handler: {e}", exc_info=True)
+        return web.json_response({'error': str(e)}, status=500)
+
+
 # ========================================
 # STARTUP FUNCTIONS
 # ========================================
@@ -610,6 +674,11 @@ async def run_webhook():
     app.router.add_post('/api/create-card-payment', handle_create_card_payment)
     app.router.add_post(Config.LAVA_WEBHOOK_PATH, handle_lava_webhook)
     app.router.add_post(Config.WAYPAY_WEBHOOK_PATH, handle_waypay_webhook)
+    
+    # Test mode endpoint
+    if Config.WAYPAY_TEST_MODE:
+        app.router.add_get('/test/waypay-success', handle_waypay_test_success)
+        bot_logger.info("🧪 WAYPAY TEST MODE enabled — /test/waypay-success endpoint active")
     
     # Статические файлы для WebApp Mini App
     import os
