@@ -54,9 +54,13 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Desktop-specific zoom */
+        /* Desktop-specific zoom & scrollbar balance */
         body.platform-desktop {
             zoom: 0.9;
+            scrollbar-gutter: stable both-edges;
+            /* Reserves space for scrollbar on BOTH sides to keep content centered */
+            overflow-y: scroll !important;
+            /* Force scrollbar track to prevent jumps */
         }
 
         /* Custom scrollbar for desktop to prevent layout shifts */
@@ -345,44 +349,41 @@
                         заказа перед тем, как перейти к оплате.</p>
                 </div>
 
-                <div class="px-5 py-3">
-                    <div class="bg-[#F8F9FA] rounded-[16px] p-4 space-y-3 border border-slate-100">
+                <div class="mx-5 mb-5 bg-[#F8F9FA] rounded-[16px] p-4 space-y-3 border border-slate-100">
+                    <div class="flex flex-col">
+                        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Наименование
+                            услуги</span>
+                        <span class="text-[15px] font-semibold" id="review-service">—</span>
+                    </div>
+                    <div class="h-px bg-slate-200/60 w-full"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Метод
+                            оплаты</span>
+                        <div class="flex items-center gap-2">
+                            <span class="material-icons text-primary text-[20px]"
+                                id="review-method-icon">account_balance</span>
+                            <span class="text-[15px] font-semibold" id="review-method-text">Банк РФ</span>
+                        </div>
+                    </div>
+                    <div class="h-px bg-slate-200/60 w-full"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Ваш
+                            E-mail</span>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[20px]">mail</span>
+                            <span class="text-[15px] font-semibold" id="review-email">user@example.com</span>
+                        </div>
+                    </div>
+                    <div class="h-px bg-slate-200/60 w-full"></div>
+                    <div class="flex justify-between items-end pt-1">
                         <div class="flex flex-col">
                             <span
-                                class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Наименование
-                                услуги</span>
-                            <span class="text-[15px] font-semibold" id="review-service">—</span>
-                        </div>
-                        <div class="h-px bg-slate-200/60 w-full"></div>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Метод
-                                оплаты</span>
-                            <div class="flex items-center gap-2">
-                                <span class="material-icons text-primary text-[20px]"
-                                    id="review-method-icon">account_balance</span>
-                                <span class="text-[15px] font-semibold" id="review-method-text">Банк РФ</span>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-200/60 w-full"></div>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Ваш
-                                E-mail</span>
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary text-[20px]">mail</span>
-                                <span class="text-[15px] font-semibold" id="review-email">user@example.com</span>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-200/60 w-full"></div>
-                        <div class="flex justify-between items-end pt-1">
-                            <div class="flex flex-col">
-                                <span
-                                    class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Стоимость</span>
-                                <div class="flex items-baseline gap-1.5">
-                                    <span class="text-[24px] font-extrabold text-primary tracking-tight"
-                                        id="review-amount">—</span>
-                                    <span class="text-[15px] font-extrabold text-primary tracking-tight"
-                                        id="review-currency">USD</span>
-                                </div>
+                                class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Стоимость</span>
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-[24px] font-extrabold text-primary tracking-tight"
+                                    id="review-amount">—</span>
+                                <span class="text-[15px] font-extrabold text-primary tracking-tight"
+                                    id="review-currency">USD</span>
                             </div>
                         </div>
                     </div>
