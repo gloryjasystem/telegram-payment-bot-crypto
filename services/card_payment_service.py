@@ -142,24 +142,32 @@ class CardPaymentService:
             merchant_domain = self._get_base_domain()
             order_date = int(time.time())
             
+            # Format amounts consistently (WayForPay/PHP uses '10' not '10.0')
+            amount_str = self._format_amount(amount_usd)
+            
             # Параметры для подписи (порядок важен!)
             sign_string = ";".join([
                 Config.WAYPAY_MERCHANT_LOGIN,
                 merchant_domain,
                 invoice_id,
                 str(order_date),
-                str(amount_usd),
+                amount_str,
                 "USD",
                 description,
                 "1",
-                str(amount_usd)
+                amount_str
             ])
+            
+            bot_logger.debug(f"WayForPay sign_string: {sign_string}")
             
             signature = hmac.new(
                 Config.WAYPAY_MERCHANT_SECRET.encode(),
                 sign_string.encode(),
                 hashlib.md5
             ).hexdigest()
+            
+            # Amount as number for JSON payload
+            amount_num = int(amount_usd) if amount_usd == int(amount_usd) else round(amount_usd, 2)
             
             payload = {
                 "transactionType": "CREATE_INVOICE",
@@ -171,10 +179,10 @@ class CardPaymentService:
                 "serviceUrl": self._get_webhook_url("waypay"),
                 "orderReference": invoice_id,
                 "orderDate": order_date,
-                "amount": amount_usd,
+                "amount": amount_num,
                 "currency": "USD",
                 "productName": [description],
-                "productPrice": [amount_usd],
+                "productPrice": [amount_num],
                 "productCount": [1],
                 "clientEmail": email
             }
@@ -235,6 +243,13 @@ class CardPaymentService:
     # ========================================
     # Helpers
     # ========================================
+    
+    @staticmethod
+    def _format_amount(amount: float) -> str:
+        """Format amount for WayForPay signature (PHP-compatible)"""
+        if amount == int(amount):
+            return str(int(amount))  # 10.0 -> '10'
+        return f"{amount:.2f}"  # 10.55 -> '10.55'
     
     def _get_base_domain(self) -> str:
         """Получение домена для WayForPay"""
