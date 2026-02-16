@@ -30,12 +30,9 @@ class CardPaymentService:
     def _get_lava_offer_id(self, amount_rub: float, description: str) -> Tuple[str, int]:
         """
         Определяет offer_id по описанию услуги и сумме.
-        Округляет сумму вверх до ближайшей сотни.
+        Ищет ближайший оффер для данного типа услуги.
         
-        Returns:
-            tuple: (offer_id, rounded_amount)
-        Raises:
-            ValueError: если offer_id не найден
+        Приоритет: точное совпадение → ближайший >= сумма → ближайший < сумма
         """
         # 1. Определить тип услуги по ключевым словам
         service_type = "ad"  # default
@@ -45,28 +42,41 @@ class CardPaymentService:
                 service_type = stype
                 break
         
-        # 2. Сначала ищем точную сумму, потом округлённую
-        exact = int(amount_rub)
-        rounded = int(math.ceil(amount_rub / 100) * 100)
+        target = int(amount_rub)
         
-        # 3. Найти offer_id: сначала точное совпадение, потом округлённое
-        key_exact = f"{service_type}_{exact}"
-        key_rounded = f"{service_type}_{rounded}"
+        # 2. Собрать все офферы для этого типа услуги
+        prefix = f"{service_type}_"
+        available_offers = {}
+        for key, offer_id in Config.LAVA_OFFER_MAP.items():
+            if key.startswith(prefix):
+                try:
+                    price = int(key[len(prefix):])
+                    available_offers[price] = offer_id
+                except ValueError:
+                    continue
         
-        offer_id = Config.LAVA_OFFER_MAP.get(key_exact) or Config.LAVA_OFFER_MAP.get(key_rounded)
-        used_key = key_exact if Config.LAVA_OFFER_MAP.get(key_exact) else key_rounded
-        final_amount = exact if Config.LAVA_OFFER_MAP.get(key_exact) else rounded
-        
-        if not offer_id:
-            available = list(Config.LAVA_OFFER_MAP.keys())
+        if not available_offers:
             raise ValueError(
-                f"Нет offer для '{key_exact}' или '{key_rounded}' "
-                f"(услуга: {description}, сумма: {amount_rub}₽). "
-                f"Доступные: {available}"
+                f"Нет офферов для типа '{service_type}' (услуга: {description}). "
+                f"Доступные ключи: {list(Config.LAVA_OFFER_MAP.keys())}"
             )
         
-        bot_logger.info(f"🔍 Offer mapping: {description} + {amount_rub}₽ → key={used_key} → offer={offer_id}")
-        return offer_id, final_amount
+        # 3. Точное совпадение
+        if target in available_offers:
+            bot_logger.info(f"🔍 Offer: {description} {target}₽ → exact match → {available_offers[target]}")
+            return available_offers[target], target
+        
+        # 4. Ближайший оффер >= суммы
+        higher = sorted([p for p in available_offers if p >= target])
+        if higher:
+            best = higher[0]
+            bot_logger.info(f"🔍 Offer: {description} {target}₽ → nearest↑ {best}₽ → {available_offers[best]}")
+            return available_offers[best], best
+        
+        # 5. Если нет >= суммы, берём максимальный доступный
+        best = max(available_offers.keys())
+        bot_logger.warning(f"⚠️ Offer: {description} {target}₽ → нет оффера >= суммы, используем максимальный {best}₽")
+        return available_offers[best], best
     
     # ========================================
     # LAVA.TOP V3 (Банк РФ — Рубли)
