@@ -54,6 +54,11 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* Desktop-specific zoom */
+        body.platform-desktop {
+            zoom: 0.9;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
@@ -504,6 +509,15 @@
         if (tg) {
             tg.ready();
             tg.expand();
+        }
+
+        // ========== Platform Detection for Desktop Zoom ==========
+        const platform = (tg && tg.platform) || '';
+        const isDesktop = ['tdesktop', 'desktop', 'macos', 'web', 'weba', 'unknown'].includes(platform);
+        const forceDesktop = new URLSearchParams(window.location.search).get('force_desktop') === '1';
+
+        if (isDesktop || forceDesktop) {
+            document.body.classList.add('platform-desktop');
         }
 
         // ========== Read URL Parameters ==========
