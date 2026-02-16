@@ -17,7 +17,7 @@ from utils.logger import bot_logger
 class CardPaymentService:
     """Сервис для создания карточных платежей"""
     
-    LAVA_API_URL = "https://lava.top/api/v3/invoice"
+    LAVA_API_URL = "https://api.lava.top/api/v3/invoice"
     WAYPAY_API_URL = "https://api.wayforpay.com/api"
     
     # Маппинг ключевых слов из описания услуги → короткий тип
@@ -138,7 +138,7 @@ class CardPaymentService:
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as resp:
-                    result = await resp.json()
+                    result = await resp.json(content_type=None)
                     bot_logger.info(f"Lava.top V3 response: {resp.status} — {result}")
                     
                     if resp.status == 200:
