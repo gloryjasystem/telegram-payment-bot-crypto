@@ -113,14 +113,11 @@ class CardPaymentService:
             except ValueError as e:
                 return {'success': False, 'error': str(e)}
             
+            # Payload по Swagger: email + offerId + currency (amount определяется оффером)
             payload = {
-                "offer_id": offer_id,
-                "amount": rounded_amount,
-                "currency": "RUB",
-                "buyer_email": email,
-                "metadata": invoice_id,
-                "success_url": "https://t.me",
-                "fail_url": "https://t.me"
+                "email": email,
+                "offerId": offer_id,
+                "currency": "RUB"
             }
             
             headers = {
@@ -130,9 +127,9 @@ class CardPaymentService:
             }
             
             body_json = json.dumps(payload)
-            bot_logger.info(f"🔄 Lava.top V3 request URL: {self.LAVA_API_URL}")
-            bot_logger.info(f"🔄 Lava.top V3 headers: Auth=Bearer {Config.LAVA_API_KEY[:8]}...{Config.LAVA_API_KEY[-4:]}")
-            bot_logger.info(f"🔄 Lava.top V3 payload: {body_json}")
+            bot_logger.info(f"🔄 Lava.top V3: POST {self.LAVA_API_URL}")
+            bot_logger.info(f"🔄 Payload: {body_json}")
+            bot_logger.info(f"🔄 Auth: Bearer {Config.LAVA_API_KEY[:8]}...{Config.LAVA_API_KEY[-4:]}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -142,18 +139,18 @@ class CardPaymentService:
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as resp:
                     raw_text = await resp.text()
-                    bot_logger.info(f"Lava.top V3 response: status={resp.status}, headers={dict(resp.headers)}")
-                    bot_logger.info(f"Lava.top V3 raw body: {raw_text[:500]}")
+                    bot_logger.info(f"Lava.top response: status={resp.status}")
+                    bot_logger.info(f"Lava.top body: {raw_text[:500]}")
                     
                     try:
                         result = json.loads(raw_text)
                     except json.JSONDecodeError:
                         return {'success': False, 'error': f"Lava.top ({resp.status}): невалидный JSON: {raw_text[:300]}"}
                     
-                    if resp.status == 200:
-                        # V3 API возвращает url для оплаты
-                        payment_url = result.get("url") or result.get("data", {}).get("url")
-                        payment_id = result.get("id") or result.get("data", {}).get("id", "")
+                    # Swagger: 201 = успешное создание контракта
+                    if resp.status in (200, 201):
+                        payment_url = result.get("paymentUrl") or result.get("url")
+                        payment_id = result.get("id", "")
                         
                         if payment_url:
                             return {
@@ -164,7 +161,7 @@ class CardPaymentService:
                         else:
                             return {'success': False, 'error': f"Lava.top: URL не получен. Ответ: {result}"}
                     else:
-                        error_msg = result.get("message", result.get("error", str(result)))
+                        error_msg = result.get("error", result.get("message", str(result)))
                         return {'success': False, 'error': f"Lava.top ({resp.status}): {error_msg}"}
         
         except Exception as e:
