@@ -138,8 +138,13 @@ class CardPaymentService:
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as resp:
-                    result = await resp.json(content_type=None)
-                    bot_logger.info(f"Lava.top V3 response: {resp.status} — {result}")
+                    raw_text = await resp.text()
+                    bot_logger.info(f"Lava.top V3 raw response: {resp.status} — {raw_text[:500]}")
+                    
+                    try:
+                        result = json.loads(raw_text)
+                    except json.JSONDecodeError:
+                        return {'success': False, 'error': f"Lava.top ({resp.status}): невалидный JSON: {raw_text[:300]}"}
                     
                     if resp.status == 200:
                         # V3 API возвращает url для оплаты
