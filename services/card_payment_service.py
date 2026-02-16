@@ -142,6 +142,9 @@ class CardPaymentService:
             merchant_domain = self._get_base_domain()
             order_date = int(time.time())
             
+            # Unique orderReference to avoid 'Duplicate Order ID' on retries
+            unique_order_ref = f"{invoice_id}_ts_{order_date}"
+            
             # Format amounts consistently (WayForPay/PHP uses '10' not '10.0')
             amount_str = self._format_amount(amount_usd)
             
@@ -149,7 +152,7 @@ class CardPaymentService:
             sign_string = ";".join([
                 Config.WAYPAY_MERCHANT_LOGIN,
                 merchant_domain,
-                invoice_id,
+                unique_order_ref,
                 str(order_date),
                 amount_str,
                 "USD",
@@ -177,7 +180,7 @@ class CardPaymentService:
                 "apiVersion": 1,
                 "language": "RU",
                 "serviceUrl": self._get_webhook_url("waypay"),
-                "orderReference": invoice_id,
+                "orderReference": unique_order_ref,
                 "orderDate": order_date,
                 "amount": amount_num,
                 "currency": "USD",

@@ -515,15 +515,18 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
         transaction_status = data.get('transactionStatus', '')
         order_ref = data.get('orderReference', '')
         
-        if transaction_status == 'Approved' and order_ref:
+        # Extract original invoice_id (remove _ts_ timestamp suffix)
+        invoice_id = order_ref.split('_ts_')[0] if '_ts_' in order_ref else order_ref
+        
+        if transaction_status == 'Approved' and invoice_id:
             success = await invoice_service.mark_invoice_as_paid(
-                invoice_id=order_ref,
+                invoice_id=invoice_id,
                 transaction_id=str(data.get('transactionId', '')),
                 payment_method='card_int_waypay'
             )
             
             if success and bot:
-                invoice_data = await invoice_service.get_invoice_with_user(order_ref)
+                invoice_data = await invoice_service.get_invoice_with_user(invoice_id)
                 if invoice_data:
                     inv, user = invoice_data
                     from datetime import datetime
