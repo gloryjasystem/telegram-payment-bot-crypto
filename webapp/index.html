@@ -59,6 +59,22 @@
             zoom: 0.9;
         }
 
+        /* Custom scrollbar for desktop to prevent layout shifts */
+        body.platform-desktop::-webkit-scrollbar {
+            width: 6px;
+            /* Thin scrollbar */
+            background-color: transparent;
+        }
+
+        body.platform-desktop::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        body.platform-desktop::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
