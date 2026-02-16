@@ -17,7 +17,7 @@ from utils.logger import bot_logger
 class CardPaymentService:
     """Сервис для создания карточных платежей"""
     
-    LAVA_API_URL = "https://api.lava.top/api/v3/invoice"
+    LAVA_API_URL = "https://gate.lava.top/api/v3/invoice"
     WAYPAY_API_URL = "https://api.wayforpay.com/api"
     
     # Маппинг ключевых слов из описания услуги → короткий тип
