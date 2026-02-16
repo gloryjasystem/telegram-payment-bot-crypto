@@ -52,7 +52,10 @@ class Config:
     # LAVA.TOP SETTINGS (Card payments RU — Рубли)
     # ========================================
     LAVA_API_KEY: str = os.getenv("LAVA_API_KEY", "")
-    LAVA_OFFER_MAP: dict = json.loads(os.getenv("LAVA_OFFER_MAP", "{}"))
+    try:
+        LAVA_OFFER_MAP: dict = json.loads(os.getenv("LAVA_OFFER_MAP", "{}") or "{}")
+    except json.JSONDecodeError:
+        LAVA_OFFER_MAP: dict = {}
     LAVA_WEBHOOK_PATH: str = os.getenv("LAVA_WEBHOOK_PATH", "/webhook/lava")
     
     # ========================================
