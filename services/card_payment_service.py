@@ -129,17 +129,21 @@ class CardPaymentService:
                 "Authorization": f"Bearer {Config.LAVA_API_KEY}"
             }
             
-            bot_logger.info(f"🔄 Lava.top V3 request: offer={offer_id}, amount={rounded_amount} RUB, email={email}")
+            body_json = json.dumps(payload)
+            bot_logger.info(f"🔄 Lava.top V3 request URL: {self.LAVA_API_URL}")
+            bot_logger.info(f"🔄 Lava.top V3 headers: Auth=Bearer {Config.LAVA_API_KEY[:8]}...{Config.LAVA_API_KEY[-4:]}")
+            bot_logger.info(f"🔄 Lava.top V3 payload: {body_json}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                     self.LAVA_API_URL,
-                    json=payload,
+                    data=body_json,
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as resp:
                     raw_text = await resp.text()
-                    bot_logger.info(f"Lava.top V3 raw response: {resp.status} — {raw_text[:500]}")
+                    bot_logger.info(f"Lava.top V3 response: status={resp.status}, headers={dict(resp.headers)}")
+                    bot_logger.info(f"Lava.top V3 raw body: {raw_text[:500]}")
                     
                     try:
                         result = json.loads(raw_text)
