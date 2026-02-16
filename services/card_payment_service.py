@@ -233,14 +233,14 @@ class CardPaymentService:
             
             # WayForPay signature строится из определённых полей
             sign_fields = [
-                data.get("merchantAccount", ""),
-                data.get("orderReference", ""),
+                str(data.get("merchantAccount", "")),
+                str(data.get("orderReference", "")),
                 str(data.get("amount", "")),
-                data.get("currency", ""),
+                str(data.get("currency", "")),
                 str(data.get("authCode", "")),
-                data.get("cardPan", ""),
-                data.get("transactionStatus", ""),
-                data.get("reasonCode", "")
+                str(data.get("cardPan", "")),
+                str(data.get("transactionStatus", "")),
+                str(data.get("reasonCode", ""))
             ]
             sign_string = ";".join(sign_fields)
             
