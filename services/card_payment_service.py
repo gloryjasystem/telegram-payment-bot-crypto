@@ -4,8 +4,9 @@
 import hashlib
 import hmac
 import json
+import math
 import time
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
 import aiohttp
 
@@ -16,11 +17,59 @@ from utils.logger import bot_logger
 class CardPaymentService:
     """Сервис для создания карточных платежей"""
     
-    LAVA_API_URL = "https://api.lava.top/business/invoice/create"
+    LAVA_API_URL = "https://lava.top/api/v3/invoice"
     WAYPAY_API_URL = "https://api.wayforpay.com/api"
     
+    # Маппинг ключевых слов из описания услуги → короткий тип
+    SERVICE_TYPE_MAP = {
+        "реклам": "ad",       # "Размещение рекламы" → "ad"
+        "верификац": "ver",   # "Верификация профилей" → "ver"
+        "сертификац": "ver",  # "Сертификация" → "ver"
+    }
+    
+    def _get_lava_offer_id(self, amount_rub: float, description: str) -> Tuple[str, int]:
+        """
+        Определяет offer_id по описанию услуги и сумме.
+        Округляет сумму вверх до ближайшей сотни.
+        
+        Returns:
+            tuple: (offer_id, rounded_amount)
+        Raises:
+            ValueError: если offer_id не найден
+        """
+        # 1. Определить тип услуги по ключевым словам
+        service_type = "ad"  # default
+        desc_lower = description.lower()
+        for keyword, stype in self.SERVICE_TYPE_MAP.items():
+            if keyword in desc_lower:
+                service_type = stype
+                break
+        
+        # 2. Сначала ищем точную сумму, потом округлённую
+        exact = int(amount_rub)
+        rounded = int(math.ceil(amount_rub / 100) * 100)
+        
+        # 3. Найти offer_id: сначала точное совпадение, потом округлённое
+        key_exact = f"{service_type}_{exact}"
+        key_rounded = f"{service_type}_{rounded}"
+        
+        offer_id = Config.LAVA_OFFER_MAP.get(key_exact) or Config.LAVA_OFFER_MAP.get(key_rounded)
+        used_key = key_exact if Config.LAVA_OFFER_MAP.get(key_exact) else key_rounded
+        final_amount = exact if Config.LAVA_OFFER_MAP.get(key_exact) else rounded
+        
+        if not offer_id:
+            available = list(Config.LAVA_OFFER_MAP.keys())
+            raise ValueError(
+                f"Нет offer для '{key_exact}' или '{key_rounded}' "
+                f"(услуга: {description}, сумма: {amount_rub}₽). "
+                f"Доступные: {available}"
+            )
+        
+        bot_logger.info(f"🔍 Offer mapping: {description} + {amount_rub}₽ → key={used_key} → offer={offer_id}")
+        return offer_id, final_amount
+    
     # ========================================
-    # LAVA.TOP (Банк РФ — Рубли)
+    # LAVA.TOP V3 (Банк РФ — Рубли)
     # ========================================
     
     async def create_lava_payment(
@@ -31,7 +80,7 @@ class CardPaymentService:
         description: str
     ) -> Dict[str, Any]:
         """
-        Создание платежа через Lava.top
+        Создание платежа через Lava.top V3 API
         
         Args:
             invoice_id: ID инвойса из бота
@@ -43,34 +92,34 @@ class CardPaymentService:
             dict: {'success': bool, 'payment_url': str} или {'success': False, 'error': str}
         """
         try:
-            if not Config.LAVA_SECRET_KEY:
-                return {'success': False, 'error': 'LAVA_SECRET_KEY не настроен'}
+            if not Config.LAVA_API_KEY:
+                return {'success': False, 'error': 'LAVA_API_KEY не настроен'}
+            if not Config.LAVA_OFFER_MAP:
+                return {'success': False, 'error': 'LAVA_OFFER_MAP не настроен (нет офферов)'}
+            
+            # Подбираем offer_id по описанию услуги и сумме
+            try:
+                offer_id, rounded_amount = self._get_lava_offer_id(amount_rub, description)
+            except ValueError as e:
+                return {'success': False, 'error': str(e)}
             
             payload = {
-                "sum": amount_rub,
-                "orderId": invoice_id,
-                "hookUrl": self._get_webhook_url("lava"),
-                "successUrl": "https://t.me",
-                "failUrl": "https://t.me",
-                "expire": 3600,  # 1 час
-                "customFields": invoice_id,
-                "comment": description,
-                "buyerEmail": email
+                "offer_id": offer_id,
+                "amount": rounded_amount,
+                "currency": "RUB",
+                "buyer_email": email,
+                "metadata": invoice_id,
+                "success_url": "https://t.me",
+                "fail_url": "https://t.me"
             }
-            
-            # Lava.top signature: SHA256 HMAC of JSON body
-            body_json = json.dumps(payload, separators=(',', ':'))
-            signature = hmac.new(
-                Config.LAVA_SECRET_KEY.encode(),
-                body_json.encode(),
-                hashlib.sha256
-            ).hexdigest()
             
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "Signature": signature
+                "Authorization": f"Bearer {Config.LAVA_API_KEY}"
             }
+            
+            bot_logger.info(f"🔄 Lava.top V3 request: offer={offer_id}, amount={rounded_amount} RUB, email={email}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -80,36 +129,48 @@ class CardPaymentService:
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as resp:
                     result = await resp.json()
-                    bot_logger.info(f"Lava.top response: {resp.status} — {result}")
+                    bot_logger.info(f"Lava.top V3 response: {resp.status} — {result}")
                     
-                    if resp.status == 200 and result.get("data", {}).get("url"):
-                        return {
-                            'success': True,
-                            'payment_url': result["data"]["url"],
-                            'payment_id': result["data"].get("id", "")
-                        }
+                    if resp.status == 200:
+                        # V3 API возвращает url для оплаты
+                        payment_url = result.get("url") or result.get("data", {}).get("url")
+                        payment_id = result.get("id") or result.get("data", {}).get("id", "")
+                        
+                        if payment_url:
+                            return {
+                                'success': True,
+                                'payment_url': payment_url,
+                                'payment_id': str(payment_id)
+                            }
+                        else:
+                            return {'success': False, 'error': f"Lava.top: URL не получен. Ответ: {result}"}
                     else:
-                        error_msg = result.get("message", result.get("error", "Unknown error"))
-                        return {'success': False, 'error': f"Lava.top: {error_msg}"}
+                        error_msg = result.get("message", result.get("error", str(result)))
+                        return {'success': False, 'error': f"Lava.top ({resp.status}): {error_msg}"}
         
         except Exception as e:
-            bot_logger.error(f"Error creating Lava.top payment: {e}", exc_info=True)
+            bot_logger.error(f"Error creating Lava.top V3 payment: {e}", exc_info=True)
             return {'success': False, 'error': str(e)}
     
     def verify_lava_webhook(self, data: dict, signature: str) -> bool:
-        """Проверка подписи вебхука от Lava.top"""
+        """Проверка вебхука от Lava.top (V3 использует Bearer-авторизацию)"""
         try:
-            if not Config.LAVA_SECRET_KEY:
+            if not Config.LAVA_API_KEY:
                 return False
+            # V3 webhook может отправлять подпись в заголовке Authorization
+            # Проверяем Bearer токен
+            if signature.startswith("Bearer "):
+                return signature[7:] == Config.LAVA_API_KEY
+            # Fallback: проверяем как HMAC если Lava отправляет Signature
             body_json = json.dumps(data, separators=(',', ':'))
             expected = hmac.new(
-                Config.LAVA_SECRET_KEY.encode(),
+                Config.LAVA_API_KEY.encode(),
                 body_json.encode(),
                 hashlib.sha256
             ).hexdigest()
             return hmac.compare_digest(expected, signature)
         except Exception as e:
-            bot_logger.error(f"Lava webhook signature verification error: {e}")
+            bot_logger.error(f"Lava webhook verification error: {e}")
             return False
     
     # ========================================

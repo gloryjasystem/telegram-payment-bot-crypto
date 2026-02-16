@@ -442,7 +442,7 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
 
 async def handle_lava_webhook(request: web.Request) -> web.Response:
     """
-    Webhook endpoint для Lava.top
+    Webhook endpoint для Lava.top V3
     POST /webhook/lava
     """
     try:
@@ -451,10 +451,11 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         from services.notification_service import NotificationService
         
         raw_body = await request.read()
-        signature = request.headers.get('Signature', '')
+        # V3 может отправлять подпись через Signature или Authorization
+        signature = request.headers.get('Signature', '') or request.headers.get('Authorization', '')
         data = json.loads(raw_body)
         
-        bot_logger.info(f"📥 Lava.top webhook: {data}")
+        bot_logger.info(f"📥 Lava.top V3 webhook: {data}")
         
         # Проверка подписи
         if signature and not card_payment_service.verify_lava_webhook(data, signature):
@@ -462,13 +463,17 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         
         # Проверяем статус оплаты
         status = data.get('status', '')
-        order_id = data.get('orderId', '') or data.get('order_id', '')
+        # V3 API: invoice_id хранится в metadata (наш INV-xxx)
+        order_id = data.get('metadata', '') or data.get('orderId', '') or data.get('order_id', '')
         
-        if status in ('success', 'completed') and order_id:
+        if status in ('success', 'completed', 'paid') and order_id:
+            # Получаем transaction_id из ответа Lava
+            lava_invoice_id = str(data.get('id', '') or data.get('invoice_id', ''))
+            
             # Помечаем инвойс как оплаченный
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=order_id,
-                transaction_id=data.get('id', str(data.get('invoice_id', ''))),
+                transaction_id=lava_invoice_id,
                 payment_method='card_ru_lava'
             )
             
@@ -484,7 +489,7 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
                         await notifier.notify_admins_payment_received(invoice=inv, user=user)
-                        bot_logger.info(f"✅ Lava payment confirmed for {order_id}")
+                        bot_logger.info(f"✅ Lava V3 payment confirmed for {order_id}")
                     except Exception as e:
                         bot_logger.error(f"Notification error after Lava payment: {e}")
         

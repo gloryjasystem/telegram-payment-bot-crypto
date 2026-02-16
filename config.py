@@ -2,6 +2,7 @@
 Конфигурация бота и загрузка переменных окружения
 """
 import os
+import json
 from typing import List
 from dotenv import load_dotenv
 
@@ -50,8 +51,8 @@ class Config:
     # ========================================
     # LAVA.TOP SETTINGS (Card payments RU — Рубли)
     # ========================================
-    LAVA_SECRET_KEY: str = os.getenv("LAVA_SECRET_KEY", "")
-    LAVA_PROJECT_ID: str = os.getenv("LAVA_PROJECT_ID", "")
+    LAVA_API_KEY: str = os.getenv("LAVA_API_KEY", "")
+    LAVA_OFFER_MAP: dict = json.loads(os.getenv("LAVA_OFFER_MAP", "{}"))
     LAVA_WEBHOOK_PATH: str = os.getenv("LAVA_WEBHOOK_PATH", "/webhook/lava")
     
     # ========================================
