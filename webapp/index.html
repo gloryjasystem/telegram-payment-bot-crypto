@@ -667,7 +667,14 @@
                 const data = await response.json();
 
                 if (data.success && data.payment_url) {
-                    // Show step 3 with spinner
+                    // Сразу открываем страницу оплаты
+                    if (tg) {
+                        tg.openLink(data.payment_url);
+                    } else {
+                        window.open(data.payment_url, '_blank');
+                    }
+
+                    // Показываем step 3 как fallback с ручной ссылкой
                     showPage(2);
 
                     // Set the manual payment link
@@ -680,15 +687,6 @@
                             window.open(data.payment_url, '_blank');
                         }
                     });
-
-                    // Auto-redirect after a short delay
-                    setTimeout(() => {
-                        if (tg) {
-                            tg.openLink(data.payment_url);
-                        } else {
-                            window.open(data.payment_url, '_blank');
-                        }
-                    }, 1500);
                 } else {
                     throw new Error(data.error || 'Не удалось создать платёж');
                 }
