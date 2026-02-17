@@ -69,7 +69,7 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
     # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
     builder.row(
         InlineKeyboardButton(
-            text="🪙 Оплатить крипто",
+            text="₿ Оплатить крипто",
             web_app=WebAppInfo(url=payment_url)
         )
     )
