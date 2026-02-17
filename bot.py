@@ -195,15 +195,16 @@ async def check_payments_task():
                     if status_result.get('is_paid'):
                         bot_logger.info(f"💰 POLL: Invoice {invoice.invoice_id} is PAID (status: {payment_status})")
                         
-                        # Получаем инвойс с пользователем
+                        # Получаем СВЕЖИЕ данные инвойса с пользователем (защита от race condition)
                         invoice_data = await invoice_service.get_invoice_with_user(invoice.invoice_id)
                         if not invoice_data:
                             continue
                         
                         inv, user = invoice_data
                         
-                        # Проверяем что ещё не помечен как оплаченный
+                        # Проверяем что ещё не помечен как оплаченный (свежие данные из БД)
                         if inv.status == 'paid':
+                            bot_logger.info(f"⏭ POLL: Invoice {invoice.invoice_id} already paid (likely by webhook). Skipping.")
                             continue
                         
                         crypto_currency = status_result.get('currency', 'crypto')

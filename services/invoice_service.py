@@ -209,7 +209,8 @@ class InvoiceService:
                         invoice.paid_at = datetime.utcnow()
                         # commit выполняется автоматически в get_session()
                         bot_logger.info(f"Updated invoice {invoice_id} status to PAID (recovered from duplicate payment)")
-                    return True
+                    # Возвращаем False — платёж уже обработан, уведомления отправлять НЕ НУЖНО
+                    return False
 
                 # Обновление инвойса
                 invoice.status = "paid"
