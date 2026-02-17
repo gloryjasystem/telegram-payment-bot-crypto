@@ -540,6 +540,11 @@ async def cmd_cancel_invoice(message: Message, state: FSMContext):
                     except Exception as e:
                         bot_logger.warning(f"Could not edit original message: {e}")
                 
+                # Отправляем отдельное уведомление клиенту
+                from services import NotificationService
+                notification_svc = NotificationService(bot)
+                await notification_svc.notify_client_invoice_cancelled(invoice, user)
+                
                 bot_logger.info(f"User {user.telegram_id} notified about cancelled invoice {invoice_id}")
             except Exception as e:
                 bot_logger.error(f"Failed to notify user about cancelled invoice: {e}")

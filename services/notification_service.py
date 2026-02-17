@@ -257,6 +257,50 @@ class NotificationService:
         except Exception as e:
             bot_logger.error(f"Error notifying admin about cancellation: {e}")
     
+    async def notify_client_invoice_cancelled(
+        self,
+        invoice: Invoice,
+        user: User
+    ) -> bool:
+        """
+        Уведомление клиента об отмене инвойса
+        
+        Args:
+            invoice: Отмененный инвойс
+            user: Клиент
+        
+        Returns:
+            bool: True если успешно отправлено
+        """
+        try:
+            from keyboards import get_payment_success_keyboard
+            
+            message_text = f"""
+🚫 **Инвойс отменён**
+
+📋 **Инвойс:** `{invoice.invoice_id}`
+💰 **Сумма:** {format_currency(invoice.amount, invoice.currency)}
+📝 **Услуга:** {invoice.service_description}
+
+Ваш инвойс был отменён администратором. Оплата по нему более невозможна.
+
+Если у вас есть вопросы — обращайтесь в поддержку.
+"""
+            
+            await self.bot.send_message(
+                chat_id=user.telegram_id,
+                text=message_text,
+                reply_markup=get_payment_success_keyboard(),
+                parse_mode="Markdown"
+            )
+            
+            bot_logger.info(f"Cancellation notification sent to user {user.telegram_id} for invoice {invoice.invoice_id}")
+            return True
+        
+        except Exception as e:
+            bot_logger.error(f"Error notifying client about invoice cancellation: {e}")
+            return False
+    
     async def send_welcome_message(self, user_telegram_id: int, first_name: str) -> bool:
         """
         Отправка приветственного сообщения новому пользователю
