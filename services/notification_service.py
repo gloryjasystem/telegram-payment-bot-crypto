@@ -138,10 +138,24 @@ class NotificationService:
         except Exception as e:
             bot_logger.error(f"Error notifying admin about invoice creation: {e}")
     
+    @staticmethod
+    def _format_payment_method(payment_method: str) -> str:
+        """Маппинг технического payment_method в человеко-читаемый текст"""
+        mapping = {
+            'card_ru_lava': '💳 Банк РФ (Lava.top)',
+            'card_int_waypay': '🌐 Иностранный банк (WayForPay)',
+            'card_int_waypay_TEST': '🧪 Тест WayForPay',
+        }
+        if payment_method in mapping:
+            return mapping[payment_method]
+        # Крипто — показываем валюту
+        return f'₿ Крипто ({payment_method.upper()})'
+    
     async def notify_admins_payment_received(
         self,
         invoice: Invoice,
-        user: User
+        user: User,
+        payment_method: str = ""
     ) -> None:
         """
         Уведомление всех администраторов об успешной оплате
@@ -149,6 +163,7 @@ class NotificationService:
         Args:
             invoice: Оплаченный инвойс
             user: Плательщик
+            payment_method: Способ оплаты (card_ru_lava, card_int_waypay, BTC и т.д.)
         """
         try:
             user_mention = format_user_mention(
@@ -157,6 +172,9 @@ class NotificationService:
                 user.first_name
             )
             
+            # Форматируем способ оплаты
+            method_display = self._format_payment_method(payment_method) if payment_method else "Не указан"
+            
             message_text = f"""
 💰 **ПЛАТЕЖ ПОЛУЧЕН**
 
@@ -164,6 +182,7 @@ class NotificationService:
 👤 **Клиент:** {user_mention}
 💵 **Сумма:** {format_currency(invoice.amount, invoice.currency)}
 📝 **Услуга:** {invoice.service_description}
+💳 **Оплата:** {method_display}
 🕐 **Оплачен:** {format_datetime(invoice.paid_at, "short")}
 
 Необходимо выполнить услугу для клиента.

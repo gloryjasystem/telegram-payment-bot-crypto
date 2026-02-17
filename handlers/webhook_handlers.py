@@ -90,7 +90,8 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
                 try:
                     await notifier.notify_admins_payment_received(
                         invoice=invoice,
-                        user=user
+                        user=user,
+                        payment_method=result.get('pay_currency', 'crypto')
                     )
                     bot_logger.info(f"✅ Admin notifications sent")
                 except Exception as e:

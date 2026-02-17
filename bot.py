@@ -229,7 +229,7 @@ async def check_payments_task():
                                 bot_logger.error(f"❌ POLL: Client notification failed: {e}")
                             
                             try:
-                                await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                                await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method=status_result.get('currency', 'crypto'))
                                 bot_logger.info(f"✅ POLL: Admin notifications sent")
                             except Exception as e:
                                 bot_logger.error(f"❌ POLL: Admin notification failed: {e}")
@@ -525,7 +525,7 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
                     notifier = NotificationService(bot)
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_ru_lava')
                         bot_logger.info(f"✅ Lava V3 payment confirmed for {order_id}")
                     except Exception as e:
                         bot_logger.error(f"Notification error after Lava payment: {e}")
@@ -578,7 +578,7 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
                     notifier = NotificationService(bot)
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_int_waypay')
                         bot_logger.info(f"✅ WayForPay payment confirmed for {order_ref}")
                     except Exception as e:
                         bot_logger.error(f"Notification error after WayForPay payment: {e}")
@@ -636,7 +636,7 @@ async def handle_waypay_test_success(request: web.Request) -> web.Response:
                     notifier = NotificationService(bot)
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user)
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_int_waypay_TEST')
                         bot_logger.info(f"✅ TEST: Payment confirmed + notifications sent for {inv_id}")
                     except Exception as e:
                         bot_logger.error(f"TEST: Notification error: {e}")
