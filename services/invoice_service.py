@@ -76,7 +76,7 @@ class InvoiceService:
                     bot_logger.error(f"Failed to create payment: {payment_result.get('error')}")
                     # Инвойс все равно создаем, но без payment_url
                 
-                await session.commit()
+                # commit выполняется автоматически в get_session()
                 
                 log_admin_action(
                     admin_id,
@@ -196,6 +196,21 @@ class InvoiceService:
                     bot_logger.error(f"Invoice {invoice_id} not found")
                     return False
                 
+                # Проверка на дубликат транзакции (идемпотентность)
+                existing_payment = await session.scalar(
+                    select(Payment).where(Payment.transaction_id == transaction_id)
+                )
+                
+                if existing_payment:
+                    bot_logger.warning(f"Payment with transaction_id {transaction_id} already exists. Skipping duplicate.")
+                    # Если инвойс еще не оплачен (например, частичная оплата или логическая ошибка), отмечаем
+                    if invoice.status != "paid":
+                        invoice.status = "paid"
+                        invoice.paid_at = datetime.utcnow()
+                        # commit выполняется автоматически в get_session()
+                        bot_logger.info(f"Updated invoice {invoice_id} status to PAID (recovered from duplicate payment)")
+                    return True
+
                 # Обновление инвойса
                 invoice.status = "paid"
                 invoice.paid_at = datetime.utcnow()
@@ -213,7 +228,7 @@ class InvoiceService:
                 )
                 
                 session.add(payment)
-                await session.commit()
+                # commit выполняется автоматически в get_session()
                 
                 bot_logger.info(f"✅ Invoice {invoice_id} marked as paid ({payment_category}/{payment_provider}/{payment_method})")
                 
@@ -243,7 +258,7 @@ class InvoiceService:
                     .values(status="cancelled", cancelled_at=datetime.utcnow())
                 )
                 
-                await session.commit()
+                # commit выполняется автоматически в get_session()
                 
                 if result.rowcount > 0:
                     log_admin_action(admin_id, f"cancelled invoice {invoice_id}")
@@ -278,7 +293,7 @@ class InvoiceService:
                     .values(status="expired")
                 )
                 
-                await session.commit()
+                # commit выполняется автоматически в get_session()
                 
                 expired_count = result.rowcount
                 

@@ -84,7 +84,7 @@ class NotificationService:
                         .where(InvoiceModel.invoice_id == invoice.invoice_id)
                         .values(bot_message_id=sent_message.message_id)
                     )
-                    await session.commit()
+                    # commit выполняется автоматически в get_session()
                 bot_logger.info(f"Saved bot_message_id={sent_message.message_id} for invoice {invoice.invoice_id}")
             except Exception as e:
                 bot_logger.warning(f"Could not save bot_message_id: {e}")
@@ -176,6 +176,27 @@ class NotificationService:
             # Форматируем способ оплаты
             method_display = self._format_payment_method(payment_method) if payment_method else "Не указан"
             
+            # Загружаем email клиента из таблицы payments
+            client_email = None
+            try:
+                from database import get_session
+                from database.models import Payment
+                from sqlalchemy import select
+                
+                async with get_session() as session:
+                    payment = await session.scalar(
+                        select(Payment)
+                        .where(Payment.invoice_id == invoice.id)
+                        .order_by(Payment.created_at.desc())
+                    )
+                    if payment and payment.client_email:
+                        client_email = payment.client_email
+            except Exception as e:
+                bot_logger.warning(f"Could not load client_email for notification: {e}")
+            
+            # Строка email для уведомления
+            email_line = f"\n✉️ **Email:** {client_email}" if client_email else ""
+            
             message_text = f"""
 💰 **ПЛАТЕЖ ПОЛУЧЕН**
 
@@ -183,7 +204,7 @@ class NotificationService:
 👤 **Клиент:** {user_mention}
 💵 **Сумма:** {format_currency(invoice.amount, invoice.currency)}
 📝 **Услуга:** {invoice.service_description}
-💳 **Оплата:** {method_display}
+💳 **Оплата:** {method_display}{email_line}
 🕐 **Оплачен:** {format_datetime(invoice.paid_at, "short")}
 
 Необходимо выполнить услугу для клиента.

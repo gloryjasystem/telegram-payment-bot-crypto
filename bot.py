@@ -510,6 +510,8 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         if status in ('success', 'completed', 'paid') and order_id:
             # Получаем transaction_id из ответа Lava
             lava_invoice_id = str(data.get('id', '') or data.get('invoice_id', ''))
+            # Извлекаем email клиента из webhook-данных
+            client_email = data.get('email') or data.get('buyer_email') or data.get('buyerEmail', '')
             
             # Помечаем инвойс как оплаченный
             success = await invoice_service.mark_invoice_as_paid(
@@ -517,7 +519,8 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
                 transaction_id=lava_invoice_id,
                 payment_category='card_ru',
                 payment_provider='lava',
-                payment_method='card'
+                payment_method='card',
+                client_email=client_email or None
             )
             
             if success and bot:
@@ -567,12 +570,16 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
         invoice_id = order_ref.split('_ts_')[0] if '_ts_' in order_ref else order_ref
         
         if transaction_status == 'Approved' and invoice_id:
+            # Извлекаем email клиента из webhook-данных
+            client_email = data.get('email') or data.get('clientEmail', '')
+            
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=invoice_id,
                 transaction_id=order_ref,
                 payment_category='card_int',
                 payment_provider='wayforpay',
-                payment_method='card'
+                payment_method='card',
+                client_email=client_email or None
             )
             
             if success and bot:
@@ -632,7 +639,8 @@ async def handle_waypay_test_success(request: web.Request) -> web.Response:
                 transaction_id=f'TEST-{inv_id}',
                 payment_category='card_int',
                 payment_provider='wayforpay',
-                payment_method='card'
+                payment_method='card',
+                client_email=email or None
             )
             
             if success and bot:
