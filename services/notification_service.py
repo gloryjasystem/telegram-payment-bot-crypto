@@ -220,6 +220,30 @@ class NotificationService:
                 parse_mode="Markdown"
             )
             
+            # Редактируем оригинальное сообщение инвойса (убираем кнопки оплаты)
+            if invoice.bot_message_id:
+                try:
+                    paid_at_str = format_datetime(invoice.paid_at, "short") if invoice.paid_at else ""
+                    edited_text = (
+                        f"✅ **Инвойс #{invoice.invoice_id} — ОПЛАЧЕНО**\n\n"
+                        f"💰 **Сумма:** {format_currency(invoice.amount, invoice.currency)}\n"
+                        f"📝 **Услуга:** {invoice.service_description}\n"
+                    )
+                    if paid_at_str:
+                        edited_text += f"🕐 **Оплачено:** {paid_at_str}\n"
+                    edited_text += "\n✅ Спасибо за оплату!"
+                    
+                    await self.bot.edit_message_text(
+                        chat_id=user.telegram_id,
+                        message_id=invoice.bot_message_id,
+                        text=edited_text,
+                        parse_mode="Markdown",
+                        reply_markup=None  # Убираем кнопки оплаты
+                    )
+                    bot_logger.info(f"Edited original invoice message for {invoice.invoice_id} → PAID")
+                except Exception as e:
+                    bot_logger.warning(f"Could not edit original invoice message: {e}")
+            
             bot_logger.info(f"Payment success notification sent to user {user.telegram_id}")
             return True
         
