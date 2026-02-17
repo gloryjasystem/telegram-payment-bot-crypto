@@ -66,15 +66,7 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
     """
     builder = InlineKeyboardBuilder()
     
-    # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
-    builder.row(
-        InlineKeyboardButton(
-            text="₿ Оплатить крипто",
-            web_app=WebAppInfo(url=payment_url)
-        )
-    )
-    
-    # Кнопка оплаты картой через Mini App
+    # Кнопка оплаты картой через Mini App (первая, приоритетная)
     if card_webapp_url:
         builder.row(
             InlineKeyboardButton(
@@ -82,6 +74,14 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
                 web_app=WebAppInfo(url=card_webapp_url)
             )
         )
+    
+    # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
+    builder.row(
+        InlineKeyboardButton(
+            text="₿ Оплатить крипто",
+            web_app=WebAppInfo(url=payment_url)
+        )
+    )
     
     # Кнопка поддержки (на случай вопросов)
     builder.row(
