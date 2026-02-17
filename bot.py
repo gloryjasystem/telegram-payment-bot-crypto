@@ -376,12 +376,49 @@ async def handle_root(request: web.Request) -> web.Response:
 # CARD PAYMENT HANDLERS
 # ========================================
 
+# Rate limiter: {ip: [timestamp, ...]}
+_rate_limit_store: dict = {}
+_RATE_LIMIT_MAX = 5       # Макс запросов
+_RATE_LIMIT_WINDOW = 60   # За N секунд
+
+def _check_rate_limit(ip: str) -> bool:
+    """Проверяет rate limit. Возвращает True если запрос разрешён."""
+    import time as _time
+    now = _time.time()
+    
+    # Чистим старые записи (раз в 100 запросов)
+    if len(_rate_limit_store) > 500:
+        expired = [k for k, v in _rate_limit_store.items() if not v or v[-1] < now - _RATE_LIMIT_WINDOW]
+        for k in expired:
+            del _rate_limit_store[k]
+    
+    timestamps = _rate_limit_store.get(ip, [])
+    # Убираем старые
+    timestamps = [t for t in timestamps if t > now - _RATE_LIMIT_WINDOW]
+    
+    if len(timestamps) >= _RATE_LIMIT_MAX:
+        _rate_limit_store[ip] = timestamps
+        return False
+    
+    timestamps.append(now)
+    _rate_limit_store[ip] = timestamps
+    return True
+
 async def handle_create_card_payment(request: web.Request) -> web.Response:
     """
     API endpoint для создания карточного платежа из Mini App
     POST /api/create-card-payment
     Body: {invoice_id, method, email, amount_usd, amount_rub, service}
     """
+    # Rate limiting: 5 req / 60s per IP
+    client_ip = request.remote or request.headers.get('X-Forwarded-For', 'unknown')
+    if not _check_rate_limit(client_ip):
+        bot_logger.warning(f"🚫 Rate limit exceeded for {client_ip}")
+        return web.json_response(
+            {'success': False, 'error': 'Too many requests. Please wait and try again.'},
+            status=429
+        )
+    
     try:
         import json
         from services.card_payment_service import card_payment_service
