@@ -343,22 +343,34 @@ class AdminService:
                 }
                 
                 for invoice in invoices:
-                    category = 'crypto'  # default
-                    method_name = 'crypto'
+                    # Инициализируем категорию по умолчанию
+                    category = 'crypto'
                     
-                    for payment in invoice.payments:
+                    if invoice.payments:
+                        # Берем последний успешный платеж
+                        payment = invoice.payments[-1]
+                        
+                        # Метод оплаты для детальной статистики
                         method_name = payment.payment_method or 'Unknown'
                         payment_methods[method_name] = payment_methods.get(method_name, 0) + 1
                         
-                        # Определяем категорию
-                        m = method_name.lower()
-                        if 'card_ru' in m or 'lava' in m:
-                            category = 'card_ru'
-                        elif 'card_int' in m or 'waypay' in m or 'wayforpay' in m:
-                            category = 'card_int'
+                        # Категория из БД
+                        if payment.payment_category:
+                            category = payment.payment_category
                         else:
-                            category = 'crypto'
+                            # Fallback для старых записей, если миграция не сработала (на всякий случай)
+                            m = (payment.payment_method or '').lower()
+                            if 'card_ru' in m or 'lava' in m:
+                                category = 'card_ru'
+                            elif 'card_int' in m or 'waypay' in m or 'wayforpay' in m:
+                                category = 'card_int'
+                            else:
+                                category = 'crypto'
                     
+                    # Безопасное обновление счетчиков
+                    if category not in by_category:
+                        category = 'crypto'
+                        
                     by_category[category]['count'] += 1
                     by_category[category]['amount'] += invoice.amount
                 

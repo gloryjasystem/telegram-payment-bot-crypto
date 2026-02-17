@@ -71,7 +71,7 @@ class InvoiceService:
                 
                 if payment_result['success']:
                     invoice.payment_url = payment_result['payment_url']
-                    invoice.cryptomus_invoice_id = payment_result['payment_id']  # Используем то же поле
+                    invoice.external_invoice_id = payment_result['payment_id']
                 else:
                     bot_logger.error(f"Failed to create payment: {payment_result.get('error')}")
                     # Инвойс все равно создаем, но без payment_url
@@ -167,7 +167,10 @@ class InvoiceService:
         self,
         invoice_id: str,
         transaction_id: str,
-        payment_method: Optional[str] = None
+        payment_category: Optional[str] = None,
+        payment_provider: Optional[str] = None,
+        payment_method: Optional[str] = None,
+        client_email: Optional[str] = None
     ) -> bool:
         """
         Отметить инвойс как оплаченный
@@ -175,7 +178,10 @@ class InvoiceService:
         Args:
             invoice_id: ID инвойса
             transaction_id: ID транзакции от платежной системы
-            payment_method: Метод оплаты (BTC, ETH, USDT и т.д.)
+            payment_category: Категория (crypto / card_ru / card_int)
+            payment_provider: Провайдер (nowpayments / lava / wayforpay)
+            payment_method: Конкретный метод (BTC, ETH, USDT, card и т.д.)
+            client_email: Email клиента (для карточных оплат)
         
         Returns:
             bool: True если успешно обновлено
@@ -198,10 +204,10 @@ class InvoiceService:
                 payment = Payment(
                     invoice_id=invoice.id,
                     transaction_id=transaction_id,
-                    amount=invoice.amount,
-                    currency=invoice.currency,
-                    status="paid",
+                    payment_category=payment_category,
+                    payment_provider=payment_provider,
                     payment_method=payment_method,
+                    client_email=client_email,
                     created_at=datetime.utcnow(),
                     confirmed_at=datetime.utcnow()
                 )
@@ -209,7 +215,7 @@ class InvoiceService:
                 session.add(payment)
                 await session.commit()
                 
-                bot_logger.info(f"✅ Invoice {invoice_id} marked as paid")
+                bot_logger.info(f"✅ Invoice {invoice_id} marked as paid ({payment_category}/{payment_provider}/{payment_method})")
                 
                 return True
         
@@ -234,7 +240,7 @@ class InvoiceService:
                     update(Invoice)
                     .where(Invoice.invoice_id == invoice_id)
                     .where(Invoice.status == "pending")
-                    .values(status="cancelled")
+                    .values(status="cancelled", cancelled_at=datetime.utcnow())
                 )
                 
                 await session.commit()

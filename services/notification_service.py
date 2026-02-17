@@ -141,13 +141,14 @@ class NotificationService:
     @staticmethod
     def _format_payment_method(payment_method: str) -> str:
         """Маппинг технического payment_method в человеко-читаемый текст"""
-        mapping = {
-            'card_ru_lava': '💳 Банк РФ (Lava.top)',
-            'card_int_waypay': '🌐 Иностранный банк (WayForPay)',
-            'card_int_waypay_TEST': '🧪 Тест WayForPay',
-        }
-        if payment_method in mapping:
-            return mapping[payment_method]
+        m = payment_method.lower()
+        if 'card_ru' in m or 'lava' in m:
+            return '💳 Банк РФ (Lava.top)'
+        elif 'card_int' in m or 'waypay' in m:
+            if 'test' in m:
+                return '🧪 Тест WayForPay'
+            return '🌐 Иностранный банк (WayForPay)'
+        
         # Крипто — показываем валюту
         return f'₿ Крипто ({payment_method.upper()})'
     

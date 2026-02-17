@@ -58,11 +58,15 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
                 bot_logger.warning(f"Invoice {order_id} already marked as paid")
                 return {'status': 'ok', 'message': 'Already processed'}
             
+            crypto_currency = result.get('pay_currency', 'crypto')
+            
             # Отмечаем как оплаченный
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=order_id,
                 transaction_id=str(result.get('payment_id')),
-                payment_method=result.get('pay_currency', 'crypto')
+                payment_category='crypto',
+                payment_provider='nowpayments',
+                payment_method=crypto_currency
             )
             
             if success:
@@ -91,7 +95,7 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
                     await notifier.notify_admins_payment_received(
                         invoice=invoice,
                         user=user,
-                        payment_method=result.get('pay_currency', 'crypto')
+                        payment_method=crypto_currency
                     )
                     bot_logger.info(f"✅ Admin notifications sent")
                 except Exception as e:

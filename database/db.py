@@ -63,7 +63,7 @@ async def init_db() -> None:
 
 async def check_and_migrate_table() -> None:
     """
-    Проверка и миграция таблицы users (добавление новых колонок)
+    Проверка и миграция таблиц (добавление новых колонок, переименование)
     """
     if _engine is None:
         return
@@ -74,8 +74,8 @@ async def check_and_migrate_table() -> None:
             return
 
         async with _engine.begin() as conn:
-            # Проверяем наличие колонки is_admin
             try:
+                # --- Users migration (existing) ---
                 result = await conn.execute(text(
                     "SELECT column_name FROM information_schema.columns "
                     "WHERE table_name='users' AND column_name='is_admin';"
@@ -83,25 +83,88 @@ async def check_and_migrate_table() -> None:
                 column_exists = result.scalar() is not None
                 
                 if not column_exists:
-                    logger.warning("⚠️ Обнаружена устаревшая схема БД. Выполняю миграцию...")
-                    
-                    # Добавляем колонки
+                    logger.warning("⚠️ Обнаружена устаревшая схема БД. Выполняю миграцию users...")
                     await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;"))
                     await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN DEFAULT FALSE;"))
                     await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS blocked_at TIMESTAMP WITHOUT TIME ZONE;"))
                     await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS blocked_by BIGINT;"))
-                    
-                    # Создаем индекс
                     await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_is_blocked ON users (is_blocked);"))
-                    
-                    logger.info("✅ Миграция базы данных выполнена успешно")
-                else:
-                    logger.info("✅ Структура базы данных актуальна")
+                    logger.info("✅ Миграция users выполнена")
                 
-                # Миграция: bot_message_id для инвойсов
+                # --- Invoices migration ---
                 await conn.execute(text(
                     "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS bot_message_id BIGINT;"
                 ))
+                
+                # Переименование cryptomus_invoice_id → external_invoice_id
+                result = await conn.execute(text(
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_name='invoices' AND column_name='cryptomus_invoice_id';"
+                ))
+                if result.scalar() is not None:
+                    logger.warning("⚠️ Переименование cryptomus_invoice_id → external_invoice_id...")
+                    await conn.execute(text(
+                        "ALTER TABLE invoices RENAME COLUMN cryptomus_invoice_id TO external_invoice_id;"
+                    ))
+                    logger.info("✅ Колонка переименована")
+                
+                # Новые поля invoices
+                await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP WITHOUT TIME ZONE;"))
+                await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITHOUT TIME ZONE;"))
+                
+                # --- Payments migration ---
+                # Новые поля
+                await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_category VARCHAR(20);"))
+                await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(30);"))
+                await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS client_email VARCHAR(255);"))
+                
+                # Заполняем category и provider из существующего payment_method
+                await conn.execute(text("""
+                    UPDATE payments SET
+                        payment_category = CASE
+                            WHEN payment_method LIKE 'card_ru%' THEN 'card_ru'
+                            WHEN payment_method LIKE 'card_int%' THEN 'card_int'
+                            ELSE 'crypto'
+                        END,
+                        payment_provider = CASE
+                            WHEN payment_method LIKE '%lava%' THEN 'lava'
+                            WHEN payment_method LIKE '%waypay%' THEN 'wayforpay'
+                            ELSE 'nowpayments'
+                        END
+                    WHERE payment_category IS NULL AND payment_method IS NOT NULL;
+                """))
+                
+                # Нормализуем payment_method (оставляем только валюту/тип)
+                await conn.execute(text("""
+                    UPDATE payments SET payment_method = CASE
+                        WHEN payment_method = 'card_ru_lava' THEN 'card'
+                        WHEN payment_method = 'card_int_waypay' THEN 'card'
+                        WHEN payment_method = 'card_int_waypay_TEST' THEN 'card'
+                        ELSE payment_method
+                    END
+                    WHERE payment_method LIKE 'card_%';
+                """))
+                
+                # Удаляем дублирующие поля (проверяем что они существуют)
+                for col in ['amount', 'currency', 'status']:
+                    result = await conn.execute(text(
+                        f"SELECT column_name FROM information_schema.columns "
+                        f"WHERE table_name='payments' AND column_name='{col}';"
+                    ))
+                    if result.scalar() is not None:
+                        logger.info(f"🗑️ Удаление payments.{col} (дублирующее поле)...")
+                        await conn.execute(text(f"ALTER TABLE payments DROP COLUMN {col};"))
+                
+                # Индексы для аналитики
+                await conn.execute(text("CREATE INDEX IF NOT EXISTS idx_payments_category ON payments(payment_category);"))
+                await conn.execute(text("CREATE INDEX IF NOT EXISTS idx_payments_provider ON payments(payment_provider);"))
+                await conn.execute(text("CREATE INDEX IF NOT EXISTS idx_invoices_cancelled ON invoices(cancelled_at);"))
+                
+                # Удаляем старый индекс idx_payments_status
+                await conn.execute(text("DROP INDEX IF EXISTS idx_payments_status;"))
+                
+                logger.info("✅ Структура базы данных актуальна")
+                
             except Exception as e:
                 logger.error(f"Ошибка проверки схемы БД: {e}")
                 

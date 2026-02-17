@@ -179,12 +179,12 @@ async def check_payments_task():
             for invoice in pending:
                 try:
                     # Пропускаем если нет payment_id (ещё не оплачивали)
-                    if not invoice.cryptomus_invoice_id:
+                    if not invoice.external_invoice_id:
                         continue
                     
                     # Запрашиваем статус у NOWPayments
                     status_result = await nowpayments_service.check_payment_status(
-                        str(invoice.cryptomus_invoice_id)
+                        str(invoice.external_invoice_id)
                     )
                     
                     if not status_result.get('success'):
@@ -206,11 +206,15 @@ async def check_payments_task():
                         if inv.status == 'paid':
                             continue
                         
+                        crypto_currency = status_result.get('currency', 'crypto')
+                        
                         # Помечаем как оплаченный
                         success = await invoice_service.mark_invoice_as_paid(
                             invoice_id=invoice.invoice_id,
-                            transaction_id=str(invoice.cryptomus_invoice_id),
-                            payment_method=status_result.get('currency', 'crypto')
+                            transaction_id=str(invoice.external_invoice_id),
+                            payment_category='crypto',
+                            payment_provider='nowpayments',
+                            payment_method=crypto_currency
                         )
                         
                         if success and bot:
@@ -229,7 +233,7 @@ async def check_payments_task():
                                 bot_logger.error(f"❌ POLL: Client notification failed: {e}")
                             
                             try:
-                                await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method=status_result.get('currency', 'crypto'))
+                                await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method=crypto_currency)
                                 bot_logger.info(f"✅ POLL: Admin notifications sent")
                             except Exception as e:
                                 bot_logger.error(f"❌ POLL: Admin notification failed: {e}")
@@ -511,7 +515,9 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=order_id,
                 transaction_id=lava_invoice_id,
-                payment_method='card_ru_lava'
+                payment_category='card_ru',
+                payment_provider='lava',
+                payment_method='card'
             )
             
             if success and bot:
@@ -525,7 +531,7 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
                     notifier = NotificationService(bot)
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_ru_lava')
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_ru')
                         bot_logger.info(f"✅ Lava V3 payment confirmed for {order_id}")
                     except Exception as e:
                         bot_logger.error(f"Notification error after Lava payment: {e}")
@@ -564,7 +570,9 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=invoice_id,
                 transaction_id=order_ref,
-                payment_method='card_int_waypay'
+                payment_category='card_int',
+                payment_provider='wayforpay',
+                payment_method='card'
             )
             
             if success and bot:
@@ -578,7 +586,7 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
                     notifier = NotificationService(bot)
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_int_waypay')
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_int')
                         bot_logger.info(f"✅ WayForPay payment confirmed for {order_ref}")
                     except Exception as e:
                         bot_logger.error(f"Notification error after WayForPay payment: {e}")
@@ -622,7 +630,9 @@ async def handle_waypay_test_success(request: web.Request) -> web.Response:
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=inv_id,
                 transaction_id=f'TEST-{inv_id}',
-                payment_method='card_int_waypay_TEST'
+                payment_category='card_int',
+                payment_provider='wayforpay',
+                payment_method='card'
             )
             
             if success and bot:
@@ -636,7 +646,7 @@ async def handle_waypay_test_success(request: web.Request) -> web.Response:
                     notifier = NotificationService(bot)
                     try:
                         await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_int_waypay_TEST')
+                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_int')
                         bot_logger.info(f"✅ TEST: Payment confirmed + notifications sent for {inv_id}")
                     except Exception as e:
                         bot_logger.error(f"TEST: Notification error: {e}")
