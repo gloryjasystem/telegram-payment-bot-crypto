@@ -12,6 +12,7 @@ import aiohttp
 
 from config import Config
 from utils.logger import bot_logger
+from utils.http_retry import api_request_with_retry
 
 
 class CardPaymentService:
@@ -131,38 +132,36 @@ class CardPaymentService:
             bot_logger.info(f"🔄 Payload: {body_json}")
             bot_logger.info(f"🔄 Auth: Bearer {Config.LAVA_API_KEY[:8]}...{Config.LAVA_API_KEY[-4:]}")
             
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.LAVA_API_URL,
-                    data=body_json,
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=30)
-                ) as resp:
-                    raw_text = await resp.text()
-                    bot_logger.info(f"Lava.top response: status={resp.status}")
-                    bot_logger.info(f"Lava.top body: {raw_text[:500]}")
-                    
-                    try:
-                        result = json.loads(raw_text)
-                    except json.JSONDecodeError:
-                        return {'success': False, 'error': f"Lava.top ({resp.status}): невалидный JSON: {raw_text[:300]}"}
-                    
-                    # Swagger: 201 = успешное создание контракта
-                    if resp.status in (200, 201):
-                        payment_url = result.get("paymentUrl") or result.get("url")
-                        payment_id = result.get("id", "")
-                        
-                        if payment_url:
-                            return {
-                                'success': True,
-                                'payment_url': payment_url,
-                                'payment_id': str(payment_id)
-                            }
-                        else:
-                            return {'success': False, 'error': f"Lava.top: URL не получен. Ответ: {result}"}
-                    else:
-                        error_msg = result.get("error", result.get("message", str(result)))
-                        return {'success': False, 'error': f"Lava.top ({resp.status}): {error_msg}"}
+            resp = await api_request_with_retry(
+                "POST", self.LAVA_API_URL,
+                headers=headers,
+                data=body_json,
+                timeout=30,
+            )
+            
+            bot_logger.info(f"Lava.top response: status={resp['status']}")
+            bot_logger.info(f"Lava.top body: {resp['body'][:500]}")
+            
+            result = resp['json']
+            if result is None:
+                return {'success': False, 'error': f"Lava.top ({resp['status']}): невалидный JSON: {resp['body'][:300]}"}
+            
+            # Swagger: 201 = успешное создание контракта
+            if resp['status'] in (200, 201):
+                payment_url = result.get("paymentUrl") or result.get("url")
+                payment_id = result.get("id", "")
+                
+                if payment_url:
+                    return {
+                        'success': True,
+                        'payment_url': payment_url,
+                        'payment_id': str(payment_id)
+                    }
+                else:
+                    return {'success': False, 'error': f"Lava.top: URL не получен. Ответ: {result}"}
+            else:
+                error_msg = result.get("error", result.get("message", str(result)))
+                return {'success': False, 'error': f"Lava.top ({resp['status']}): {error_msg}"}
         
         except Exception as e:
             bot_logger.error(f"Error creating Lava.top V3 payment: {e}", exc_info=True)
@@ -279,24 +278,24 @@ class CardPaymentService:
                 "clientEmail": email
             }
             
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.WAYPAY_API_URL,
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=30)
-                ) as resp:
-                    result = await resp.json()
-                    bot_logger.info(f"WayForPay response: {resp.status} — {result}")
-                    
-                    if result.get("invoiceUrl"):
-                        return {
-                            'success': True,
-                            'payment_url': result["invoiceUrl"],
-                            'payment_id': result.get("orderReference", "")
-                        }
-                    else:
-                        error_msg = result.get("reason", result.get("reasonCode", "Unknown error"))
-                        return {'success': False, 'error': f"WayForPay: {error_msg}"}
+            resp = await api_request_with_retry(
+                "POST", self.WAYPAY_API_URL,
+                json_data=payload,
+                timeout=30,
+            )
+            
+            result = resp['json'] or {}
+            bot_logger.info(f"WayForPay response: {resp['status']} — {result}")
+            
+            if result.get("invoiceUrl"):
+                return {
+                    'success': True,
+                    'payment_url': result["invoiceUrl"],
+                    'payment_id': result.get("orderReference", "")
+                }
+            else:
+                error_msg = result.get("reason", result.get("reasonCode", "Unknown error"))
+                return {'success': False, 'error': f"WayForPay: {error_msg}"}
         
         except Exception as e:
             bot_logger.error(f"Error creating WayForPay payment: {e}", exc_info=True)

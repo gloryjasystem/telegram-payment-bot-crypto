@@ -11,6 +11,7 @@ from datetime import datetime
 
 from config import Config
 from utils.logger import bot_logger, log_payment
+from utils.http_retry import api_request_with_retry
 from database.models import Invoice
 
 
@@ -92,38 +93,38 @@ class NOWPaymentsService:
             bot_logger.info(f"📌 IPN callback URL: {ipn_url}")
             bot_logger.info(f"📌 Payload: {payload}")
             
-            # HTTP запрос
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    f"{self.BASE_URL}/invoice",
-                    json=payload,
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=15)
-                ) as response:
-                    result = await response.json()
-                    
-                    if response.status != 200:
-                        error_msg = result.get('message', 'Unknown error')
-                        bot_logger.error(f"NOWPayments API error: {error_msg}")
-                        raise NOWPaymentsAPIError(f"API error: {error_msg}")
-                    
-                    payment_id = result['id']
-                    invoice_url = result['invoice_url']
-                    
-                    log_payment(
-                        invoice.invoice_id,
-                        float(invoice.amount),
-                        "created"
-                    )
-                    
-                    bot_logger.info(f"✅ Payment created: {payment_id}")
-                    
-                    return {
-                        'success': True,
-                        'payment_url': invoice_url,
-                        'payment_id': str(payment_id),
-                        'status': 'waiting'
-                    }
+            # HTTP запрос с retry
+            resp = await api_request_with_retry(
+                "POST", f"{self.BASE_URL}/invoice",
+                headers=headers,
+                json_data=payload,
+                timeout=15,
+            )
+            
+            result = resp['json'] or {}
+            
+            if resp['status'] != 200:
+                error_msg = result.get('message', 'Unknown error')
+                bot_logger.error(f"NOWPayments API error: {error_msg}")
+                raise NOWPaymentsAPIError(f"API error: {error_msg}")
+            
+            payment_id = result['id']
+            invoice_url = result['invoice_url']
+            
+            log_payment(
+                invoice.invoice_id,
+                float(invoice.amount),
+                "created"
+            )
+            
+            bot_logger.info(f"✅ Payment created: {payment_id}")
+            
+            return {
+                'success': True,
+                'payment_url': invoice_url,
+                'payment_id': str(payment_id),
+                'status': 'waiting'
+            }
         
         except aiohttp.ClientError as e:
             bot_logger.error(f"HTTP error creating payment: {e}")
@@ -165,57 +166,57 @@ class NOWPaymentsService:
             return {'success': False, 'error': 'JWT credentials not configured'}
         
         try:
-            async with aiohttp.ClientSession() as session:
-                # Шаг 1: Получаем JWT токен
-                auth_resp = await session.post(
-                    f"{self.BASE_URL}/auth",
-                    json={"email": email, "password": password},
-                    timeout=aiohttp.ClientTimeout(total=10)
-                )
-                auth_data = await auth_resp.json()
-                
-                if auth_resp.status != 200 or 'token' not in auth_data:
-                    bot_logger.error(f"NOWPayments auth failed: {auth_data}")
-                    return {'success': False, 'error': 'Auth failed'}
-                
-                jwt_token = auth_data['token']
-                
-                # Шаг 2: Запрашиваем платежи по invoiceId
-                headers = {
-                    "Authorization": f"Bearer {jwt_token}",
-                    "x-api-key": self.api_key
-                }
-                
-                pay_resp = await session.get(
-                    f"{self.BASE_URL}/payment/",
-                    params={"invoiceId": invoice_id, "limit": 1, "sortBy": "created_at", "orderBy": "desc"},
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=10)
-                )
-                result = await pay_resp.json()
-                
-                if pay_resp.status != 200:
-                    bot_logger.error(f"NOWPayments API error: {result}")
-                    return {'success': False, 'error': f'API {pay_resp.status}'}
-                
-                payments = result.get('data', [])
-                
-                if not payments:
-                    return {'success': True, 'status': 'waiting', 'is_paid': False, 'is_failed': False}
-                
-                payment = payments[0]
-                payment_status = payment.get('payment_status', '')
-                
-                bot_logger.info(f"📊 Invoice {invoice_id} payment status: {payment_status}")
-                
-                return {
-                    'success': True,
-                    'status': payment_status,
-                    'is_paid': payment_status in ['finished', 'confirmed'],
-                    'is_failed': payment_status in ['failed', 'expired', 'refunded'],
-                    'amount': payment.get('price_amount'),
-                    'currency': payment.get('pay_currency', payment.get('price_currency'))
-                }
+            # Шаг 1: Получаем JWT токен (с retry)
+            auth_resp = await api_request_with_retry(
+                "POST", f"{self.BASE_URL}/auth",
+                json_data={"email": email, "password": password},
+                timeout=10,
+            )
+            
+            auth_data = auth_resp['json'] or {}
+            if auth_resp['status'] != 200 or 'token' not in auth_data:
+                bot_logger.error(f"NOWPayments auth failed: {auth_data}")
+                return {'success': False, 'error': 'Auth failed'}
+            
+            jwt_token = auth_data['token']
+            
+            # Шаг 2: Запрашиваем платежи по invoiceId (с retry)
+            headers = {
+                "Authorization": f"Bearer {jwt_token}",
+                "x-api-key": self.api_key
+            }
+            
+            pay_resp = await api_request_with_retry(
+                "GET", f"{self.BASE_URL}/payment/",
+                params={"invoiceId": invoice_id, "limit": 1, "sortBy": "created_at", "orderBy": "desc"},
+                headers=headers,
+                timeout=10,
+            )
+            
+            result = pay_resp['json'] or {}
+            
+            if pay_resp['status'] != 200:
+                bot_logger.error(f"NOWPayments API error: {result}")
+                return {'success': False, 'error': f'API {pay_resp["status"]}'}
+            
+            payments = result.get('data', [])
+            
+            if not payments:
+                return {'success': True, 'status': 'waiting', 'is_paid': False, 'is_failed': False}
+            
+            payment = payments[0]
+            payment_status = payment.get('payment_status', '')
+            
+            bot_logger.info(f"📊 Invoice {invoice_id} payment status: {payment_status}")
+            
+            return {
+                'success': True,
+                'status': payment_status,
+                'is_paid': payment_status in ['finished', 'confirmed'],
+                'is_failed': payment_status in ['failed', 'expired', 'refunded'],
+                'amount': payment.get('price_amount'),
+                'currency': payment.get('pay_currency', payment.get('price_currency'))
+            }
         
         except Exception as e:
             bot_logger.error(f"Error checking payment status: {e}")
