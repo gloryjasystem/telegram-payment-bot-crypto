@@ -332,7 +332,7 @@ async def cmd_statistics(message: Message):
 
 @admin_commands_router.message(Command("revenue"))
 async def cmd_revenue_report(message: Message):
-    """Отчет по доходам"""
+    """Отчет по доходам с разбивкой по способу оплаты"""
     args = message.text.split()
     period = args[1] if len(args) > 1 else "all"
     
@@ -356,13 +356,35 @@ async def cmd_revenue_report(message: Message):
         "all": "За все время"
     }
     
-    text = f"💵 **Доходы - {period_names[period]}**\n"
+    text = f"💵 **Доходы — {period_names[period]}**\n"
     text += "━━━━━━━━━━━━━━━━━━━━\n\n"
     
     text += f"💰 Общая сумма: {format_currency(report['total_revenue'], 'USD')}\n"
     text += f"📋 Инвойсов: {report['invoice_count']}\n"
-    text += f"📊 Средний чек: {format_currency(report['average_amount'], 'USD')}\n"
-    text += f"🏆 Популярная крипта: {report['top_currency']}\n"
+    text += f"📊 Средний чек: {format_currency(report['average_amount'], 'USD')}\n\n"
+    
+    # Разбивка по категориям
+    by_cat = report.get('by_category', {})
+    
+    text += "**Разбивка по способу оплаты:**\n"
+    text += "┌─────────────────────────\n"
+    
+    crypto = by_cat.get('crypto', {'count': 0, 'amount': Decimal('0')})
+    card_ru = by_cat.get('card_ru', {'count': 0, 'amount': Decimal('0')})
+    card_int = by_cat.get('card_int', {'count': 0, 'amount': Decimal('0')})
+    
+    text += f"│ ₿ Крипто: {format_currency(crypto['amount'], 'USD')} ({crypto['count']} шт)\n"
+    text += f"│ 💳 Карта РФ: {format_currency(card_ru['amount'], 'USD')} ({card_ru['count']} шт)\n"
+    text += f"│ 🌐 Карта INT: {format_currency(card_int['amount'], 'USD')} ({card_int['count']} шт)\n"
+    text += "└─────────────────────────\n\n"
+    
+    # Детальные методы
+    methods = report.get('payment_methods', {})
+    if methods:
+        text += "**Детализация по методам:**\n"
+        sorted_methods = sorted(methods.items(), key=lambda x: x[1], reverse=True)
+        for method, count in sorted_methods:
+            text += f"  • `{method}`: {count} платежей\n"
     
     await message.answer(text, parse_mode="Markdown")
     log_admin_action(message.from_user.id, f"viewed revenue ({period})")
