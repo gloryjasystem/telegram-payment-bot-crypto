@@ -528,6 +528,14 @@
             tg.expand();
         }
 
+        // ========== Haptic Feedback Helper ==========
+        function haptic(type, style) {
+            if (!tg || !tg.HapticFeedback) return;
+            if (type === 'impact') tg.HapticFeedback.impactOccurred(style || 'medium');
+            else if (type === 'notify') tg.HapticFeedback.notificationOccurred(style || 'success');
+            else if (type === 'select') tg.HapticFeedback.selectionChanged();
+        }
+
         // ========== Platform Detection for Desktop Zoom ==========
         const platform = (tg && tg.platform) || '';
         const isDesktop = ['tdesktop', 'desktop', 'macos', 'web', 'weba', 'unknown'].includes(platform);
@@ -564,8 +572,8 @@
         }
 
         // Listen for method change to update price
-        document.getElementById('bank-ru').addEventListener('change', updatePriceDisplay);
-        document.getElementById('bank-int').addEventListener('change', updatePriceDisplay);
+        document.getElementById('bank-ru').addEventListener('change', () => { haptic('select'); updatePriceDisplay(); });
+        document.getElementById('bank-int').addEventListener('change', () => { haptic('select'); updatePriceDisplay(); });
         updatePriceDisplay(); // initial
 
         // ========== Page Navigation ==========
@@ -603,6 +611,7 @@
             // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email || !emailRegex.test(email)) {
+                haptic('notify', 'error');
                 emailInput.classList.add('input-error');
                 emailError.textContent = !email ? 'Заполните это поле' : 'Пожалуйста, введите действительный e-mail';
                 emailError.classList.remove('hidden');
@@ -629,6 +638,7 @@
                 document.getElementById('review-currency').textContent = 'USD';
             }
 
+            haptic('impact', 'medium');
             showPage(1);
         });
 
@@ -639,6 +649,7 @@
             const btnIcon = document.getElementById('btn-next-2-icon');
 
             // Show loading state
+            haptic('impact', 'heavy');
             btn.classList.add('btn-loading');
             btnText.textContent = 'Создание платежа...';
             btnIcon.style.display = 'none';
@@ -668,6 +679,7 @@
 
                 if (data.success && data.payment_url) {
                     // Сразу открываем страницу оплаты
+                    haptic('notify', 'success');
                     if (tg) {
                         tg.openLink(data.payment_url);
                     } else {
@@ -681,6 +693,7 @@
                     document.getElementById('payment-link').href = data.payment_url;
                     document.getElementById('payment-link').addEventListener('click', (e) => {
                         e.preventDefault();
+                        haptic('impact', 'light');
                         if (tg) {
                             tg.openLink(data.payment_url);
                         } else {
@@ -692,6 +705,7 @@
                 }
             } catch (err) {
                 // Show error on page 3
+                haptic('notify', 'error');
                 showPage(2);
                 document.getElementById('payment-error').classList.remove('hidden');
                 document.getElementById('payment-error-text').textContent = err.message || 'Ошибка создания платежа. Попробуйте позже.';
@@ -705,6 +719,7 @@
 
         // ========== Step 2 → Step 1 (back) ==========
         document.getElementById('btn-back-2').addEventListener('click', () => {
+            haptic('impact', 'light');
             showPage(0);
         });
 
