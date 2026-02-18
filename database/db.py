@@ -167,6 +167,51 @@ async def check_and_migrate_table() -> None:
                 # Удаляем старый индекс idx_payments_status
                 await conn.execute(text("DROP INDEX IF EXISTS idx_payments_status;"))
                 
+                # --- Миграция invoices.user_id: Integer FK (users.id) → BigInteger (telegram_id) ---
+                result = await conn.execute(text(
+                    "SELECT data_type FROM information_schema.columns "
+                    "WHERE table_name='invoices' AND column_name='user_id';"
+                ))
+                col_type = result.scalar()
+                
+                if col_type and col_type.lower() == 'integer':
+                    logger.warning("⚠️ Миграция invoices.user_id: Integer FK → BigInteger (telegram_id)...")
+                    
+                    # 1. Удаляем FK constraint
+                    await conn.execute(text("""
+                        DO $$ DECLARE r RECORD;
+                        BEGIN
+                            FOR r IN (
+                                SELECT constraint_name FROM information_schema.table_constraints
+                                WHERE table_name='invoices' AND constraint_type='FOREIGN KEY'
+                                AND constraint_name LIKE '%user%'
+                            ) LOOP
+                                EXECUTE 'ALTER TABLE invoices DROP CONSTRAINT ' || r.constraint_name;
+                            END LOOP;
+                        END $$;
+                    """))
+                    
+                    # 2. Добавляем временную колонку с telegram_id
+                    await conn.execute(text(
+                        "ALTER TABLE invoices ADD COLUMN user_id_new BIGINT;"
+                    ))
+                    
+                    # 3. Заполняем из таблицы users (id → telegram_id)
+                    await conn.execute(text("""
+                        UPDATE invoices inv
+                        SET user_id_new = u.telegram_id
+                        FROM users u
+                        WHERE inv.user_id = u.id;
+                    """))
+                    
+                    # 4. Удаляем старую колонку и переименовываем новую
+                    await conn.execute(text("ALTER TABLE invoices DROP COLUMN user_id;"))
+                    await conn.execute(text("ALTER TABLE invoices RENAME COLUMN user_id_new TO user_id;"))
+                    await conn.execute(text("ALTER TABLE invoices ALTER COLUMN user_id SET NOT NULL;"))
+                    await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoices_user_id ON invoices(user_id);"))
+                    
+                    logger.info("✅ invoices.user_id → BigInteger (telegram_id) выполнено")
+                
                 # --- Миграция payments.invoice_id: Integer FK → String (INV-xxx) ---
                 result = await conn.execute(text(
                     "SELECT data_type FROM information_schema.columns "

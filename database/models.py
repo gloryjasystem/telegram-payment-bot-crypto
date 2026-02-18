@@ -48,8 +48,6 @@ class User(Base):
         nullable=False
     )
     
-    # Relationships
-    invoices: Mapped[List["Invoice"]] = relationship("Invoice", back_populates="user")
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, telegram_id={self.telegram_id}, username={self.username})>"
@@ -70,8 +68,8 @@ class Invoice(Base):
     # Уникальный человеко-читаемый ID (INV-2024-XXXXX)
     invoice_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
     
-    # Пользователь-получатель счёта
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # Telegram ID пользователя-получателя счёта
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
     
     # Сумма и валюта
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
@@ -102,8 +100,6 @@ class Invoice(Base):
     cancelled_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     
-    # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="invoices")
     
     def __repr__(self) -> str:
         return f"<Invoice(id={self.id}, invoice_id={self.invoice_id}, amount={self.amount}, status={self.status})>"

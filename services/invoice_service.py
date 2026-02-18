@@ -55,7 +55,7 @@ class InvoiceService:
                 # Создание инвойса
                 invoice = Invoice(
                     invoice_id=invoice_id,
-                    user_id=user.id,
+                    user_id=user.telegram_id,
                     amount=amount,
                     currency=currency,
                     service_description=service_description,
@@ -127,16 +127,9 @@ class InvoiceService:
         """
         try:
             async with get_session() as session:
-                user = await session.scalar(
-                    select(User).where(User.telegram_id == telegram_id)
-                )
-                
-                if not user:
-                    return []
-                
                 result = await session.execute(
                     select(Invoice)
-                    .where(Invoice.user_id == user.id)
+                    .where(Invoice.user_id == telegram_id)
                     .order_by(Invoice.created_at.desc())
                 )
                 
@@ -325,11 +318,18 @@ class InvoiceService:
                 invoice = await session.scalar(
                     select(Invoice)
                     .where(Invoice.invoice_id == invoice_id)
-                    .options(selectinload(Invoice.user))
                 )
                 
-                if invoice and invoice.user:
-                    return (invoice, invoice.user)
+                if not invoice:
+                    return None
+                
+                # Загружаем пользователя по telegram_id
+                user = await session.scalar(
+                    select(User).where(User.telegram_id == invoice.user_id)
+                )
+                
+                if user:
+                    return (invoice, user)
                 
                 return None
         
