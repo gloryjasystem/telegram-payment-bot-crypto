@@ -264,6 +264,16 @@ async def check_and_migrate_table() -> None:
                     WHERE transaction_id LIKE '%\\_ts\\_%' ESCAPE '\\' AND split_part(transaction_id, '_ts_', 2) != '';
                 """))
                 
+                # --- Замена transaction_id на external_invoice_id из invoices ---
+                await conn.execute(text("""
+                    UPDATE payments p
+                    SET transaction_id = i.external_invoice_id
+                    FROM invoices i
+                    WHERE p.invoice_id = i.invoice_id
+                    AND i.external_invoice_id IS NOT NULL
+                    AND i.external_invoice_id != '';
+                """))
+                
                 logger.info("✅ Структура базы данных актуальна")
                 
             except Exception as e:

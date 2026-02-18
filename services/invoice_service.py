@@ -191,13 +191,16 @@ class InvoiceService:
                     bot_logger.error(f"Invoice {invoice_id} not found")
                     return False
                 
+                # Определяем эффективный transaction_id (external_invoice_id если есть)
+                effective_transaction_id = invoice.external_invoice_id or transaction_id
+                
                 # Проверка на дубликат транзакции (идемпотентность)
                 existing_payment = await session.scalar(
-                    select(Payment).where(Payment.transaction_id == transaction_id)
+                    select(Payment).where(Payment.transaction_id == effective_transaction_id)
                 )
                 
                 if existing_payment:
-                    bot_logger.warning(f"Payment with transaction_id {transaction_id} already exists. Skipping duplicate.")
+                    bot_logger.warning(f"Payment with transaction_id {effective_transaction_id} already exists. Skipping duplicate.")
                     # Если инвойс еще не оплачен (например, частичная оплата или логическая ошибка), отмечаем
                     if invoice.status != "paid":
                         invoice.status = "paid"
@@ -214,7 +217,7 @@ class InvoiceService:
                 # Создание записи о платеже
                 payment = Payment(
                     invoice_id=invoice.invoice_id,
-                    transaction_id=transaction_id,
+                    transaction_id=effective_transaction_id,
                     payment_category=payment_category,
                     payment_provider=payment_provider,
                     payment_method=payment_method,
