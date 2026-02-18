@@ -22,6 +22,7 @@ class InvoiceService:
         amount: Decimal,
         service_description: str,
         admin_id: int,
+        admin_username: Optional[str] = None,
         currency: str = "USD"
     ) -> Optional[Invoice]:
         """
@@ -60,6 +61,7 @@ class InvoiceService:
                     service_description=service_description,
                     status="pending",
                     admin_id=admin_id,
+                    admin_username=admin_username,
                     created_at=datetime.utcnow()
                 )
                 
@@ -224,6 +226,7 @@ class InvoiceService:
                     payment_provider=payment_provider,
                     payment_method=payment_method,
                     client_email=client_email,
+                    admin_username=invoice.admin_username,
                     created_at=datetime.utcnow(),
                     confirmed_at=datetime.utcnow()
                 )

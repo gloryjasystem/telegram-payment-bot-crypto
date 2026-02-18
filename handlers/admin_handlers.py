@@ -220,6 +220,7 @@ async def confirm_invoice_creation(callback: CallbackQuery, state: FSMContext):
     amount = data['amount']
     description = data['description']
     admin_id = callback.from_user.id
+    admin_username = callback.from_user.username
     
     # Создаем инвойс через сервис
     try:
@@ -228,6 +229,7 @@ async def confirm_invoice_creation(callback: CallbackQuery, state: FSMContext):
             amount=Decimal(str(amount)),
             service_description=description,
             admin_id=admin_id,
+            admin_username=admin_username,
             currency="USD"
         )
         

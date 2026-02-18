@@ -118,6 +118,10 @@ async def check_and_migrate_table() -> None:
                 await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_provider VARCHAR(30);"))
                 await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS client_email VARCHAR(255);"))
                 
+                # admin_username в invoices и payments
+                await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS admin_username VARCHAR(100);"))
+                await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS admin_username VARCHAR(100);"))
+                
                 # Заполняем category и provider из существующего payment_method
                 await conn.execute(text("""
                     UPDATE payments SET

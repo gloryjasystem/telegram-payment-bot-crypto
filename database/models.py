@@ -90,6 +90,9 @@ class Invoice(Base):
     # Администратор, создавший инвойс (telegram_id)
     admin_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     
+    # Username администратора в Telegram
+    admin_username: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    
     # ID сообщения бота в чате пользователя (для редактирования при отмене)
     bot_message_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     
@@ -135,6 +138,9 @@ class Payment(Base):
     
     # Email клиента (для карточных оплат)
     client_email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    
+    # Username администратора, создавшего инвойс
+    admin_username: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     
     # Временные метки
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
