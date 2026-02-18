@@ -101,7 +101,6 @@ class Invoice(Base):
     
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="invoices")
-    payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="invoice")
     
     def __repr__(self) -> str:
         return f"<Invoice(id={self.id}, invoice_id={self.invoice_id}, amount={self.amount}, status={self.status})>"
@@ -119,8 +118,8 @@ class Payment(Base):
     # Primary Key
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     
-    # Ссылка на инвойс (FK → invoices.id)
-    invoice_id: Mapped[int] = mapped_column(Integer, ForeignKey("invoices.id"), nullable=False, index=True)
+    # Человеко-читаемый ID инвойса (INV-xxx)
+    invoice_id: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     
     # ID транзакции у платёжного провайдера
     transaction_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
@@ -141,11 +140,9 @@ class Payment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     confirmed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     
-    # Relationships
-    invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="payments")
     
     def __repr__(self) -> str:
-        return f"<Payment(id={self.id}, transaction_id={self.transaction_id}, provider={self.payment_provider}, method={self.payment_method})>"
+        return f"<Payment(id={self.id}, invoice_id={self.invoice_id}, transaction_id={self.transaction_id}, provider={self.payment_provider}, method={self.payment_method})>"
 
 
 # Индексы для оптимизации запросов

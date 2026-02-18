@@ -186,7 +186,7 @@ class NotificationService:
                 async with get_session() as session:
                     payment = await session.scalar(
                         select(Payment)
-                        .where(Payment.invoice_id == invoice.id)
+                        .where(Payment.invoice_id == invoice.invoice_id)
                         .order_by(Payment.created_at.desc())
                     )
                     if payment and payment.client_email:

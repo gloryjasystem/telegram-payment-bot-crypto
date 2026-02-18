@@ -218,7 +218,7 @@ class InvoiceService:
                 
                 # Создание записи о платеже
                 payment = Payment(
-                    invoice_id=invoice.id,
+                    invoice_id=invoice.invoice_id,
                     transaction_id=transaction_id,
                     payment_category=payment_category,
                     payment_provider=payment_provider,

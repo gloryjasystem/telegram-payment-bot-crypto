@@ -574,9 +574,12 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
             # Извлекаем email клиента из webhook-данных
             client_email = data.get('email') or data.get('clientEmail', '')
             
+            # Извлекаем чистый transaction_id (только timestamp, без INV-xxx_ts_ префикса)
+            clean_transaction_id = order_ref.split('_ts_')[1] if '_ts_' in order_ref else order_ref
+            
             success = await invoice_service.mark_invoice_as_paid(
                 invoice_id=invoice_id,
-                transaction_id=order_ref,
+                transaction_id=clean_transaction_id,
                 payment_category='card_int',
                 payment_provider='wayforpay',
                 payment_method='card',
