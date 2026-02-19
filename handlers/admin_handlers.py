@@ -32,15 +32,24 @@ from utils.logger import log_admin_action, bot_logger
 # ===========================================================================
 
 TIER_LABELS = {
-    "tier1": "Tier 1 — TRADING / SIGNALS / ARBITRAGE",
-    "tier2": "Tier 2 — ANALYTICS / DEFI / ECOSYSTEMS / INVESTMENTS",
-    "tier3": "Tier 3 — CRYPTO NEWS / EDUCATION / GUIDES",
-    "tier4": "Tier 4 — NFT / AIRDROPS / OPINIONS",
+    "tier1": "Тиер 1 — TRADING / SIGNALS / ARBITRAGE",
+    "tier2": "Тиер 2 — ANALYTICS / DEFI / ECOSYSTEMS / INVESTMENTS",
+    "tier3": "Тиер 3 — CRYPTO NEWS / EDUCATION / GUIDES",
+    "tier4": "Тиер 4 — NFT / AIRDROPS / OPINIONS",
     "world": "Мировой ТОП (WORLD)",
 }
 
+# Короткие метки для описания инвойса (без категорий)
+TIER_SHORT_LABELS = {
+    "tier1": "Tier 1",
+    "tier2": "Tier 2",
+    "tier3": "Tier 3",
+    "tier4": "Tier 4",
+    "world": "Мировой",
+}
+
 PERIOD_LABELS = {
-    "week":  "1 неделя",
+    "week":  "1 неделю",
     "month": "1 месяц",
 }
 
@@ -56,8 +65,10 @@ def _build_top_service_key(tier: str, position: int, period: str) -> str:
 
 
 def _build_top_service_description(tier: str, position: int, period: str) -> str:
-    """Человекочитаемое описание ТОП-позиции."""
-    return f"ТОП {TIER_LABELS.get(tier, tier)} — #{ position } — {PERIOD_LABELS.get(period, period)}"
+    """Человекочитаемое описание ТОП-позиции (без названий категорий)."""
+    tier_label  = TIER_SHORT_LABELS.get(tier, tier)
+    period_label = PERIOD_LABELS.get(period, period)
+    return f"ТОП {tier_label} — #{position} место в топе на {period_label}"
 
 
 def _build_lava_slug(service_key: str) -> str | None:
