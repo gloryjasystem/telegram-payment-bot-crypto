@@ -7,31 +7,45 @@ from aiogram.fsm.state import State, StatesGroup
 class InvoiceCreationStates(StatesGroup):
     """
     Состояния для пошагового создания инвойса администратором
-    
-    Процесс создания:
-    1. WaitingForUserId - Админ вводит User ID или @username клиента
-    2. WaitingForAmount - Админ вводит сумму платежа
-    3. WaitingForDescription - Админ вводит описание услуги
-    4. PreviewInvoice - Админ видит предпросмотр и подтверждает/отменяет
-    
-    После подтверждения:
-    - Создается инвойс в БД
-    - Создается платежная ссылка через Cryptomus
-    - Инвойс отправляется клиенту
-    - Админ получает подтверждение
+
+    Два потока:
+
+    Поток A — Каталог:
+      /invoice → User ID → WaitingForServiceCategory (кнопки)
+               → [топ: WaitingForTopTier → WaitingForTopPosition]
+               → PreviewInvoice → Confirm
+
+    Поток B — Своя услуга:
+      /invoice → User ID → WaitingForServiceCategory → «Своя услуга»
+               → WaitingForCustomDescription → WaitingForCustomAmount
+               → PreviewInvoice → Confirm
     """
-    
-    # Ожидание User ID клиента
+
+    # Шаг 1: ввод User ID клиента
     WaitingForUserId = State()
-    
-    # Ожидание суммы платежа
-    WaitingForAmount = State()
-    
-    # Ожидание описания услуги
-    WaitingForDescription = State()
-    
+
+    # Шаг 2: выбор услуги из каталога (inline-кнопки)
+    WaitingForServiceCategory = State()
+
+    # Для потока B: ввод описания произвольной услуги
+    WaitingForCustomDescription = State()
+
+    # Для потока B: ввод суммы произвольной услуги
+    WaitingForCustomAmount = State()
+
+    # Для топ-позиций: выбор tier (inline-кнопки)
+    WaitingForTopTier = State()
+
+    # Для топ-позиций: выбор позиции и периода (inline-кнопки)
+    WaitingForTopPosition = State()
+
     # Предпросмотр инвойса перед отправкой
     PreviewInvoice = State()
+
+    # --- Устаревшие состояния (оставлены для совместимости) ---
+    # Используются только если вызывается старый код, в новом потоке не задействованы
+    WaitingForAmount = State()
+    WaitingForDescription = State()
 
 
 class InvoiceManagementStates(StatesGroup):

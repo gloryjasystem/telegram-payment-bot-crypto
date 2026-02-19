@@ -85,6 +85,12 @@ class Invoice(Base):
     payment_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     external_invoice_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     
+    # Ключ услуги из каталога ("listing_pro", "top_tier1_week_3", "custom", и т.д.)
+    service_key: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    
+    # Slug продукта на lava.top для прямого редиректа (None = стандартный API-поток)
+    lava_slug: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    
     # Администратор, создавший инвойс (telegram_id)
     admin_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     

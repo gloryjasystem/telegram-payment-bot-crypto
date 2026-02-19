@@ -22,7 +22,12 @@ from .admin_keyboards import (
     get_admin_help_keyboard,
     get_invoice_sent_keyboard,
     get_fsm_cancel_keyboard,
-    parse_invoice_callback
+    parse_invoice_callback,
+    # Каталог услуг (новое)
+    get_service_category_keyboard,
+    get_top_tier_keyboard,
+    get_top_position_keyboard,
+    get_back_to_service_keyboard,
 )
 
 __all__ = [
@@ -41,5 +46,10 @@ __all__ = [
     "get_admin_help_keyboard",
     "get_invoice_sent_keyboard",
     "get_fsm_cancel_keyboard",
-    "parse_invoice_callback"
+    "parse_invoice_callback",
+    # Каталог услуг (новое)
+    "get_service_category_keyboard",
+    "get_top_tier_keyboard",
+    "get_top_position_keyboard",
+    "get_back_to_service_keyboard",
 ]

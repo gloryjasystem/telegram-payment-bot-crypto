@@ -551,6 +551,8 @@
         const currency = urlParams.get('currency') || 'USD';
         const invoiceId = urlParams.get('invoice_id') || '';
         const usdToRubRate = parseFloat(urlParams.get('rate') || '95');
+        // Слуг продукта на lava.top (если есть — прямой редирект вместо API-создания через Лаву)
+        const lavaSlug = urlParams.get('lava_slug') || '';
 
         // Calculate RUB amount
         const amountRUB = Math.round(amountUSD * usdToRubRate);
@@ -657,6 +659,35 @@
             const email = document.getElementById('email').value.trim();
             const method = isRu ? 'ru' : 'international';
 
+            // ==================================================
+            // ПРЯМОЙ РЕДИРЕКТ НА LAVA.TOP (lava_slug задан + Выбран Банк РФ)
+            //   Не делаем API-запрос, перенаправляем прямо на страницу продукта lava.top
+            // ==================================================
+            if (isRu && lavaSlug) {
+                const lavaUrl = lavaSlug; // полный URL из LAVA_PRODUCT_MAP (напр. https://app.lava.top/products/...)
+                haptic('notify', 'success');
+                showPage(2);
+                document.getElementById('payment-link').href = lavaUrl;
+                document.getElementById('payment-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    haptic('impact', 'light');
+                    if (tg) {
+                        tg.openLink(lavaUrl);
+                    } else {
+                        window.open(lavaUrl, '_blank');
+                    }
+                });
+                // Открываем страницу оплаты lava.top
+                setTimeout(() => {
+                    if (tg) {
+                        tg.openLink(lavaUrl);
+                    } else {
+                        window.open(lavaUrl, '_blank');
+                    }
+                }, 300);
+                return;
+            }
+
             try {
                 // Build API URL relative to current origin
                 const apiUrl = window.location.origin + '/api/create-card-payment';
@@ -715,6 +746,7 @@
                 btnIcon.style.display = '';
             }
         });
+
 
         // ========== Step 2 → Step 1 (back) ==========
         document.getElementById('btn-back-2').addEventListener('click', () => {

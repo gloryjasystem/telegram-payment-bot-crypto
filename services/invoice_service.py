@@ -23,7 +23,9 @@ class InvoiceService:
         service_description: str,
         admin_id: int,
         admin_username: Optional[str] = None,
-        currency: str = "USD"
+        currency: str = "USD",
+        service_key: Optional[str] = None,
+        lava_slug: Optional[str] = None,
     ) -> Optional[Invoice]:
         """
         Создание нового инвойса
@@ -62,6 +64,8 @@ class InvoiceService:
                     status="pending",
                     admin_id=admin_id,
                     admin_username=admin_username,
+                    service_key=service_key,
+                    lava_slug=lava_slug,
                     created_at=datetime.utcnow()
                 )
                 

@@ -5,94 +5,67 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
+# ===========================================================================
+#  СУЩЕСТВУЮЩИЕ КЛАВИАТУРЫ
+# ===========================================================================
+
 def get_invoice_preview_keyboard(invoice_id: str) -> InlineKeyboardMarkup:
     """
-    Клавиатура для предпросмотра инвойса администратором
-    
-    Показывает кнопки подтверждения или отмены создания инвойса
-    
-    Args:
-        invoice_id: ID инвойса для подтверждения
-    
-    Returns:
-        InlineKeyboardMarkup: Клавиатура с кнопками подтверждения/отмены
-    
+    Клавиатура для предпросмотра инвойса администратором.
+
     Callback data:
-        - confirm_invoice:{invoice_id} - подтвердить и отправить инвойс
-        - cancel_invoice:{invoice_id} - отменить создание инвойса
+        - confirm_invoice:{invoice_id}
+        - cancel_invoice:{invoice_id}
     """
     builder = InlineKeyboardBuilder()
-    
     builder.row(
         InlineKeyboardButton(
             text="✅ Подтвердить и отправить",
             callback_data=f"confirm_invoice:{invoice_id}"
         )
     )
-    
     builder.row(
         InlineKeyboardButton(
             text="❌ Отменить",
             callback_data=f"cancel_invoice:{invoice_id}"
         )
     )
-    
     return builder.as_markup()
 
 
 def get_invoice_management_keyboard(invoice_id: str) -> InlineKeyboardMarkup:
     """
-    Клавиатура управления существующим инвойсом
-    
-    Позволяет админу просмотреть статус или отменить инвойс
-    
-    Args:
-        invoice_id: ID инвойса
-    
-    Returns:
-        InlineKeyboardMarkup: Клавиатура управления инвойсом
-    
+    Клавиатура управления существующим инвойсом.
+
     Callback data:
-        - view_invoice:{invoice_id} - просмотреть детали инвойса
-        - cancel_invoice:{invoice_id} - отменить инвойс
+        - view_invoice:{invoice_id}
+        - cancel_invoice_confirm:{invoice_id}
     """
     builder = InlineKeyboardBuilder()
-    
     builder.row(
         InlineKeyboardButton(
             text="📋 Просмотреть детали",
             callback_data=f"view_invoice:{invoice_id}"
         )
     )
-    
     builder.row(
         InlineKeyboardButton(
             text="🚫 Отменить инвойс",
             callback_data=f"cancel_invoice_confirm:{invoice_id}"
         )
     )
-    
     return builder.as_markup()
 
 
 def get_cancel_confirmation_keyboard(invoice_id: str) -> InlineKeyboardMarkup:
     """
-    Клавиатура подтверждения отмены инвойса
-    
-    Дополнительная защита от случайной отмены
-    
-    Args:
-        invoice_id: ID инвойса для отмены
-    
-    Returns:
-        InlineKeyboardMarkup: Клавиатура подтверждения
-    
+    Клавиатура подтверждения отмены инвойса.
+
     Callback data:
-        - cancel_invoice_yes:{invoice_id} - подтвердить отмену
-        - cancel_invoice_no:{invoice_id} - не отменять
+        - cancel_invoice_yes:{invoice_id}
+        - cancel_invoice_no:{invoice_id}
     """
     builder = InlineKeyboardBuilder()
-    
     builder.row(
         InlineKeyboardButton(
             text="✅ Да, отменить",
@@ -103,103 +76,193 @@ def get_cancel_confirmation_keyboard(invoice_id: str) -> InlineKeyboardMarkup:
             callback_data=f"cancel_invoice_no:{invoice_id}"
         )
     )
-    
     return builder.as_markup()
 
 
 def get_admin_help_keyboard() -> InlineKeyboardMarkup:
-    """
-    Клавиатура помощи для администратора
-    
-    Показывает доступные команды
-    
-    Returns:
-        InlineKeyboardMarkup: Клавиатура с командами
-    
-    Callback data:
-        - admin_help_invoice - помощь по созданию инвойса
-        - admin_help_stats - помощь по статистике
-    """
+    """Клавиатура помощи для администратора."""
     builder = InlineKeyboardBuilder()
-    
     builder.row(
-        InlineKeyboardButton(
-            text="📝 Создание инвойса",
-            callback_data="admin_help_invoice"
-        )
+        InlineKeyboardButton(text="📝 Создание инвойса", callback_data="admin_help_invoice")
     )
-    
     builder.row(
-        InlineKeyboardButton(
-            text="📊 Статистика",
-            callback_data="admin_help_stats"
-        )
+        InlineKeyboardButton(text="📊 Статистика", callback_data="admin_help_stats")
     )
-    
     return builder.as_markup()
 
 
 def get_invoice_sent_keyboard() -> InlineKeyboardMarkup:
-    """
-    Клавиатура после успешной отправки инвойса клиенту
-    
-    Returns:
-        InlineKeyboardMarkup: Пустая клавиатура (для удаления предыдущих кнопок)
-    """
-    # Возвращаем пустую клавиатуру, чтобы убрать кнопки после отправки
+    """Пустая клавиатура (убирает кнопки после отправки)."""
     return InlineKeyboardMarkup(inline_keyboard=[])
 
 
 def get_fsm_cancel_keyboard() -> InlineKeyboardMarkup:
     """
-    Клавиатура для отмены процесса создания инвойса (FSM)
-    
-    Returns:
-        InlineKeyboardMarkup: Кнопка отмены
-    
+    Кнопка «Отменить создание» для любого шага FSM.
+
     Callback data:
-        - cancel_fsm - отменить процесс создания
+        - cancel_fsm
     """
     builder = InlineKeyboardBuilder()
-    
     builder.row(
-        InlineKeyboardButton(
-            text="❌ Отменить создание",
-            callback_data="cancel_fsm"
-        )
+        InlineKeyboardButton(text="❌ Отменить создание", callback_data="cancel_fsm")
     )
-    
     return builder.as_markup()
 
 
-# Вспомогательные функции для callback data parsing
+# ===========================================================================
+#  НОВЫЕ КЛАВИАТУРЫ — КАТАЛОГ УСЛУГ
+# ===========================================================================
+
+def get_service_category_keyboard() -> InlineKeyboardMarkup:
+    """
+    Главное меню выбора услуги при создании инвойса.
+
+    Callback data:
+        - svc:listing_pro
+        - svc:top_menu
+        - svc:marketfilter_verified
+        - svc:custom
+        - cancel_fsm
+    """
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="📋 LISTING PRO — $390",
+            callback_data="svc:listing_pro"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🏆 ТОП по категории",
+            callback_data="svc:top_menu"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="✅ MARKETFILTER VERIFIED — $1200",
+            callback_data="svc:marketfilter_verified"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="✏️ Своя услуга",
+            callback_data="svc:custom"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
+    )
+    return builder.as_markup()
+
+
+def get_top_tier_keyboard() -> InlineKeyboardMarkup:
+    """
+    Выбор Tier для ТОП-размещения.
+
+    Callback data:
+        - top_tier:tier1
+        - top_tier:tier2
+        - top_tier:tier3
+        - top_tier:tier4
+        - top_tier:world
+        - svc:back  (назад к главному меню)
+    """
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="📈 Tier 1 — TRADING / SIGNALS / ARBITRAGE",
+            callback_data="top_tier:tier1"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="📊 Tier 2 — ANALYTICS / DEFI / ECOSYSTEMS / INVESTMENTS",
+            callback_data="top_tier:tier2"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="📰 Tier 3 — CRYPTO NEWS / EDUCATION / GUIDES",
+            callback_data="top_tier:tier3"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🎮 Tier 4 — NFT / AIRDROPS / OPINIONS",
+            callback_data="top_tier:tier4"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🌍 Мировой ТОП (WORLD)",
+            callback_data="top_tier:world"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(text="◀️ Назад", callback_data="svc:back"),
+        InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
+    )
+    return builder.as_markup()
+
+
+def get_top_position_keyboard(tier: str) -> InlineKeyboardMarkup:
+    """
+    Выбор позиции (1–10) и периода (неделя/месяц).
+
+    Args:
+        tier: "tier1" | "tier2" | "tier3" | "tier4" | "world"
+
+    Callback data:
+        - top_pos:{tier}:{position}:week
+        - top_pos:{tier}:{position}:month
+        - top_tier:back  (вернуться к выбору tier)
+    """
+    builder = InlineKeyboardBuilder()
+
+    for pos in range(1, 11):
+        builder.row(
+            InlineKeyboardButton(
+                text=f"#{pos} — Неделя",
+                callback_data=f"top_pos:{tier}:{pos}:week"
+            ),
+            InlineKeyboardButton(
+                text=f"#{pos} — Месяц",
+                callback_data=f"top_pos:{tier}:{pos}:month"
+            )
+        )
+
+    builder.row(
+        InlineKeyboardButton(text="◀️ Назад", callback_data="top_tier:back"),
+        InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
+    )
+    return builder.as_markup()
+
+
+def get_back_to_service_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура «Назад» + «Отменить» для шагов ввода своей услуги."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="◀️ Назад к выбору услуги", callback_data="svc:back"),
+        InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
+    )
+    return builder.as_markup()
+
+
+# ===========================================================================
+#  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+# ===========================================================================
 
 def parse_invoice_callback(callback_data: str) -> tuple[str, str] | None:
     """
-    Парсинг callback data для инвойсов
-    
-    Args:
-        callback_data: Строка callback data
-    
+    Парсинг callback data для инвойсов.
+
     Returns:
-        tuple[str, str] | None: (action, invoice_id) или None если формат неверный
-    
-    Examples:
-        >>> parse_invoice_callback("confirm_invoice:INV-123")
-        ('confirm_invoice', 'INV-123')
-        
-        >>> parse_invoice_callback("view_invoice:INV-456")
-        ('view_invoice', 'INV-456')
-        
-        >>> parse_invoice_callback("invalid")
-        None
+        (action, invoice_id) или None
     """
     if ':' not in callback_data:
         return None
-    
     parts = callback_data.split(':', 1)
     if len(parts) != 2:
         return None
-    
-    action, invoice_id = parts
-    return (action, invoice_id)
+    return (parts[0], parts[1])

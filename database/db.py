@@ -112,6 +112,11 @@ async def check_and_migrate_table() -> None:
                 await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP WITHOUT TIME ZONE;"))
                 await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITHOUT TIME ZONE;"))
                 
+                # --- Каталог услуг: service_key и lava_slug ---
+                await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS service_key VARCHAR(100);"))
+                await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS lava_slug VARCHAR(200);"))
+                logger.info("✅ Колонки service_key и lava_slug добавлены (если отсутствовали)")
+                
                 # --- Payments migration ---
                 # Новые поля
                 await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_category VARCHAR(20);"))

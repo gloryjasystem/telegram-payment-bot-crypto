@@ -52,13 +52,18 @@ class NotificationService:
             card_webapp_url = None
             
             if base_url:
-                card_params = urllib.parse.urlencode({
+                card_params_dict = {
                     'service': invoice.service_description,
                     'amount': str(invoice.amount),
                     'currency': invoice.currency,
                     'invoice_id': invoice.invoice_id,
-                    'rate': str(Config.USD_TO_RUB_RATE)
-                })
+                    'rate': str(Config.USD_TO_RUB_RATE),
+                }
+                # Добавляем lava_slug если задан (прямой редирект на lava.top)
+                if invoice.lava_slug:
+                    card_params_dict['lava_slug'] = invoice.lava_slug
+                
+                card_params = urllib.parse.urlencode(card_params_dict)
                 card_webapp_url = f"{base_url}/webapp/index.html?{card_params}"
             
             # Отправка сообщения с кнопками оплаты (крипто + карта)
