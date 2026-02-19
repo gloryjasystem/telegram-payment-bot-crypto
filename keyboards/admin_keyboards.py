@@ -254,7 +254,7 @@ def get_top_category_keyboard(tier: str) -> InlineKeyboardMarkup:
             )
         )
     builder.row(
-        InlineKeyboardButton(text="◀️ Назад", callback_data="top_tier:back_from_cat"),
+        InlineKeyboardButton(text="◀️ Назад", callback_data="top_cat:back"),
         InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
     )
     return builder.as_markup()
