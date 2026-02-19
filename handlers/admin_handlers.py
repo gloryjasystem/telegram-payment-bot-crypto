@@ -1,6 +1,7 @@
 """
 Обработчики админских команд — каталог услуг + FSM создания инвойса
 """
+import html
 from decimal import Decimal
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -22,7 +23,7 @@ from keyboards import (
     get_back_to_service_keyboard,
 )
 from utils.validators import validate_user_id, validate_amount, validate_service_description
-from utils.helpers import format_currency, escape_markdown
+from utils.helpers import format_currency
 from utils.logger import log_admin_action, bot_logger
 
 
@@ -411,22 +412,34 @@ async def _show_preview(callback: CallbackQuery, state: FSMContext):
 
     user_mention = f"@{target_username}" if target_username else f"ID {target_user_id}"
 
-    slug_line = f"\n🔗 *Lava slug:* `{lava_slug}`" if lava_slug else "\n_Lava slug: будет задан в .env_"
+    slug_line = (
+        f"\n🔗 <b>Lava URL:</b> <code>{html.escape(lava_slug)}</code>"
+        if lava_slug
+        else "\n<i>Lava URL: не задан (кнопка Банк РФ использует стандартный API)</i>"
+    )
 
     preview_text = (
-        "📋 *Предпросмотр инвойса*\n\n"
-        f"👤 *Клиент:* {escape_markdown(target_first_name)} \\({escape_markdown(user_mention)}\\)\n"
-        f"💰 *Сумма:* {escape_markdown(format_currency(amount, 'USD'))}\n"
-        f"📝 *Описание:* {escape_markdown(description)}"
+        "📋 <b>Предпросмотр инвойса</b>\n\n"
+        f"👤 <b>Клиент:</b> {html.escape(target_first_name)} ({html.escape(user_mention)})\n"
+        f"💰 <b>Сумма:</b> {html.escape(format_currency(amount, 'USD'))}\n"
+        f"📝 <b>Описание:</b> {html.escape(description)}"
         f"{slug_line}\n\n"
         "Подтвердить создание и отправку инвойса клиенту?"
     )
 
-    await callback.message.edit_text(
-        preview_text,
-        reply_markup=get_invoice_preview_keyboard("preview"),
-        parse_mode="MarkdownV2"
-    )
+    try:
+        await callback.message.edit_text(
+            preview_text,
+            reply_markup=get_invoice_preview_keyboard("preview"),
+            parse_mode="HTML"
+        )
+    except Exception as e:
+        bot_logger.error(f"_show_preview edit_text failed: {e}", exc_info=True)
+        await callback.message.answer(
+            preview_text,
+            reply_markup=get_invoice_preview_keyboard("preview"),
+            parse_mode="HTML"
+        )
     await callback.answer()
 
 
@@ -437,25 +450,22 @@ async def _send_preview_message(message: Message, data: dict):
     target_first_name = data.get('target_user_first_name', 'Unknown')
     amount = data['amount']
     description = data['description']
-    lava_slug = data.get('lava_slug')
 
     user_mention = f"@{target_username}" if target_username else f"ID {target_user_id}"
 
-    slug_line = "\n_\\[Произвольная услуга — без lava slug\\]_"
-
     preview_text = (
-        "📋 *Предпросмотр инвойса*\n\n"
-        f"👤 *Клиент:* {escape_markdown(target_first_name)} \\({escape_markdown(user_mention)}\\)\n"
-        f"💰 *Сумма:* {escape_markdown(format_currency(amount, 'USD'))}\n"
-        f"📝 *Описание:* {escape_markdown(description)}"
-        f"{slug_line}\n\n"
+        "📋 <b>Предпросмотр инвойса</b>\n\n"
+        f"👤 <b>Клиент:</b> {html.escape(target_first_name)} ({html.escape(user_mention)})\n"
+        f"💰 <b>Сумма:</b> {html.escape(format_currency(amount, 'USD'))}\n"
+        f"📝 <b>Описание:</b> {html.escape(description)}\n"
+        "<i>[Произвольная услуга — без Lava URL]</i>\n\n"
         "Подтвердить создание и отправку инвойса клиенту?"
     )
 
     await message.answer(
         preview_text,
         reply_markup=get_invoice_preview_keyboard("preview"),
-        parse_mode="MarkdownV2"
+        parse_mode="HTML"
     )
 
 
