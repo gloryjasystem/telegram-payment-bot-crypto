@@ -69,9 +69,9 @@ def _build_top_service_description(tier: str, position: int, period: str, catego
     """Человекочитаемое описание ТОП-позиции с категорией."""
     period_label = PERIOD_LABELS.get(period, period)
     if category:
-        return f"ТОП #{position} в категории {category} на {period_label}"
+        return f"Размещение в ТОП #{position} категории {category} на {period_label}"
     # Мировой ТОП — без категории
-    return f"Мировой ТОП — #{position} место на {period_label}"
+    return f"Размещение в Мировой ТОП #{position} на {period_label}"
 
 
 def _build_lava_slug(service_key: str) -> str | None:
