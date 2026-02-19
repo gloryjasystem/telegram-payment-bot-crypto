@@ -19,6 +19,7 @@ from keyboards import (
     # Новые клавиатуры каталога
     get_service_category_keyboard,
     get_top_tier_keyboard,
+    get_top_category_keyboard,
     get_top_position_keyboard,
     get_back_to_service_keyboard,
 )
@@ -64,11 +65,13 @@ def _build_top_service_key(tier: str, position: int, period: str) -> str:
     return f"top_{tier}_{period}_{position}"
 
 
-def _build_top_service_description(tier: str, position: int, period: str) -> str:
-    """Человекочитаемое описание ТОП-позиции (без названий категорий)."""
-    tier_label  = TIER_SHORT_LABELS.get(tier, tier)
+def _build_top_service_description(tier: str, position: int, period: str, category: str = "") -> str:
+    """Человекочитаемое описание ТОП-позиции с категорией."""
     period_label = PERIOD_LABELS.get(period, period)
-    return f"Размещение в ТОП {tier_label} — #{position} место в топе на {period_label}"
+    if category:
+        return f"ТОП #{position} в категории {category} на {period_label}"
+    # Мировой ТОП — без категории
+    return f"Мировой ТОП — #{position} место на {period_label}"
 
 
 def _build_lava_slug(service_key: str) -> str | None:
@@ -263,13 +266,13 @@ async def handle_svc_back(callback: CallbackQuery, state: FSMContext):
 
 
 # ---------------------------------------------------------------------------
-#  ШАГ 2Б — ТОП: выбор tier и позиции
+#  ШАГ 2Б — ТОП: выбор tier я категории и позиции
 # ---------------------------------------------------------------------------
 
 @admin_router.callback_query(F.data.startswith("top_tier:"),
                               InvoiceCreationStates.WaitingForTopTier)
 async def handle_top_tier(callback: CallbackQuery, state: FSMContext):
-    """Выбор tier → показать выбор позиции."""
+    """Выбор tier → переход к выбору категории (World — сразу к позиции)."""
     raw = callback.data  # "top_tier:tier1" или "top_tier:back"
     tier = raw.split(":", 1)[1]
 
@@ -282,24 +285,97 @@ async def handle_top_tier(callback: CallbackQuery, state: FSMContext):
         first_name = data.get('target_user_first_name', '?')
         user_mention = f"@{username}" if username else f"ID {user_id}"
         await callback.message.edit_text(
-            f"✅ Пользователь: **{first_name}** ({user_mention})\n\n"
-            "**Шаг 2:** Выберите услугу из каталога:",
+            f"✅ Пользователь: <b>{first_name}</b> ({user_mention})\n\n"
+            "<b>Шаг 2:</b> Выберите услугу из каталога:",
             reply_markup=get_service_category_keyboard(),
-            parse_mode="Markdown"
+            parse_mode="HTML"
         )
         await callback.answer()
         return
 
     await state.update_data(selected_tier=tier)
+
+    # Мировой ТОП — без категорий, сразу к выбору позиции
+    if tier == "world":
+        await state.update_data(selected_category="")
+        await state.set_state(InvoiceCreationStates.WaitingForTopPosition)
+        await callback.message.edit_text(
+            "🏆 <b>Мировой ТОП (WORLD)</b>\n\nВыберите место и период:",
+            reply_markup=get_top_position_keyboard("world"),
+            parse_mode="HTML"
+        )
+    else:
+        await state.set_state(InvoiceCreationStates.WaitingForTopCategory)
+        tier_label = TIER_LABELS.get(tier, tier)
+        await callback.message.edit_text(
+            f"🏆 <b>{tier_label}</b>\n\nВыберите категорию:",
+            reply_markup=get_top_category_keyboard(tier),
+            parse_mode="HTML"
+        )
+    await callback.answer()
+
+
+@admin_router.callback_query(F.data.startswith("top_cat:"),
+                              InvoiceCreationStates.WaitingForTopCategory)
+async def handle_top_category(callback: CallbackQuery, state: FSMContext):
+    """
+    Выбор категории → показ выбора позиции.
+    Callback format: top_cat:{tier}:{category_slug} | top_cat:back
+    """
+    raw = callback.data  # "top_cat:tier1:TRADING" или "top_cat:back"
+    parts = raw.split(":", 2)
+
+    if len(parts) == 2 and parts[1] == "back":
+        # Назад к выбору тира
+        await state.set_state(InvoiceCreationStates.WaitingForTopTier)
+        await callback.message.edit_text(
+            "🏆 <b>ТОП по категории</b>\n\nВыберите группу категорий:",
+            reply_markup=get_top_tier_keyboard(),
+            parse_mode="HTML"
+        )
+        await callback.answer()
+        return
+
+    if len(parts) < 3:
+        await callback.answer("❌ Ошибка данных", show_alert=True)
+        return
+
+    _, tier, category = parts
+    await state.update_data(selected_category=category)
     await state.set_state(InvoiceCreationStates.WaitingForTopPosition)
 
-    tier_label = TIER_LABELS.get(tier, tier)
     await callback.message.edit_text(
-        f"🏆 **{tier_label}**\n\nВыберите место и период:",
-        reply_markup=get_top_position_keyboard(tier),
-        parse_mode="Markdown"
+        f"🏆 <b>Категория: {category}</b>\n\nВыберите место и период:",
+        reply_markup=get_top_position_keyboard(tier, category),
+        parse_mode="HTML"
     )
     await callback.answer()
+
+
+@admin_router.callback_query(F.data == "top_cat:back",
+                              InvoiceCreationStates.WaitingForTopPosition)
+async def handle_top_cat_back(callback: CallbackQuery, state: FSMContext):
+    """Назад от выбора позиции к выбору категории."""
+    data = await state.get_data()
+    tier = data.get('selected_tier', 'tier1')
+    if tier == 'world':
+        # Для Мирового назад к выбору тира
+        await state.set_state(InvoiceCreationStates.WaitingForTopTier)
+        await callback.message.edit_text(
+            "🏆 <b>ТОП по категории</b>\n\nВыберите группу категорий:",
+            reply_markup=get_top_tier_keyboard(),
+            parse_mode="HTML"
+        )
+    else:
+        await state.set_state(InvoiceCreationStates.WaitingForTopCategory)
+        tier_label = TIER_LABELS.get(tier, tier)
+        await callback.message.edit_text(
+            f"🏆 <b>{tier_label}</b>\n\nВыберите категорию:",
+            reply_markup=get_top_category_keyboard(tier),
+            parse_mode="HTML"
+        )
+    await callback.answer()
+
 
 
 @admin_router.callback_query(F.data.startswith("top_pos:"),
@@ -317,9 +393,12 @@ async def handle_top_position(callback: CallbackQuery, state: FSMContext):
     _, tier, pos_str, period = parts
     position = int(pos_str)
 
+    data = await state.get_data()
+    category = data.get('selected_category', '')
+
     amount = _get_top_price(tier, position, period)
     service_key = _build_top_service_key(tier, position, period)
-    description = _build_top_service_description(tier, position, period)
+    description = _build_top_service_description(tier, position, period, category)
     lava_slug = _build_lava_slug(service_key)
 
     await state.update_data(
@@ -329,6 +408,7 @@ async def handle_top_position(callback: CallbackQuery, state: FSMContext):
         lava_slug=lava_slug,
     )
     await _show_preview(callback, state)
+
 
 
 @admin_router.callback_query(F.data == "top_tier:back",
