@@ -128,7 +128,7 @@ def get_service_category_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
-            text="📋 LISTING PRO — $390",
+            text="📋 LISTING PRO",
             callback_data="svc:listing_pro"
         )
     )
@@ -140,7 +140,7 @@ def get_service_category_keyboard() -> InlineKeyboardMarkup:
     )
     builder.row(
         InlineKeyboardButton(
-            text="✅ MARKETFILTER VERIFIED — $1200",
+            text="✅ MARKETFILTER VERIFIED",
             callback_data="svc:marketfilter_verified"
         )
     )
