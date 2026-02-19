@@ -26,6 +26,7 @@ from .admin_keyboards import (
     # Каталог услуг (новое)
     get_service_category_keyboard,
     get_top_tier_keyboard,
+    get_top_category_keyboard,
     get_top_position_keyboard,
     get_back_to_service_keyboard,
 )
@@ -50,6 +51,7 @@ __all__ = [
     # Каталог услуг (новое)
     "get_service_category_keyboard",
     "get_top_tier_keyboard",
+    "get_top_category_keyboard",
     "get_top_position_keyboard",
     "get_back_to_service_keyboard",
 ]

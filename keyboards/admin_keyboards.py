@@ -206,17 +206,72 @@ def get_top_tier_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_top_position_keyboard(tier: str) -> InlineKeyboardMarkup:
+def get_top_category_keyboard(tier: str) -> InlineKeyboardMarkup:
     """
-    Выбор позиции (1–10) и периода (неделя/месяц).
+    Выбор конкретной категории внутри тира.
 
     Args:
         tier: "tier1" | "tier2" | "tier3" | "tier4" | "world"
 
     Callback data:
+        - top_cat:{tier}:{category_slug}
+        - top_tier:back  (вернуться к выбору tier)
+    """
+    TIER_CATEGORIES = {
+        "tier1": [
+            ("📈 TRADING",        "TRADING"),
+            ("📡 SIGNALS",        "SIGNALS"),
+            ("🔄 ARBITRAGE",      "ARBITRAGE"),
+        ],
+        "tier2": [
+            ("📊 ANALYTICS REVIEWS",  "ANALYTICS REVIEWS"),
+            ("🌐 DEFI / WEB3",        "DEFI/WEB3"),
+            ("🏗 ECOSYSTEMS",         "ECOSYSTEMS"),
+            ("🔍 PROJECT REVIEWS",    "PROJECT REVIEWS"),
+            ("💼 INVESTMENTS",        "INVESTMENTS"),
+        ],
+        "tier3": [
+            ("📰 CRYPTO NEWS",        "CRYPTO NEWS"),
+            ("📚 EDUCATION",          "EDUCATION"),
+            ("📝 ANALYTICAL POSTS",   "ANALYTICAL POSTS"),
+            ("🗺 GUIDES",             "GUIDES"),
+        ],
+        "tier4": [
+            ("🎮 NFT / GAMEFI",       "NFT/GAMEFI"),
+            ("🎁 AIRDROPS",           "AIRDROPS"),
+            ("💬 OPINIONS / BLOG",    "OPINIONS/BLOG"),
+        ],
+        "world": [],  # без выбора категории
+    }
+
+    builder = InlineKeyboardBuilder()
+    categories = TIER_CATEGORIES.get(tier, [])
+    for label, slug in categories:
+        builder.row(
+            InlineKeyboardButton(
+                text=label,
+                callback_data=f"top_cat:{tier}:{slug}"
+            )
+        )
+    builder.row(
+        InlineKeyboardButton(text="◀️ Назад", callback_data="top_tier:back_from_cat"),
+        InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
+    )
+    return builder.as_markup()
+
+
+def get_top_position_keyboard(tier: str, category: str = "") -> InlineKeyboardMarkup:
+    """
+    Выбор позиции (1–10) и периода (неделя/месяц).
+
+    Args:
+        tier: "tier1" | "tier2" | "tier3" | "tier4" | "world"
+        category: название категории (для отображения в back callback)
+
+    Callback data:
         - top_pos:{tier}:{position}:week
         - top_pos:{tier}:{position}:month
-        - top_tier:back  (вернуться к выбору tier)
+        - top_tier:back  (вернуться к выбору tier/category)
     """
     builder = InlineKeyboardBuilder()
 
@@ -233,7 +288,7 @@ def get_top_position_keyboard(tier: str) -> InlineKeyboardMarkup:
         )
 
     builder.row(
-        InlineKeyboardButton(text="◀️ Назад", callback_data="top_tier:back"),
+        InlineKeyboardButton(text="◀️ Назад", callback_data="top_cat:back"),
         InlineKeyboardButton(text="❌ Отменить", callback_data="cancel_fsm")
     )
     return builder.as_markup()

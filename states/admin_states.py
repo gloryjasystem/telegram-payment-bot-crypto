@@ -36,6 +36,9 @@ class InvoiceCreationStates(StatesGroup):
     # Для топ-позиций: выбор tier (inline-кнопки)
     WaitingForTopTier = State()
 
+    # Для топ-позиций: выбор конкретной категории внутри тира (inline-кнопки)
+    WaitingForTopCategory = State()
+
     # Для топ-позиций: выбор позиции и периода (inline-кнопки)
     WaitingForTopPosition = State()
 
