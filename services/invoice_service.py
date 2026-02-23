@@ -5,7 +5,6 @@ from typing import Optional, List
 from decimal import Decimal
 from datetime import datetime, timedelta
 from sqlalchemy import select, update
-from sqlalchemy.orm import selectinload
 
 from database import Invoice, User, Payment, get_session
 from utils.logger import bot_logger, log_admin_action
@@ -155,7 +154,6 @@ class InvoiceService:
                     select(Invoice)
                     .where(Invoice.status == "pending")
                     .order_by(Invoice.created_at.desc())
-                    .options(selectinload(Invoice.user))
                 )
                 return list(result.scalars().all())
         except Exception as e:
