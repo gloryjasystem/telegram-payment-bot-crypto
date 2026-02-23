@@ -381,10 +381,32 @@ async def handle_root(request: web.Request) -> web.Response:
 # CARD PAYMENT HANDLERS
 # ========================================
 
-# Rate limiter: {ip: [timestamp, ...]}
-_rate_limit_store: dict = {}
-_RATE_LIMIT_MAX = 5       # Макс запросов
-_RATE_LIMIT_WINDOW = 60   # За N секунд
+_RATE_LIMIT_STORE: dict = {}
+_RATE_LIMIT_MAX = 5
+_RATE_LIMIT_WINDOW = 60
+
+
+def _get_custom_tier(amount_usd: float) -> dict:
+    """
+    Находит наиболее подходящий тир для данной цены.
+    Приоритет: точное совпадение → ближайший вверх (округляем до шага $10) → максимальный.
+    Возвращает {offer_id, price_rub} или {} если офферов нет.
+    """
+    tiers = Config.LAVA_CUSTOM_TIERS
+    if not tiers:
+        return {}
+    target = int(round(amount_usd))
+    # 1. Точное совпадение
+    if target in tiers:
+        return tiers[target]
+    # 2. Ближайший тир >= цены (округляем вверх до шага $10)
+    step = 10
+    rounded_up = ((target + step - 1) // step) * step
+    if rounded_up in tiers:
+        return tiers[rounded_up]
+    # 3. Максимальный доступный
+    best = max(tiers.keys())
+    return tiers[best]
 
 def _check_rate_limit(ip: str) -> bool:
     """Проверяет rate limit. Возвращает True если запрос разрешён."""
@@ -392,21 +414,21 @@ def _check_rate_limit(ip: str) -> bool:
     now = _time.time()
     
     # Чистим старые записи (раз в 100 запросов)
-    if len(_rate_limit_store) > 500:
-        expired = [k for k, v in _rate_limit_store.items() if not v or v[-1] < now - _RATE_LIMIT_WINDOW]
+    if len(_RATE_LIMIT_STORE) > 500:
+        expired = [k for k, v in _RATE_LIMIT_STORE.items() if not v or v[-1] < now - _RATE_LIMIT_WINDOW]
         for k in expired:
-            del _rate_limit_store[k]
+            del _RATE_LIMIT_STORE[k]
     
-    timestamps = _rate_limit_store.get(ip, [])
+    timestamps = _RATE_LIMIT_STORE.get(ip, [])
     # Убираем старые
     timestamps = [t for t in timestamps if t > now - _RATE_LIMIT_WINDOW]
     
     if len(timestamps) >= _RATE_LIMIT_MAX:
-        _rate_limit_store[ip] = timestamps
+        _RATE_LIMIT_STORE[ip] = timestamps
         return False
     
     timestamps.append(now)
-    _rate_limit_store[ip] = timestamps
+    _RATE_LIMIT_STORE[ip] = timestamps
     return True
 
 async def handle_create_card_payment(request: web.Request) -> web.Response:
@@ -445,13 +467,23 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             )
         
         if method == 'ru':
-            # Lava.top V3 API: нужен offer_id и metadata=invoice_id → webhook придёт с нашим ID
-            # Получаем service_key инвойса из БД чтобы найти offer_id
+            # Lava.top V3 API: нужен offer_id
             offer_id = ''
+            price_rub_override = 0  # эту цену отправим в WebApp если тир задан
             try:
                 inv = await invoice_service.get_invoice_by_id(invoice_id)
                 if inv and inv.service_key:
                     offer_id = Config.LAVA_OFFER_ID_MAP.get(inv.service_key, '')
+                    # Fallback: custom tier по USD-цене инвойса
+                    if not offer_id:
+                        tier = _get_custom_tier(amount_usd)
+                        offer_id  = tier.get('offer_id', '')
+                        price_rub_override = tier.get('price_rub', 0)
+                        if offer_id:
+                            bot_logger.info(
+                                f"🔍 Custom tier: ${amount_usd} → offer_id={offer_id}, "
+                                f"price_rub={price_rub_override}"
+                            )
             except Exception as _e:
                 bot_logger.warning(f"Could not load service_key for {invoice_id}: {_e}")
             

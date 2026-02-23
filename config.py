@@ -101,7 +101,28 @@ class Config:
         LAVA_PRICE_RUB_MAP: dict = {}
         LAVA_OFFER_ID_MAP: dict = {}
 
-
+    # ========================================
+    # LAVA.TOP CUSTOM PRICE TIERS ($10–$2500, шаг $10)
+    # Редактируй lava_custom_tiers.json: вставляй offer_id по мере создания
+    # продуктов на lava.top. price_rub=0 → конвертация по ЦБ*1.08 в WebApp.
+    # ========================================
+    try:
+        _tiers_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lava_custom_tiers.json")
+        if os.path.exists(_tiers_path):
+            with open(_tiers_path, "r", encoding="utf-8") as _tf:
+                _tiers_raw = json.load(_tf)
+            LAVA_CUSTOM_TIERS: dict = {}  # {amount_usd: {"offer_id": str, "price_rub": int}}
+            for _tier in _tiers_raw.get("tiers", []):
+                _usd = int(_tier.get("amount_usd", 0))
+                if _usd > 0:
+                    LAVA_CUSTOM_TIERS[_usd] = {
+                        "offer_id":  _tier.get("offer_id", ""),
+                        "price_rub": int(_tier.get("price_rub", 0)),
+                    }
+        else:
+            LAVA_CUSTOM_TIERS: dict = {}
+    except Exception:
+        LAVA_CUSTOM_TIERS: dict = {}
 
     
     # ========================================

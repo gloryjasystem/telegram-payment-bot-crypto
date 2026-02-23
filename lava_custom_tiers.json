@@ -1,0 +1,1255 @@
+{
+  "_инструкция": "Для каждого тира: 1) Создай продукт на lava.top с нужной ценой. 2) Вставь offer_id (UUID из URL: app.lava.top/products/<product_uuid>/<offer_id>). 3) Вставь price_rub — точную рублёвую цену из настроек продукта на lava.top (оставь 0 если хочешь динамическую конвертацию по ЦБ).",
+  "tiers": [
+    {
+      "amount_usd": 10,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 20,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 30,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 40,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 50,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 60,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 70,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 80,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 90,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 100,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 110,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 120,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 130,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 140,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 150,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 160,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 170,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 180,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 190,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 200,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 210,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 220,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 230,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 240,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 250,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 260,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 270,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 280,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 290,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 300,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 310,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 320,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 330,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 340,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 350,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 360,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 370,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 380,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 390,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 400,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 410,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 420,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 430,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 440,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 450,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 460,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 470,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 480,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 490,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 500,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 510,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 520,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 530,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 540,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 550,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 560,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 570,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 580,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 590,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 600,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 610,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 620,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 630,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 640,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 650,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 660,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 670,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 680,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 690,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 700,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 710,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 720,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 730,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 740,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 750,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 760,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 770,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 780,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 790,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 800,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 810,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 820,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 830,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 840,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 850,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 860,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 870,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 880,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 890,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 900,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 910,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 920,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 930,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 940,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 950,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 960,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 970,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 980,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 990,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1000,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1010,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1020,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1030,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1040,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1050,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1060,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1070,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1080,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1090,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1100,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1110,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1120,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1130,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1140,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1150,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1160,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1170,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1180,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1190,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1200,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1210,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1220,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1230,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1240,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1250,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1260,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1270,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1280,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1290,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1300,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1310,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1320,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1330,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1340,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1350,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1360,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1370,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1380,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1390,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1400,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1410,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1420,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1430,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1440,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1450,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1460,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1470,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1480,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1490,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1500,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1510,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1520,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1530,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1540,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1550,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1560,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1570,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1580,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1590,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1600,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1610,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1620,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1630,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1640,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1650,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1660,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1670,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1680,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1690,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1700,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1710,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1720,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1730,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1740,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1750,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1760,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1770,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1780,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1790,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1800,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1810,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1820,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1830,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1840,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1850,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1860,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1870,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1880,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1890,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1900,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1910,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1920,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1930,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1940,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1950,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1960,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1970,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1980,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 1990,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2000,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2010,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2020,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2030,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2040,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2050,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2060,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2070,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2080,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2090,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2100,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2110,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2120,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2130,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2140,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2150,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2160,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2170,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2180,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2190,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2200,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2210,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2220,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2230,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2240,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2250,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2260,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2270,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2280,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2290,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2300,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2310,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2320,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2330,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2340,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2350,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2360,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2370,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2380,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2390,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2400,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2410,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2420,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2430,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2440,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2450,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2460,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2470,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2480,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2490,
+      "offer_id": "",
+      "price_rub": 0
+    },
+    {
+      "amount_usd": 2500,
+      "offer_id": "",
+      "price_rub": 0
+    }
+  ]
+}
