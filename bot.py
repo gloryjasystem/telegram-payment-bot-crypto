@@ -703,6 +703,26 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
         return web.json_response({'status': 'error'}, status=500)
 
 
+async def handle_payment_status(request: web.Request) -> web.Response:
+    """
+    GET /api/payment-status?invoice_id=INV-XXXXX
+    WebApp polling endpoint — возвращает статус инвойса.
+    """
+    invoice_id = request.rel_url.query.get('invoice_id', '').strip()
+    if not invoice_id:
+        return web.json_response({'error': 'invoice_id required'}, status=400)
+    try:
+        inv = await invoice_service.get_invoice_by_id(invoice_id)
+        if not inv:
+            return web.json_response({'status': 'not_found', 'paid': False})
+        return web.json_response({
+            'status': inv.status,
+            'paid': inv.status == 'paid'
+        })
+    except Exception as e:
+        bot_logger.error(f"payment-status error: {e}")
+        return web.json_response({'error': str(e)}, status=500)
+
 async def handle_waypay_test_success(request: web.Request) -> web.Response:
     """
     TEST ONLY: Simulates a successful WayForPay payment.
@@ -823,6 +843,7 @@ async def run_webhook():
     app.router.add_post('/api/create-card-payment', handle_create_card_payment)
     app.router.add_post(Config.LAVA_WEBHOOK_PATH, handle_lava_webhook)
     app.router.add_post(Config.WAYPAY_WEBHOOK_PATH, handle_waypay_webhook)
+    app.router.add_get('/api/payment-status', handle_payment_status)
     
     # Test mode endpoint
     if Config.WAYPAY_TEST_MODE:

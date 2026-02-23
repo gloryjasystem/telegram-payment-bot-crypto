@@ -736,6 +736,39 @@
                             window.open(data.payment_url, '_blank');
                         }
                     });
+
+                    // ========== Polling: авто-закрытие при оплате ==========
+                    if (invoiceId) {
+                        const pollUrl = window.location.origin + '/api/payment-status?invoice_id=' + encodeURIComponent(invoiceId);
+                        let pollAttempts = 0;
+                        const MAX_ATTEMPTS = 150; // ~10 минут (каждые 4с)
+
+                        const pollInterval = setInterval(async () => {
+                            pollAttempts++;
+                            if (pollAttempts > MAX_ATTEMPTS) {
+                                clearInterval(pollInterval);
+                                return;
+                            }
+                            try {
+                                const statusResp = await fetch(pollUrl);
+                                const statusData = await statusResp.json();
+                                if (statusData.paid) {
+                                    clearInterval(pollInterval);
+                                    haptic('notify', 'success');
+                                    // Небольшая задержка чтобы пользователь увидел статус
+                                    setTimeout(() => {
+                                        if (tg) {
+                                            tg.close();
+                                        }
+                                    }, 1500);
+                                } else if (statusData.status === 'not_found') {
+                                    clearInterval(pollInterval);
+                                }
+                            } catch (_e) {
+                                // ignore network errors, keep polling
+                            }
+                        }, 4000);
+                    }
                 } else {
                     throw new Error(data.error || 'Не удалось создать платёж');
                 }
