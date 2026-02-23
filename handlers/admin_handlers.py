@@ -35,7 +35,7 @@ from utils.logger import log_admin_action, bot_logger
 TIER_LABELS = {
     "tier1": "Тиер 1 — TRADING / SIGNALS / ARBITRAGE",
     "tier2": "Тиер 2 — ANALYTICS / DEFI / ECOSYSTEMS / INVESTMENTS",
-    "tier3": "Тиер 3 — CRYPTO NEWS / EDUCATION / ANALYTICAL POSTS / GUIDES",
+    "tier3": "Тиер 3 — CRYPTO NEWS / EDUCATION / ANALYTICS / GUIDES",
     "tier4": "Тиер 4 — NFT / AIRDROPS / OPINIONS",
     "world": "Мировой ТОП (WORLD)",
 }
