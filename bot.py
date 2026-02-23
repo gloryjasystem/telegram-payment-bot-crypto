@@ -497,17 +497,30 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         # ── Верификация webhook secret ──────────────────────────────
         expected_secret = Config.LAVA_WEBHOOK_SECRET
         if expected_secret:
-            # Lava.top шлёт API-key через Authorization как "Bearer <key>" или просто "<key>"
+            # Lava.top "API key вашего сервиса" может слать ключ в разных заголовках
             auth_header = request.headers.get('Authorization', '')
-            received_key = auth_header.replace('Bearer ', '').strip()
-            if received_key != expected_secret:
+            x_api_key   = request.headers.get('X-Api-Key', '')
+            x_lava_sig  = request.headers.get('X-Lava-Signature', '')
+
+            received_key = (
+                auth_header.replace('Bearer ', '').strip()
+                or x_api_key.strip()
+                or x_lava_sig.strip()
+            )
+
+            if received_key and received_key != expected_secret:
                 bot_logger.warning(
-                    f"⚠️ Lava webhook: invalid API key received. "
-                    f"Expected set, got: '{received_key[:8]}...'"
+                    f"⚠️ Lava webhook: invalid API key. "
+                    f"Got headers: Auth='{auth_header[:12]}...' "
+                    f"X-Api-Key='{x_api_key[:12]}...' "
+                    f"X-Lava-Sig='{x_lava_sig[:12]}...'"
                 )
-                # Продолжаем обработку (не блокируем) — но логируем
+                # Не блокируем — логируем и продолжаем
+            elif not received_key:
+                bot_logger.warning("⚠️ Lava webhook: no API key in any header — skipping check")
         else:
             bot_logger.warning("⚠️ LAVA_WEBHOOK_SECRET not set — skipping secret check")
+
 
         data = json.loads(raw_body)
         bot_logger.info(f"📥 Lava.top webhook received: {data}")
