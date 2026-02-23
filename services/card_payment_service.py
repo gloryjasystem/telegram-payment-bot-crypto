@@ -59,7 +59,7 @@ class CardPaymentService:
             payload = {
                 "email": email,
                 "offerId": offer_id,
-                "currency": "RUB",
+                "currency": "USD",
                 "metadata": invoice_id      # ← ключевое поле: вернётся в webhook
             }
 
