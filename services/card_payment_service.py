@@ -4,11 +4,8 @@
 import hashlib
 import hmac
 import json
-import math
 import time
-from typing import Optional, Dict, Any, Tuple
-
-import aiohttp
+from typing import Dict, Any
 
 from config import Config
 from utils.logger import bot_logger
@@ -21,63 +18,7 @@ class CardPaymentService:
     LAVA_API_URL = "https://gate.lava.top/api/v3/invoice"
     WAYPAY_API_URL = "https://api.wayforpay.com/api"
     
-    # Маппинг ключевых слов из описания услуги → короткий тип
-    SERVICE_TYPE_MAP = {
-        "реклам": "ad",       # "Размещение рекламы" → "ad"
-        "верификац": "ver",   # "Верификация профилей" → "ver"
-        "сертификац": "ver",  # "Сертификация" → "ver"
-    }
-    
-    def _get_lava_offer_id(self, amount_rub: float, description: str) -> Tuple[str, int]:
-        """
-        Определяет offer_id по описанию услуги и сумме.
-        Ищет ближайший оффер для данного типа услуги.
-        
-        Приоритет: точное совпадение → ближайший >= сумма → ближайший < сумма
-        """
-        # 1. Определить тип услуги по ключевым словам
-        service_type = "ad"  # default
-        desc_lower = description.lower()
-        for keyword, stype in self.SERVICE_TYPE_MAP.items():
-            if keyword in desc_lower:
-                service_type = stype
-                break
-        
-        target = int(amount_rub)
-        
-        # 2. Собрать все офферы для этого типа услуги
-        prefix = f"{service_type}_"
-        available_offers = {}
-        for key, offer_id in Config.LAVA_OFFER_MAP.items():
-            if key.startswith(prefix):
-                try:
-                    price = int(key[len(prefix):])
-                    available_offers[price] = offer_id
-                except ValueError:
-                    continue
-        
-        if not available_offers:
-            raise ValueError(
-                f"Нет офферов для типа '{service_type}' (услуга: {description}). "
-                f"Доступные ключи: {list(Config.LAVA_OFFER_MAP.keys())}"
-            )
-        
-        # 3. Точное совпадение
-        if target in available_offers:
-            bot_logger.info(f"🔍 Offer: {description} {target}₽ → exact match → {available_offers[target]}")
-            return available_offers[target], target
-        
-        # 4. Ближайший оффер >= суммы
-        higher = sorted([p for p in available_offers if p >= target])
-        if higher:
-            best = higher[0]
-            bot_logger.info(f"🔍 Offer: {description} {target}₽ → nearest↑ {best}₽ → {available_offers[best]}")
-            return available_offers[best], best
-        
-        # 5. Если нет >= суммы, берём максимальный доступный
-        best = max(available_offers.keys())
-        bot_logger.warning(f"⚠️ Offer: {description} {target}₽ → нет оффера >= суммы, используем максимальный {best}₽")
-        return available_offers[best], best
+
     
     # ========================================
     # LAVA.TOP V3 (Банк РФ — Рубли)
@@ -169,27 +110,7 @@ class CardPaymentService:
             return {'success': False, 'error': str(e)}
 
 
-    def verify_lava_webhook(self, data: dict, signature: str) -> bool:
 
-        """Проверка вебхука от Lava.top (V3 использует Bearer-авторизацию)"""
-        try:
-            if not Config.LAVA_API_KEY:
-                return False
-            # V3 webhook может отправлять подпись в заголовке Authorization
-            # Проверяем Bearer токен
-            if signature.startswith("Bearer "):
-                return signature[7:] == Config.LAVA_API_KEY
-            # Fallback: проверяем как HMAC если Lava отправляет Signature
-            body_json = json.dumps(data, separators=(',', ':'))
-            expected = hmac.new(
-                Config.LAVA_API_KEY.encode(),
-                body_json.encode(),
-                hashlib.sha256
-            ).hexdigest()
-            return hmac.compare_digest(expected, signature)
-        except Exception as e:
-            bot_logger.error(f"Lava webhook verification error: {e}")
-            return False
     
     # ========================================
     # WAYPAY (Иностранный банк — USD)

@@ -530,12 +530,12 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
 
             if received_key and received_key != expected_secret:
                 bot_logger.warning(
-                    f"⚠️ Lava webhook: invalid API key. "
+                    f"🚫 Lava webhook: invalid API key — rejecting. "
                     f"Got headers: Auth='{auth_header[:12]}...' "
                     f"X-Api-Key='{x_api_key[:12]}...' "
                     f"X-Lava-Sig='{x_lava_sig[:12]}...'"
                 )
-                # Не блокируем — логируем и продолжаем
+                return web.Response(status=403, text='Forbidden')
             elif not received_key:
                 bot_logger.warning("⚠️ Lava webhook: no API key in any header — skipping check")
         else:
@@ -611,10 +611,6 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
             invoice_data = await invoice_service.get_invoice_with_user(order_id)
             if invoice_data:
                 inv, user = invoice_data
-                from datetime import datetime
-                inv.status = 'paid'
-                inv.paid_at = datetime.utcnow()
-
                 notifier = NotificationService(bot)
                 try:
                     await notifier.notify_client_payment_success(invoice=inv, user=user)
@@ -650,7 +646,8 @@ async def handle_waypay_webhook(request: web.Request) -> web.Response:
         
         # Проверка подписи
         if not card_payment_service.verify_waypay_webhook(data):
-            bot_logger.warning("⚠️ WayForPay webhook signature mismatch")
+            bot_logger.warning("🚫 WayForPay webhook signature mismatch — rejecting")
+            return web.Response(status=403, text='Forbidden')
         
         transaction_status = data.get('transactionStatus', '')
         order_ref = data.get('orderReference', '')
