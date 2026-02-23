@@ -1,125 +1,428 @@
 {
-  "_инструкция": "Замени ВСТАВЬ_URL на полную ссылку со страницы продукта lava.top (app.lava.top). price_rub — це фиксированная цена в рублях, которая установлена на Lava.top (смотри в настройках продукта). Ключи _comment игнорируются ботом.",
+  "_инструкция": "Для каждой услуги: 'url' — полная ссылка со страницы продукта lava.top (app.lava.top), 'price_rub' — фиксированная цена в рублях из настроек продукта на Lava.top. Оставь 'url' = 'ВСТАВЬ_URL' если продукт ещё не создан.",
   "_comment_1": "=== LISTING PRO — $390 — Размещение канала в каталоге ===",
   "listing_pro": {
     "url": "https://app.lava.top/products/19e09379-2413-4bb3-ace2-c697c04bc2ef/37a4884e-20ad-4038-9897-e06f7c25b5e2",
     "price_rub": 37050
   },
   "_comment_2": "=== MARKETFILTER VERIFIED — $1200 / 1 год ===",
-  "marketfilter_verified": "ВСТАВЬ_URL",
+  "marketfilter_verified": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_3": "=== МИРОВОЙ ТОП (World) ===",
   "_comment_3a": "Неделя: #1=$1990, #2=$1690, #3=$1490, #4=$1290, #5=$1090, #6=$990, #7=$890, #8=$790, #9=$690, #10=$590",
-  "top_world_week_1": "ВСТАВЬ_URL",
-  "top_world_week_2": "ВСТАВЬ_URL",
-  "top_world_week_3": "ВСТАВЬ_URL",
-  "top_world_week_4": "ВСТАВЬ_URL",
-  "top_world_week_5": "ВСТАВЬ_URL",
-  "top_world_week_6": "ВСТАВЬ_URL",
-  "top_world_week_7": "ВСТАВЬ_URL",
-  "top_world_week_8": "ВСТАВЬ_URL",
-  "top_world_week_9": "ВСТАВЬ_URL",
-  "top_world_week_10": "ВСТАВЬ_URL",
+  "top_world_week_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_week_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_3b": "Месяц: #1=$5900, #2=$4990, #3=$4490, #4=$3990, #5=$3490, #6=$2990, #7=$2690, #8=$2390, #9=$2090, #10=$1790",
-  "top_world_month_1": "ВСТАВЬ_URL",
-  "top_world_month_2": "ВСТАВЬ_URL",
-  "top_world_month_3": "ВСТАВЬ_URL",
-  "top_world_month_4": "ВСТАВЬ_URL",
-  "top_world_month_5": "ВСТАВЬ_URL",
-  "top_world_month_6": "ВСТАВЬ_URL",
-  "top_world_month_7": "ВСТАВЬ_URL",
-  "top_world_month_8": "ВСТАВЬ_URL",
-  "top_world_month_9": "ВСТАВЬ_URL",
-  "top_world_month_10": "ВСТАВЬ_URL",
+  "top_world_month_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_world_month_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_4": "=== TIER 1 — TRADING / SIGNALS / ARBITRAGE ===",
   "_comment_4a": "Неделя: #1=$1525, #2=$1078, #3=$980, #4=$882, #5=$784, #6=$686, #7=$637, #8=$588, #9=$539, #10=$490",
-  "top_tier1_week_1": "ВСТАВЬ_URL",
-  "top_tier1_week_2": "ВСТАВЬ_URL",
-  "top_tier1_week_3": "ВСТАВЬ_URL",
-  "top_tier1_week_4": "ВСТАВЬ_URL",
-  "top_tier1_week_5": "ВСТАВЬ_URL",
-  "top_tier1_week_6": "ВСТАВЬ_URL",
-  "top_tier1_week_7": "ВСТАВЬ_URL",
-  "top_tier1_week_8": "ВСТАВЬ_URL",
-  "top_tier1_week_9": "ВСТАВЬ_URL",
-  "top_tier1_week_10": "ВСТАВЬ_URL",
+  "top_tier1_week_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_week_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_4b": "Месяц: #1=$3975, #2=$3058, #3=$2780, #4=$2502, #5=$2224, #6=$1946, #7=$1807, #8=$1668, #9=$1529, #10=$1390",
-  "top_tier1_month_1": "ВСТАВЬ_URL",
-  "top_tier1_month_2": "ВСТАВЬ_URL",
-  "top_tier1_month_3": "ВСТАВЬ_URL",
-  "top_tier1_month_4": "ВСТАВЬ_URL",
-  "top_tier1_month_5": "ВСТАВЬ_URL",
-  "top_tier1_month_6": "ВСТАВЬ_URL",
-  "top_tier1_month_7": "ВСТАВЬ_URL",
-  "top_tier1_month_8": "ВСТАВЬ_URL",
-  "top_tier1_month_9": "ВСТАВЬ_URL",
-  "top_tier1_month_10": "ВСТАВЬ_URL",
-  "_comment_5": "=== TIER 2 — ANALYTICS_REVIEWS / DEFI_WEB3 / ECOSYSTEMS / PROJECT_REVIEWS / INVESTMENTS ===",
+  "top_tier1_month_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier1_month_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "_comment_5": "=== TIER 2 — ANALYTICS / DEFI / ECOSYSTEMS / INVESTMENTS ===",
   "_comment_5a": "Неделя: #1=$1275, #2=$858, #3=$780, #4=$702, #5=$624, #6=$546, #7=$507, #8=$468, #9=$429, #10=$390",
-  "top_tier2_week_1": "ВСТАВЬ_URL",
-  "top_tier2_week_2": "ВСТАВЬ_URL",
-  "top_tier2_week_3": "ВСТАВЬ_URL",
-  "top_tier2_week_4": "ВСТАВЬ_URL",
-  "top_tier2_week_5": "ВСТАВЬ_URL",
-  "top_tier2_week_6": "ВСТАВЬ_URL",
-  "top_tier2_week_7": "ВСТАВЬ_URL",
-  "top_tier2_week_8": "ВСТАВЬ_URL",
-  "top_tier2_week_9": "ВСТАВЬ_URL",
-  "top_tier2_week_10": "ВСТАВЬ_URL",
+  "top_tier2_week_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_week_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_5b": "Месяц: #1=$3125, #2=$2398, #3=$2180, #4=$1962, #5=$1744, #6=$1526, #7=$1417, #8=$1308, #9=$1199, #10=$1090",
-  "top_tier2_month_1": "ВСТАВЬ_URL",
-  "top_tier2_month_2": "ВСТАВЬ_URL",
-  "top_tier2_month_3": "ВСТАВЬ_URL",
-  "top_tier2_month_4": "ВСТАВЬ_URL",
-  "top_tier2_month_5": "ВСТАВЬ_URL",
-  "top_tier2_month_6": "ВСТАВЬ_URL",
-  "top_tier2_month_7": "ВСТАВЬ_URL",
-  "top_tier2_month_8": "ВСТАВЬ_URL",
-  "top_tier2_month_9": "ВСТАВЬ_URL",
-  "top_tier2_month_10": "ВСТАВЬ_URL",
-  "_comment_6": "=== TIER 3 — CRYPTO_NEWS / EDUCATION / ANALYTICAL_POSTS / GUIDES_EDUCATION ===",
+  "top_tier2_month_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier2_month_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "_comment_6": "=== TIER 3 — CRYPTO NEWS / EDUCATION / GUIDES ===",
   "_comment_6a": "Неделя: #1=$800, #2=$704, #3=$640, #4=$576, #5=$512, #6=$448, #7=$416, #8=$384, #9=$352, #10=$320",
-  "top_tier3_week_1": "ВСТАВЬ_URL",
-  "top_tier3_week_2": "ВСТАВЬ_URL",
-  "top_tier3_week_3": "ВСТАВЬ_URL",
-  "top_tier3_week_4": "ВСТАВЬ_URL",
-  "top_tier3_week_5": "ВСТАВЬ_URL",
-  "top_tier3_week_6": "ВСТАВЬ_URL",
-  "top_tier3_week_7": "ВСТАВЬ_URL",
-  "top_tier3_week_8": "ВСТАВЬ_URL",
-  "top_tier3_week_9": "ВСТАВЬ_URL",
-  "top_tier3_week_10": "ВСТАВЬ_URL",
+  "top_tier3_week_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_week_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_6b": "Месяц: #1=$2225, #2=$1958, #3=$1780, #4=$1602, #5=$1424, #6=$1246, #7=$1157, #8=$1068, #9=$979, #10=$890",
-  "top_tier3_month_1": "ВСТАВЬ_URL",
-  "top_tier3_month_2": "ВСТАВЬ_URL",
-  "top_tier3_month_3": "ВСТАВЬ_URL",
-  "top_tier3_month_4": "ВСТАВЬ_URL",
-  "top_tier3_month_5": "ВСТАВЬ_URL",
-  "top_tier3_month_6": "ВСТАВЬ_URL",
-  "top_tier3_month_7": "ВСТАВЬ_URL",
-  "top_tier3_month_8": "ВСТАВЬ_URL",
-  "top_tier3_month_9": "ВСТАВЬ_URL",
-  "top_tier3_month_10": "ВСТАВЬ_URL",
-  "_comment_7": "=== TIER 4 — NFT_GAMEFI / AIRDROPS / OPINIONS_BLOG ===",
+  "top_tier3_month_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier3_month_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "_comment_7": "=== TIER 4 — NFT / AIRDROPS / OPINIONS ===",
   "_comment_7a": "Неделя: #1=$625, #2=$550, #3=$500, #4=$450, #5=$400, #6=$350, #7=$325, #8=$300, #9=$275, #10=$250",
-  "top_tier4_week_1": "ВСТАВЬ_URL",
-  "top_tier4_week_2": "ВСТАВЬ_URL",
-  "top_tier4_week_3": "ВСТАВЬ_URL",
-  "top_tier4_week_4": "ВСТАВЬ_URL",
-  "top_tier4_week_5": "ВСТАВЬ_URL",
-  "top_tier4_week_6": "ВСТАВЬ_URL",
-  "top_tier4_week_7": "ВСТАВЬ_URL",
-  "top_tier4_week_8": "ВСТАВЬ_URL",
-  "top_tier4_week_9": "ВСТАВЬ_URL",
-  "top_tier4_week_10": "ВСТАВЬ_URL",
+  "top_tier4_week_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_week_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
   "_comment_7b": "Месяц: #1=$1725, #2=$1518, #3=$1380, #4=$1242, #5=$1104, #6=$966, #7=$897, #8=$828, #9=$759, #10=$690",
-  "top_tier4_month_1": "ВСТАВЬ_URL",
-  "top_tier4_month_2": "ВСТАВЬ_URL",
-  "top_tier4_month_3": "ВСТАВЬ_URL",
-  "top_tier4_month_4": "ВСТАВЬ_URL",
-  "top_tier4_month_5": "ВСТАВЬ_URL",
-  "top_tier4_month_6": "ВСТАВЬ_URL",
-  "top_tier4_month_7": "ВСТАВЬ_URL",
-  "top_tier4_month_8": "ВСТАВЬ_URL",
-  "top_tier4_month_9": "ВСТАВЬ_URL",
-  "top_tier4_month_10": "ВСТАВЬ_URL"
+  "top_tier4_month_1": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_2": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_3": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_4": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_5": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_6": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_7": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_8": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_9": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  },
+  "top_tier4_month_10": {
+    "url": "ВСТАВЬ_URL",
+    "price_rub": 0
+  }
 }
