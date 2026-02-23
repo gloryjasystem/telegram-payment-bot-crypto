@@ -183,7 +183,7 @@ def get_top_tier_keyboard() -> InlineKeyboardMarkup:
     )
     builder.row(
         InlineKeyboardButton(
-            text="📰 Tier 3 — CRYPTO NEWS / EDUCATION / GUIDES",
+            text="📰 Tier 3 — CRYPTO NEWS / EDUCATION / ANALYTICAL POSTS / GUIDES",
             callback_data="top_tier:tier3"
         )
     )
