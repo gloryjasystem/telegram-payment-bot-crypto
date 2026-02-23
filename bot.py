@@ -482,6 +482,11 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             )
         
         if result.get('success'):
+            # Сохраняем Lava contractId → external_invoice_id чтобы найти инвойс по webhook
+            lava_payment_id = result.get('payment_id', '')
+            if lava_payment_id and method == 'ru':
+                await invoice_service.set_external_invoice_id(invoice_id, lava_payment_id)
+                bot_logger.info(f"💾 Saved Lava contractId={lava_payment_id} for {invoice_id}")
             bot_logger.info(f"✅ Card payment created: {method} — {result.get('payment_url', '')[:80]}")
             return web.json_response({
                 'success': True,
@@ -553,6 +558,13 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
             or data.get('orderId', '')
             or data.get('order_id', '')
         )
+        # Если не нашли — ищем по contractId (Lava V3 webhook)
+        if not order_id:
+            contract_id = data.get('contractId', '')
+            if contract_id:
+                order_id = await invoice_service.get_invoice_by_external_id(contract_id)
+                if order_id:
+                    bot_logger.info(f"✅ Lava webhook: found invoice {order_id} by contractId={contract_id}")
         client_email = (
             data.get('email')
             or data.get('buyer_email')

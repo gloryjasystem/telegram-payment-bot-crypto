@@ -116,7 +116,35 @@ class InvoiceService:
         except Exception as e:
             bot_logger.error(f"Error getting invoice {invoice_id}: {e}")
             return None
-    
+
+    async def set_external_invoice_id(self, invoice_id: str, external_id: str) -> bool:
+        """Сохраняет внешний ID платежа (Lava contractId) в external_invoice_id."""
+        try:
+            async with get_session() as session:
+                invoice = await session.scalar(
+                    select(Invoice).where(Invoice.invoice_id == invoice_id)
+                )
+                if invoice:
+                    invoice.external_invoice_id = external_id
+                    return True
+                return False
+        except Exception as e:
+            bot_logger.error(f"Error setting external_invoice_id for {invoice_id}: {e}")
+            return False
+
+    async def get_invoice_by_external_id(self, external_id: str) -> Optional[str]:
+        """Возвращает invoice_id по external_invoice_id (Lava contractId)."""
+        try:
+            async with get_session() as session:
+                invoice = await session.scalar(
+                    select(Invoice).where(Invoice.external_invoice_id == external_id)
+                )
+                return invoice.invoice_id if invoice else None
+        except Exception as e:
+            bot_logger.error(f"Error looking up invoice by external_id {external_id}: {e}")
+            return None
+
+
     async def get_user_invoices(self, telegram_id: int) -> List[Invoice]:
         """
         Получение всех инвойсов пользователя
