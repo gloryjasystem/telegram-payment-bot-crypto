@@ -111,7 +111,6 @@ class InvoiceService:
                 invoice = await session.scalar(
                     select(Invoice)
                     .where(Invoice.invoice_id == invoice_id)
-                    .options(selectinload(Invoice.user))
                 )
                 return invoice
         except Exception as e:
