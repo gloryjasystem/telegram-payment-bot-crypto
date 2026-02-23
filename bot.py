@@ -491,60 +491,115 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         import json
         from services.card_payment_service import card_payment_service
         from services.notification_service import NotificationService
-        
+
         raw_body = await request.read()
-        # V3 может отправлять подпись через Signature или Authorization
-        signature = request.headers.get('Signature', '') or request.headers.get('Authorization', '')
+
+        # ── Верификация webhook secret ──────────────────────────────
+        expected_secret = Config.LAVA_WEBHOOK_SECRET
+        if expected_secret:
+            # Lava.top шлёт API-key через Authorization как "Bearer <key>" или просто "<key>"
+            auth_header = request.headers.get('Authorization', '')
+            received_key = auth_header.replace('Bearer ', '').strip()
+            if received_key != expected_secret:
+                bot_logger.warning(
+                    f"⚠️ Lava webhook: invalid API key received. "
+                    f"Expected set, got: '{received_key[:8]}...'"
+                )
+                # Продолжаем обработку (не блокируем) — но логируем
+        else:
+            bot_logger.warning("⚠️ LAVA_WEBHOOK_SECRET not set — skipping secret check")
+
         data = json.loads(raw_body)
-        
-        bot_logger.info(f"📥 Lava.top V3 webhook: {data}")
-        
-        # Проверка подписи
-        if signature and not card_payment_service.verify_lava_webhook(data, signature):
-            bot_logger.warning("⚠️ Lava webhook signature mismatch")
-        
-        # Проверяем статус оплаты
+        bot_logger.info(f"📥 Lava.top webhook received: {data}")
+
+        # ── Извлекаем статус и order_id ────────────────────────────
         status = data.get('status', '')
-        # V3 API: invoice_id хранится в metadata (наш INV-xxx)
-        order_id = data.get('metadata', '') or data.get('orderId', '') or data.get('order_id', '')
-        
-        if status in ('success', 'completed', 'paid') and order_id:
-            # Получаем transaction_id из ответа Lava
-            lava_invoice_id = str(data.get('id', '') or data.get('invoice_id', ''))
-            # Извлекаем email клиента из webhook-данных
-            client_email = data.get('email') or data.get('buyer_email') or data.get('buyerEmail', '')
-            
-            # Помечаем инвойс как оплаченный
-            success = await invoice_service.mark_invoice_as_paid(
-                invoice_id=order_id,
-                transaction_id=lava_invoice_id,
-                payment_category='card_ru',
-                payment_provider='lava',
-                payment_method='card',
-                client_email=client_email or None
+        # V3 API: наш invoice_id может быть в metadata, orderId или order_id
+        order_id = (
+            data.get('metadata', '')
+            or data.get('orderId', '')
+            or data.get('order_id', '')
+        )
+        client_email = (
+            data.get('email')
+            or data.get('buyer_email')
+            or data.get('buyerEmail', '')
+        )
+
+        if status not in ('success', 'completed', 'paid'):
+            bot_logger.info(f"ℹ️ Lava webhook: status={status} — nothing to do")
+            return web.json_response({'status': 'ok'})
+
+        # ── Если order_id не пришёл — ищем инвойс по сумме ────────
+        if not order_id:
+            bot_logger.warning(
+                "⚠️ Lava webhook: no order_id in payload — trying to find invoice by amount"
             )
-            
-            if success and bot:
-                invoice_data = await invoice_service.get_invoice_with_user(order_id)
-                if invoice_data:
-                    inv, user = invoice_data
-                    from datetime import datetime
-                    inv.status = 'paid'
-                    inv.paid_at = datetime.utcnow()
-                    
-                    notifier = NotificationService(bot)
-                    try:
-                        await notifier.notify_client_payment_success(invoice=inv, user=user)
-                        await notifier.notify_admins_payment_received(invoice=inv, user=user, payment_method='card_ru')
-                        bot_logger.info(f"✅ Lava V3 payment confirmed for {order_id}")
-                    except Exception as e:
-                        bot_logger.error(f"Notification error after Lava payment: {e}")
-        
+            # Lava.top может слать сумму в разных полях
+            amount_paid = float(
+                data.get('amount')
+                or data.get('sum')
+                or data.get('total', 0)
+                or 0
+            )
+            if amount_paid > 0:
+                order_id = await invoice_service.find_pending_lava_invoice_by_amount(
+                    amount_rub=amount_paid
+                )
+            if not order_id:
+                bot_logger.error(
+                    f"❌ Lava webhook: cannot identify invoice "
+                    f"(no order_id, amount={amount_paid}). "
+                    f"Use /mark_paid <invoice_id> to confirm manually."
+                )
+                # Возвращаем 200 чтобы Lava не ретраила
+                return web.json_response({'status': 'ok'})
+
+        # ── Проверяем, не обработан ли уже ────────────────────────
+        existing = await invoice_service.get_invoice_by_id(order_id)
+        if existing and existing.status == 'paid':
+            bot_logger.info(f"⏭ Lava webhook: invoice {order_id} already paid")
+            return web.json_response({'status': 'ok'})
+
+        # Извлекаем Lava transaction ID
+        lava_invoice_id = str(data.get('id', '') or data.get('invoice_id', ''))
+
+        # ── Помечаем инвойс как оплаченный ────────────────────────
+        success = await invoice_service.mark_invoice_as_paid(
+            invoice_id=order_id,
+            transaction_id=lava_invoice_id or order_id,
+            payment_category='card_ru',
+            payment_provider='lava',
+            payment_method='card',
+            client_email=client_email or None
+        )
+
+        if success and bot:
+            invoice_data = await invoice_service.get_invoice_with_user(order_id)
+            if invoice_data:
+                inv, user = invoice_data
+                from datetime import datetime
+                inv.status = 'paid'
+                inv.paid_at = datetime.utcnow()
+
+                notifier = NotificationService(bot)
+                try:
+                    await notifier.notify_client_payment_success(invoice=inv, user=user)
+                    await notifier.notify_admins_payment_received(
+                        invoice=inv, user=user, payment_method='card_ru_lava'
+                    )
+                    bot_logger.info(f"✅ Lava payment confirmed for {order_id}")
+                except Exception as e:
+                    bot_logger.error(f"Notification error after Lava payment: {e}")
+        elif not success:
+            bot_logger.error(f"❌ Failed to mark invoice {order_id} as paid")
+
         return web.json_response({'status': 'ok'})
-    
+
     except Exception as e:
         bot_logger.error(f"Error in Lava webhook: {e}", exc_info=True)
         return web.json_response({'status': 'error'}, status=500)
+
 
 
 async def handle_waypay_webhook(request: web.Request) -> web.Response:

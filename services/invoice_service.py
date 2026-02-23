@@ -344,6 +344,78 @@ class InvoiceService:
             bot_logger.error(f"Error getting invoice with user: {e}")
             return None
 
+    async def find_pending_lava_invoice_by_amount(
+        self,
+        amount_rub: float,
+        tolerance: float = 5.0
+    ) -> Optional[str]:
+        """
+        Поиск pending инвойса с lava_slug по сумме в рублях.
+        Используется когда Lava.top webhook не содержит order_id.
+
+        Args:
+            amount_rub: Сумма которую заплатил клиент (в рублях)
+            tolerance: Допустимое отклонение суммы в рублях
+
+        Returns:
+            str: invoice_id если найден, иначе None
+        """
+        try:
+            from config import Config
+            rate = Config.USD_TO_RUB_RATE
+
+            async with get_session() as session:
+                # Берём все pending lava-инвойсы (с lava_slug != NULL)
+                result = await session.execute(
+                    select(Invoice)
+                    .where(Invoice.status == "pending")
+                    .where(Invoice.lava_slug.isnot(None))
+                    .order_by(Invoice.created_at.desc())
+                    .limit(50)
+                )
+                invoices = list(result.scalars().all())
+
+            for inv in invoices:
+                # Конвертируем USD сумму инвойса в рубли для сравнения
+                expected_rub = float(inv.amount) * rate
+                if abs(expected_rub - amount_rub) <= tolerance:
+                    bot_logger.info(
+                        f"🔍 Found lava invoice by amount: {inv.invoice_id} "
+                        f"(expected ≈{expected_rub:.0f}₽, got {amount_rub:.0f}₽)"
+                    )
+                    return inv.invoice_id
+
+            bot_logger.warning(
+                f"🔍 No pending lava invoice found for amount {amount_rub:.0f}₽"
+            )
+            return None
+
+        except Exception as e:
+            bot_logger.error(f"Error finding lava invoice by amount: {e}", exc_info=True)
+            return None
+
+    async def mark_invoice_paid_by_admin(
+        self,
+        invoice_id: str,
+        admin_id: int
+    ) -> Optional[tuple]:
+        """
+        Ручное подтверждение оплаты администратором (/mark_paid).
+
+        Returns:
+            tuple(Invoice, User) если успешно, иначе None
+        """
+        success = await self.mark_invoice_as_paid(
+            invoice_id=invoice_id,
+            transaction_id=f"MANUAL-{admin_id}",
+            payment_category="card_ru",
+            payment_provider="lava",
+            payment_method="manual_confirm"
+        )
+        if not success:
+            return None
+        return await self.get_invoice_with_user(invoice_id)
+
 
 # Глобальный экземпляр сервиса
 invoice_service = InvoiceService()

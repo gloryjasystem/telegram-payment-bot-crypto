@@ -52,6 +52,8 @@ class Config:
     # LAVA.TOP SETTINGS (Card payments RU — Рубли)
     # ========================================
     LAVA_API_KEY: str = os.getenv("LAVA_API_KEY", "")
+    LAVA_WEBHOOK_SECRET: str = os.getenv("LAVA_WEBHOOK_SECRET", "")
+
     try:
         LAVA_OFFER_MAP: dict = json.loads(os.getenv("LAVA_OFFER_MAP", "{}") or "{}")
     except json.JSONDecodeError:

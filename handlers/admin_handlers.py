@@ -654,3 +654,94 @@ async def cancel_fsm(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("❌ Создание инвойса отменено.")
     await callback.answer("Отменено", show_alert=False)
     log_admin_action(callback.from_user.id, "cancelled FSM via button")
+
+
+# ---------------------------------------------------------------------------
+#  /mark_paid — Ручное подтверждение оплаты Lava.top
+# ---------------------------------------------------------------------------
+
+@admin_router.message(Command("mark_paid"))
+async def cmd_mark_paid(message: Message):
+    """
+    Ручное подтверждение оплаты оплаченного инвойса (для Lava.top).
+    Использование: /mark_paid INV-XXXXX
+    """
+    if message.from_user.id not in Config.ADMIN_IDS:
+        return
+
+    args = message.text.strip().split(maxsplit=1)
+    if len(args) < 2:
+        await message.answer(
+            "❌ Укажите ID инвойса.\n\n"
+            "Использование: <code>/mark_paid INV-XXXXX</code>",
+            parse_mode="HTML"
+        )
+        return
+
+    invoice_id = args[1].strip().upper()
+
+    # Проверяем что инвойс существует
+    from services import invoice_service
+    inv = await invoice_service.get_invoice_by_id(invoice_id)
+
+    if not inv:
+        await message.answer(f"❌ Инвойс <code>{html.escape(invoice_id)}</code> не найден.", parse_mode="HTML")
+        return
+
+    if inv.status == "paid":
+        await message.answer(
+            f"ℹ️ Инвойс <code>{html.escape(invoice_id)}</code> уже отмечен как оплаченный.",
+            parse_mode="HTML"
+        )
+        return
+
+    if inv.status != "pending":
+        await message.answer(
+            f"❌ Инвойс <code>{html.escape(invoice_id)}</code> имеет статус <b>{inv.status}</b> — нельзя подтвердить.",
+            parse_mode="HTML"
+        )
+        return
+
+    # Помечаем как оплаченный
+    result = await invoice_service.mark_invoice_paid_by_admin(
+        invoice_id=invoice_id,
+        admin_id=message.from_user.id
+    )
+
+    if not result:
+        await message.answer(
+            f"❌ Не удалось подтвердить инвойс <code>{html.escape(invoice_id)}</code>. Проверьте логи.",
+            parse_mode="HTML"
+        )
+        return
+
+    inv_obj, user_obj = result
+
+    # Отправляем уведомления
+    from aiogram import Bot
+    bot: Bot = message.bot
+    from services import NotificationService
+    from datetime import datetime
+
+    inv_obj.status = "paid"
+    inv_obj.paid_at = datetime.utcnow()
+
+    notifier = NotificationService(bot)
+    try:
+        await notifier.notify_client_payment_success(invoice=inv_obj, user=user_obj)
+        await notifier.notify_admins_payment_received(
+            invoice=inv_obj, user=user_obj, payment_method="card_ru_manual"
+        )
+        await message.answer(
+            f"✅ Инвойс <code>{html.escape(invoice_id)}</code> подтверждён!\n"
+            f"Уведомления отправлены клиенту и администраторам.",
+            parse_mode="HTML"
+        )
+        log_admin_action(message.from_user.id, f"manually confirmed payment for {invoice_id}")
+    except Exception as e:
+        bot_logger.error(f"Error sending notifications for manual payment {invoice_id}: {e}")
+        await message.answer(
+            f"⚠️ Инвойс подтверждён, но при отправке уведомлений произошла ошибка: {e}",
+            parse_mode="HTML"
+        )
+
