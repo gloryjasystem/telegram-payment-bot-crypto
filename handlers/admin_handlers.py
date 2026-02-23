@@ -477,12 +477,72 @@ async def process_custom_amount(message: Message, state: FSMContext):
         )
         return
 
+    # ── Проверяем кратность $10 для Lava-карточек ──────────────────────────
+    amount_int = int(amount)
+    if amount_int % 10 != 0 and Config.LAVA_CUSTOM_TIERS:
+        # Вычисляем тир который получит клиент
+        step = 10
+        tier_usd = int(((amount_int + step - 1) // step) * step)
+        # Если переполняет — берём максимальный
+        max_tier = max(Config.LAVA_CUSTOM_TIERS.keys()) if Config.LAVA_CUSTOM_TIERS else 2500
+        tier_usd = min(tier_usd, max_tier)
+
+        tier_info = Config.LAVA_CUSTOM_TIERS.get(tier_usd, {})
+        tier_has_offer = bool(tier_info.get("offer_id"))
+        tier_note = "" if tier_has_offer else "\n⚠️ <i>Для этого тира offer_id ещё не добавлен — РФ карта будет недоступна.</i>"
+
+        await state.update_data(
+            amount=amount,
+            _pending_tier_usd=tier_usd,
+        )
+        await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
+
+        from aiogram.utils.keyboard import InlineKeyboardBuilder
+        kb = InlineKeyboardBuilder()
+        kb.button(text=f"✅ Да, карточка ${tier_usd}", callback_data="tier_confirm:yes")
+        kb.button(text="✏️ Ввести другую сумму", callback_data="tier_confirm:no")
+        kb.adjust(1)
+
+        await message.answer(
+            f"⚠️ <b>Сумма ${amount_int} не кратна $10</b>\n\n"
+            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> "
+            f"(ближайший тир вверх).{tier_note}\n\n"
+            f"Продолжить с карточкой <b>${tier_usd}</b>?",
+            reply_markup=kb.as_markup(),
+            parse_mode="HTML"
+        )
+        return
+    # ────────────────────────────────────────────────────────────────────────
+
     await state.update_data(amount=amount)
     await state.set_state(InvoiceCreationStates.PreviewInvoice)
 
-    # Собираем данные и сразу показываем предпросмотр через Message
     data = await state.get_data()
     await _send_preview_message(message, data)
+
+
+@admin_router.callback_query(F.data.startswith("tier_confirm:"),
+                              InvoiceCreationStates.WaitingForCustomAmountConfirm)
+async def handle_tier_confirm(callback: CallbackQuery, state: FSMContext):
+    """Подтверждение или отмена нестандартной цены."""
+    action = callback.data.split(":")[1]  # "yes" | "no"
+
+    if action == "no":
+        # Возвращаем к вводу суммы
+        await state.set_state(InvoiceCreationStates.WaitingForCustomAmount)
+        await callback.message.edit_text(
+            "✏️ Введите сумму в USD (кратную $10, например: 200 или 250):",
+            reply_markup=get_back_to_service_keyboard()
+        )
+        await callback.answer()
+        return
+
+    # Продолжаем с сохранённой суммой
+    await state.set_state(InvoiceCreationStates.PreviewInvoice)
+    data = await state.get_data()
+    await _send_preview_message(callback.message, data)
+    await callback.answer()
+
 
 
 # ---------------------------------------------------------------------------

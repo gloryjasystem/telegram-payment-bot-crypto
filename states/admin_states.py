@@ -33,6 +33,9 @@ class InvoiceCreationStates(StatesGroup):
     # Для потока B: ввод суммы произвольной услуги
     WaitingForCustomAmount = State()
 
+    # Для потока B: подтверждение если цена не кратна $10 (предупреждение о тире)
+    WaitingForCustomAmountConfirm = State()
+
     # Для топ-позиций: выбор tier (inline-кнопки)
     WaitingForTopTier = State()
 
