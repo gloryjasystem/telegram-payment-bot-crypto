@@ -1,7 +1,10 @@
 {
-  "_инструкция": "Замени ВСТАВЬ_URL на полную ссылку со страницы продукта lava.top (app.lava.top). Ключи _comment игнорируются ботом.",
+  "_инструкция": "Замени ВСТАВЬ_URL на полную ссылку со страницы продукта lava.top (app.lava.top). price_rub — це фиксированная цена в рублях, которая установлена на Lava.top (смотри в настройках продукта). Ключи _comment игнорируются ботом.",
   "_comment_1": "=== LISTING PRO — $390 — Размещение канала в каталоге ===",
-  "listing_pro": "https://app.lava.top/products/19e09379-2413-4bb3-ace2-c697c04bc2ef/37a4884e-20ad-4038-9897-e06f7c25b5e2",
+  "listing_pro": {
+    "url": "https://app.lava.top/products/19e09379-2413-4bb3-ace2-c697c04bc2ef/37a4884e-20ad-4038-9897-e06f7c25b5e2",
+    "price_rub": 37050
+  },
   "_comment_2": "=== MARKETFILTER VERIFIED — $1200 / 1 год ===",
   "marketfilter_verified": "ВСТАВЬ_URL",
   "_comment_3": "=== МИРОВОЙ ТОП (World) ===",

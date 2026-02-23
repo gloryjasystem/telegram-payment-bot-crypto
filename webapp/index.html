@@ -552,14 +552,20 @@
         const invoiceId = urlParams.get('invoice_id') || '';
         // Слуг продукта на lava.top (если есть — прямой редирект вместо API-создания через Лаву)
         const lavaSlug = urlParams.get('lava_slug') || '';
+        // Фиксированная цена в рублях из lava_products.json (если задана для продукта)
+        const lavaFixedPriceRub = parseInt(urlParams.get('lava_price_rub') || '0', 10);
 
-        // === Наценка 8% (комиссия Lava.top + конвертация) ===
+        // === Наценка 8% (применяется только если нет фиксированной rub-цены) ===
         const MARKUP = 1.08;
 
         // Запасной курс из URL-параметра (пока не загрузился актуальный)
         let usdToRubRate = parseFloat(urlParams.get('rate') || '90');
-        // Расчётная сумма в рублях (пересчитывается после загрузки курса ЦБ)
-        let amountRUB = Math.round(amountUSD * usdToRubRate * MARKUP);
+        // Расчётная сумма в рублях:
+        //   — если есть фиксированная lava_price_rub → используем её напрямую
+        //   — иначе считаем: USD × курс ЦБ × 1.08
+        let amountRUB = lavaFixedPriceRub > 0
+            ? lavaFixedPriceRub
+            : Math.round(amountUSD * usdToRubRate * MARKUP);
 
         // ========== Populate Initial Data ==========
         // Service name on page 1
@@ -576,8 +582,12 @@
             }
         }
 
-        // Загружаем актуальный курс ЦБ РФ
+        // Загружаем актуальный курс ЦБ РФ (только если нет фиксированной rub-цены)
         async function fetchCbrRate() {
+            if (lavaFixedPriceRub > 0) {
+                console.log(`✅ Using fixed Lava price: ${lavaFixedPriceRub} ₽`);
+                return; // фиксированная цена — CBR не нужен
+            }
             try {
                 const resp = await fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-cache' });
                 if (!resp.ok) throw new Error('CBR API unavailable');
@@ -599,6 +609,8 @@
         document.getElementById('bank-ru').addEventListener('change', () => { haptic('select'); updatePriceDisplay(); });
         document.getElementById('bank-int').addEventListener('change', () => { haptic('select'); updatePriceDisplay(); });
         updatePriceDisplay(); // initial (с запасным курсом)
+
+
 
         // ========== Page Navigation ==========
         const pages = [

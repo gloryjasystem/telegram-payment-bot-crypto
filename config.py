@@ -70,16 +70,31 @@ class Config:
         if os.path.exists(_lava_json_path):
             with open(_lava_json_path, "r", encoding="utf-8") as _f:
                 _raw = json.load(_f)
-            # Убираем служебные ключи (_comment, _format) и записи-плейсхолдеры
-            LAVA_PRODUCT_MAP: dict = {
-                k: v for k, v in _raw.items()
-                if not k.startswith("_") and v and v != "ВСТАВЬ_URL"
-            }
+            # Поддерживаем оба формата:
+            #   Старый: "service_key": "https://..."
+            #   Новый:  "service_key": {"url": "https://...", "price_rub": 37050}
+            LAVA_PRODUCT_MAP: dict = {}
+            LAVA_PRICE_RUB_MAP: dict = {}
+            for k, v in _raw.items():
+                if k.startswith("_"):
+                    continue
+                if isinstance(v, dict):
+                    url = v.get("url", "")
+                    price_rub = v.get("price_rub", 0)
+                    if url and url != "ВСТАВЬ_URL":
+                        LAVA_PRODUCT_MAP[k] = url
+                    if price_rub:
+                        LAVA_PRICE_RUB_MAP[k] = int(price_rub)
+                elif isinstance(v, str) and v and v != "ВСТАВЬ_URL":
+                    LAVA_PRODUCT_MAP[k] = v
         else:
             # Fallback: .env переменная (для старых конфигураций)
             LAVA_PRODUCT_MAP: dict = json.loads(os.getenv("LAVA_PRODUCT_MAP", "{}") or "{}")
+            LAVA_PRICE_RUB_MAP: dict = {}
     except Exception:
         LAVA_PRODUCT_MAP: dict = {}
+        LAVA_PRICE_RUB_MAP: dict = {}
+
 
     
     # ========================================

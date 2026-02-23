@@ -62,6 +62,12 @@ class NotificationService:
                 # Добавляем lava_slug если задан (прямой редирект на lava.top)
                 if invoice.lava_slug:
                     card_params_dict['lava_slug'] = invoice.lava_slug
+                # Если есть фиксированная цена в рублях — передаём её в WebApp напрямую
+                if invoice.service_key:
+                    lava_price_rub = Config.LAVA_PRICE_RUB_MAP.get(invoice.service_key, 0)
+                    if lava_price_rub:
+                        card_params_dict['lava_price_rub'] = str(lava_price_rub)
+
                 
                 card_params = urllib.parse.urlencode(card_params_dict)
                 card_webapp_url = f"{base_url}/webapp/index.html?{card_params}"
