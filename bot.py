@@ -445,9 +445,29 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             )
         
         if method == 'ru':
-            # Lava.top — рубли
+            # Lava.top V3 API: нужен offer_id и metadata=invoice_id → webhook придёт с нашим ID
+            # Получаем service_key инвойса из БД чтобы найти offer_id
+            offer_id = ''
+            try:
+                inv = await invoice_service.get_invoice_by_id(invoice_id)
+                if inv and inv.service_key:
+                    offer_id = Config.LAVA_OFFER_ID_MAP.get(inv.service_key, '')
+            except Exception as _e:
+                bot_logger.warning(f"Could not load service_key for {invoice_id}: {_e}")
+            
+            if not offer_id:
+                bot_logger.warning(
+                    f"⚠️ No offer_id for invoice {invoice_id} — cannot create Lava.top invoice via API. "
+                    f"Fill offer_id in lava_products.json for this service."
+                )
+                return web.json_response({
+                    'success': False,
+                    'error': 'Для этой услуги не задан offer_id. Заполните lava_products.json.'
+                }, status=400)
+            
             result = await card_payment_service.create_lava_payment(
                 invoice_id=invoice_id,
+                offer_id=offer_id,
                 amount_rub=amount_rub,
                 email=email,
                 description=service

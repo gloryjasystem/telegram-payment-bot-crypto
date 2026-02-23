@@ -694,36 +694,6 @@
             const email = document.getElementById('email').value.trim();
             const method = isRu ? 'ru' : 'international';
 
-            // ==================================================
-            // ПРЯМОЙ РЕДИРЕКТ НА LAVA.TOP (lava_slug задан + Выбран Банк РФ)
-            //   Не делаем API-запрос, перенаправляем прямо на страницу продукта lava.top
-            // ==================================================
-            if (isRu && lavaSlug) {
-                // Передаём email в URL чтобы клиент не вводил его повторно на lava.top
-                const lavaUrl = lavaSlug + (lavaSlug.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(email);
-                haptic('notify', 'success');
-                showPage(2);
-                document.getElementById('payment-link').href = lavaUrl;
-                document.getElementById('payment-link').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    haptic('impact', 'light');
-                    if (tg) {
-                        tg.openLink(lavaUrl);
-                    } else {
-                        window.open(lavaUrl, '_blank');
-                    }
-                });
-                // Открываем страницу оплаты lava.top
-                setTimeout(() => {
-                    if (tg) {
-                        tg.openLink(lavaUrl);
-                    } else {
-                        window.open(lavaUrl, '_blank');
-                    }
-                }, 300);
-                return;
-            }
-
             try {
                 // Build API URL relative to current origin
                 const apiUrl = window.location.origin + '/api/create-card-payment';

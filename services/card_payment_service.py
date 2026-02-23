@@ -86,72 +86,73 @@ class CardPaymentService:
     async def create_lava_payment(
         self,
         invoice_id: str,
+        offer_id: str,
         amount_rub: float,
         email: str,
         description: str
     ) -> Dict[str, Any]:
         """
-        Создание платежа через Lava.top V3 API
-        
+        Создание платежа через Lava.top V3 API с привязкой к нашему invoice_id.
+
         Args:
-            invoice_id: ID инвойса из бота
-            amount_rub: Сумма в рублях
-            email: Email покупателя
-            description: Описание услуги
-            
+            invoice_id: ID инвойса из бота (INV-XXXXX) — передаётся как metadata → придёт в webhook
+            offer_id:   UUID оффера из lava_products.json (второй UUID в URL продукта)
+            amount_rub: Сумма в рублях (для логирования)
+            email:      Email покупателя
+            description: Описание услуги (для логирования)
+
         Returns:
             dict: {'success': bool, 'payment_url': str} или {'success': False, 'error': str}
         """
         try:
             if not Config.LAVA_API_KEY:
                 return {'success': False, 'error': 'LAVA_API_KEY не настроен'}
-            if not Config.LAVA_OFFER_MAP:
-                return {'success': False, 'error': 'LAVA_OFFER_MAP не настроен (нет офферов)'}
-            
-            # Подбираем offer_id по описанию услуги и сумме
-            try:
-                offer_id, rounded_amount = self._get_lava_offer_id(amount_rub, description)
-            except ValueError as e:
-                return {'success': False, 'error': str(e)}
-            
-            # Payload по Swagger: email + offerId + currency (amount определяется оффером)
+            if not offer_id:
+                return {'success': False, 'error': 'offer_id не задан для данной услуги'}
+
+            # Payload по Lava.top V3 Swagger:
+            #   offerId   — UUID оффера (определяет продукт и цену на Lava.top)
+            #   email     — email покупателя (предзаполняется на странице оплаты)
+            #   currency  — валюта (RUB → показывает рублёвую цену)
+            #   metadata  — произвольная строка; Lava.top вернёт её в webhook → наш INV-XXXXX
             payload = {
                 "email": email,
                 "offerId": offer_id,
-                "currency": "RUB"
+                "currency": "RUB",
+                "metadata": invoice_id      # ← ключевое поле: вернётся в webhook
             }
-            
+
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
                 "X-Api-Key": Config.LAVA_API_KEY
             }
-            
+
             body_json = json.dumps(payload)
-            bot_logger.info(f"🔄 Lava.top V3: POST {self.LAVA_API_URL}")
-            bot_logger.info(f"🔄 Payload: {body_json}")
-            bot_logger.info(f"🔄 Auth: Bearer {Config.LAVA_API_KEY[:8]}...{Config.LAVA_API_KEY[-4:]}")
-            
+            bot_logger.info(f"🔄 Lava.top V3 invoice: POST {self.LAVA_API_URL}")
+            bot_logger.info(f"🔄 invoice_id={invoice_id}, offer_id={offer_id}, amount≈{amount_rub}₽, email={email}")
+
             resp = await api_request_with_retry(
                 "POST", self.LAVA_API_URL,
                 headers=headers,
                 data=body_json,
                 timeout=30,
             )
-            
+
             bot_logger.info(f"Lava.top response: status={resp['status']}")
             bot_logger.info(f"Lava.top body: {resp['body'][:500]}")
-            
+
             result = resp['json']
             if result is None:
                 return {'success': False, 'error': f"Lava.top ({resp['status']}): невалидный JSON: {resp['body'][:300]}"}
-            
+
             # Swagger: 201 = успешное создание контракта
             if resp['status'] in (200, 201):
                 payment_url = result.get("paymentUrl") or result.get("url")
                 payment_id = result.get("id", "")
-                
+
                 if payment_url:
+                    bot_logger.info(f"✅ Lava.top invoice created: payment_id={payment_id}, url={payment_url}")
                     return {
                         'success': True,
                         'payment_url': payment_url,
@@ -162,12 +163,14 @@ class CardPaymentService:
             else:
                 error_msg = result.get("error", result.get("message", str(result)))
                 return {'success': False, 'error': f"Lava.top ({resp['status']}): {error_msg}"}
-        
+
         except Exception as e:
             bot_logger.error(f"Error creating Lava.top V3 payment: {e}", exc_info=True)
             return {'success': False, 'error': str(e)}
-    
+
+
     def verify_lava_webhook(self, data: dict, signature: str) -> bool:
+
         """Проверка вебхука от Lava.top (V3 использует Bearer-авторизацию)"""
         try:
             if not Config.LAVA_API_KEY:
