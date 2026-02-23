@@ -664,7 +664,8 @@
             //   Не делаем API-запрос, перенаправляем прямо на страницу продукта lava.top
             // ==================================================
             if (isRu && lavaSlug) {
-                const lavaUrl = lavaSlug; // полный URL из LAVA_PRODUCT_MAP (напр. https://app.lava.top/products/...)
+                // Передаём email в URL чтобы клиент не вводил его повторно на lava.top
+                const lavaUrl = lavaSlug + (lavaSlug.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(email);
                 haptic('notify', 'success');
                 showPage(2);
                 document.getElementById('payment-link').href = lavaUrl;
