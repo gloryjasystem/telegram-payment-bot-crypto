@@ -2,427 +2,1229 @@
   "_инструкция": "Для каждой услуги: 'url' — полная ссылка со страницы продукта lava.top (app.lava.top), 'price_rub' — фиксированная цена в рублях из настроек продукта на Lava.top. Оставь 'url' = 'ВСТАВЬ_URL' если продукт ещё не создан.",
   "_comment_1": "=== LISTING PRO — $390 — Размещение канала в каталоге ===",
   "listing_pro": {
-    "url": "https://app.lava.top/products/19e09379-2413-4bb3-ace2-c697c04bc2ef/37a4884e-20ad-4038-9897-e06f7c25b5e2",
+    "url": "https://app.lava.top/products/578e4aa7-0331-496d-aeb6-d52aca9eeecb/2a27193b-e7c1-4937-8563-c0290b160486",
     "price_rub": 50,
-    "offer_id": "37a4884e-20ad-4038-9897-e06f7c25b5e2"
+    "offer_id": "2a27193b-e7c1-4937-8563-c0290b160486"
   },
   "_comment_2": "=== MARKETFILTER VERIFIED — $1200 / 1 год ===",
   "marketfilter_verified": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/31c75b0d-bb62-4934-b043-5dbfecb8b710/0682883d-84ba-4771-9d0a-2212238164ed",
     "price_rub": 0
   },
   "_comment_3": "=== МИРОВОЙ ТОП (World) ===",
   "_comment_3a": "Неделя: #1=$1990, #2=$1690, #3=$1490, #4=$1290, #5=$1090, #6=$990, #7=$890, #8=$790, #9=$690, #10=$590",
   "top_world_week_1": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/d7c99fb9-c6cf-4661-9531-7d10b7ba9231/4ea57b45-4a89-440b-b608-e2009ad2b440",
     "price_rub": 0
   },
   "top_world_week_2": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/839f69ed-9f13-4c76-965a-80d7bc976d56/ef0b009d-87b1-421f-8b87-f1d486e8827e",
     "price_rub": 0
   },
   "top_world_week_3": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/17789fae-d933-4cbd-9d44-f07030f48e7d/3717bc42-cc7a-4e73-aff6-609a2f64d0c2",
     "price_rub": 0
   },
   "top_world_week_4": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/16cbb544-b126-42d1-8bbb-3dc33bddc2ed/41a3a885-063e-4ffe-b3a1-bd71d39faf7e",
     "price_rub": 0
   },
   "top_world_week_5": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/1db8b742-d785-4f45-9447-9fd12ce63846/f4e5abbe-ff8a-4540-b9c4-6523b43ed86a",
     "price_rub": 0
   },
   "top_world_week_6": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/d68049b6-58d5-438a-893f-7d5cd35238ba/5fd48b87-75a7-44c4-bf65-e88c02bba0d2",
     "price_rub": 0
   },
   "top_world_week_7": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/33f2797e-3fe3-4ee8-b051-fd78b628c716/46d2c912-21bd-4732-b323-eb623df0c744",
     "price_rub": 0
   },
   "top_world_week_8": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/49966a54-7cb7-4e75-bedd-c143cdda412e/8327721e-0da8-4a49-8428-efcfeddd37fc",
     "price_rub": 0
   },
   "top_world_week_9": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/1b251c73-ef3e-4f2b-b68c-ec11416a7b2e/21249d19-e79c-4ff9-8995-51831cdc14b7",
     "price_rub": 0
   },
   "top_world_week_10": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/daefd06e-cdf0-45d3-a25b-cd59afd9ddc3/283d3861-f792-4519-87d4-2e08f0e645ed",
     "price_rub": 0
   },
   "_comment_3b": "Месяц: #1=$5900, #2=$4990, #3=$4490, #4=$3990, #5=$3490, #6=$2990, #7=$2690, #8=$2390, #9=$2090, #10=$1790",
   "top_world_month_1": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/1247451b-5cd0-41e0-af3d-1b275c2ab64d/d4bf53e5-5c7c-4d8e-aff8-3f8ea1666998",
     "price_rub": 0
   },
   "top_world_month_2": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/7cdace6f-c374-415e-9770-085b9c2a4666/f0abedd2-f45b-40fb-9660-0fa686faa6bb",
     "price_rub": 0
   },
   "top_world_month_3": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/6d736246-48b6-4e70-9115-30259020bf9a/94885301-ad8b-48d7-b0b0-67cf3550ed59",
     "price_rub": 0
   },
   "top_world_month_4": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/5c62475f-47d6-4c01-83ee-945980ba3e23/44414578-391c-4015-96fa-d78567542635",
     "price_rub": 0
   },
   "top_world_month_5": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/0add4786-1dc6-4163-9b56-9c7256d58793/d995527c-ab42-42d8-93d8-f80147c6769d",
     "price_rub": 0
   },
   "top_world_month_6": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/9c2e0bbe-0fca-4a23-802d-f02276cf53e1/41ef959a-b148-44ec-8889-0948efd65b96",
     "price_rub": 0
   },
   "top_world_month_7": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/2a327665-e922-4bf4-a69f-ec5afe17e357/f42dbd2d-75e9-4c18-8734-142dce20466a",
     "price_rub": 0
   },
   "top_world_month_8": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/212503dc-6768-46b9-b757-44c7fa43ec33/7dd6c01f-2a39-4914-a591-adcd35a27f4b",
     "price_rub": 0
   },
   "top_world_month_9": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/34cf0807-bdb1-4c0d-8c30-9ff591504256/acd00622-5669-4d79-88db-57f54c7d2bb6",
     "price_rub": 0
   },
   "top_world_month_10": {
-    "url": "ВСТАВЬ_URL",
+    "url": "https://app.lava.top/products/c6b89e6a-86e5-4bc2-86b3-60484bb40527/78df8c28-4991-4ecc-a670-67dc1ad93742",
     "price_rub": 0
   },
-  "_comment_4": "=== TIER 1 — TRADING / SIGNALS / ARBITRAGE ===",
-  "_comment_4a": "Неделя: #1=$1525, #2=$1078, #3=$980, #4=$882, #5=$784, #6=$686, #7=$637, #8=$588, #9=$539, #10=$490",
-  "top_tier1_week_1": {
-    "url": "ВСТАВЬ_URL",
+  "_comment_4": "=== TIER 1 — TRADING (Неделя: #1=$1525 → #10=$490 / Месяц: #1=$3975 → #10=$1390) ===",
+  "top_trading_week_1": {
+    "url": "https://app.lava.top/products/7b82ac9c-2d74-4eb0-a473-71728671feea/b45108e4-b017-47ab-8e7a-fd90551c4025",
     "price_rub": 0
   },
-  "top_tier1_week_2": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_2": {
+    "url": "https://app.lava.top/products/c0dddd7e-9030-4518-b81f-3f71c416ddb8/c39a5d40-828b-47e2-97f4-fa11f6b89823",
     "price_rub": 0
   },
-  "top_tier1_week_3": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_3": {
+    "url": "https://app.lava.top/products/7ab1bba0-05f6-43c5-b6d9-8dba92c4a87f/f616b389-16af-4c26-87c8-3e0ed8a2ddb4",
     "price_rub": 0
   },
-  "top_tier1_week_4": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_4": {
+    "url": "https://app.lava.top/products/5f7ea827-0852-47e7-86e0-153d70a4ba2b/0501103e-d714-4e35-b1b5-1791bbaf72a1",
     "price_rub": 0
   },
-  "top_tier1_week_5": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_5": {
+    "url": "https://app.lava.top/products/4c603e12-dd35-4441-90ad-f716fb581883/e2315054-421e-410c-8034-dab6db778009",
     "price_rub": 0
   },
-  "top_tier1_week_6": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_6": {
+    "url": "https://app.lava.top/products/d5d6ece1-f9c8-45c5-a141-fa6b5063febd/caa846ad-637b-41af-91ce-a983da8198ae",
     "price_rub": 0
   },
-  "top_tier1_week_7": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_7": {
+    "url": "https://app.lava.top/products/2746ef1e-e112-48a7-abf8-cb9428533a8c/8e079c3a-002b-4c83-9633-9d77f1adecf5",
     "price_rub": 0
   },
-  "top_tier1_week_8": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_8": {
+    "url": "https://app.lava.top/products/96d08b8d-1488-4a2a-9ff3-4293df5eed03/6de7b07e-9dd0-4fd5-b798-f3d669666878",
     "price_rub": 0
   },
-  "top_tier1_week_9": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_9": {
+    "url": "https://app.lava.top/products/6e4cb02c-88f8-4fa2-a59a-1db5d665ea09/e4ea34c2-b699-4699-897c-8fbe17360ad0",
     "price_rub": 0
   },
-  "top_tier1_week_10": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_week_10": {
+    "url": "https://app.lava.top/products/19c59d02-77f9-42cd-ae25-a4c749cbf114/b59e4562-8c44-49a1-814c-289792fbf8a8",
     "price_rub": 0
   },
-  "_comment_4b": "Месяц: #1=$3975, #2=$3058, #3=$2780, #4=$2502, #5=$2224, #6=$1946, #7=$1807, #8=$1668, #9=$1529, #10=$1390",
-  "top_tier1_month_1": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_1": {
+    "url": "https://app.lava.top/products/e5473616-0c82-4e51-8226-bf8ccc6a202b/377d0033-72c8-4ef6-8cd7-9998758c1fa3",
     "price_rub": 0
   },
-  "top_tier1_month_2": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_2": {
+    "url": "https://app.lava.top/products/b4db08e8-8036-4c88-ae63-e09274f69586/12123678-73e5-42df-a3e4-20601ede6cfd",
     "price_rub": 0
   },
-  "top_tier1_month_3": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_3": {
+    "url": "https://app.lava.top/products/2e8585a8-ca55-46d6-9ffb-6679b6af3f8f/ef369686-4f84-48d3-9b6d-2055984d1ef9",
     "price_rub": 0
   },
-  "top_tier1_month_4": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_4": {
+    "url": "https://app.lava.top/products/d6f07bd1-3056-4099-8896-048087e920e4/1579f066-eb47-484b-baec-bc1928a95393",
     "price_rub": 0
   },
-  "top_tier1_month_5": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_5": {
+    "url": "https://app.lava.top/products/1dbcd6fb-94fd-42f8-99e5-78087b9a0180/dadf955d-c8a6-420a-a249-9f5a9bc06409",
     "price_rub": 0
   },
-  "top_tier1_month_6": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_6": {
+    "url": "https://app.lava.top/products/6b253bff-5f8a-495b-851f-96591ae811b2/52dcbea0-69d2-4710-af6e-1aaa34722942",
     "price_rub": 0
   },
-  "top_tier1_month_7": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_7": {
+    "url": "https://app.lava.top/products/a1f45668-8fe1-4877-994b-6a4c8f410c21/993e8fbc-339e-4471-bff8-b9a542aafb55",
     "price_rub": 0
   },
-  "top_tier1_month_8": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_8": {
+    "url": "https://app.lava.top/products/fdba1c15-81f1-4587-8c41-6519244dd49b/543a22a8-f7bd-42db-a1c0-873a8c86dc79",
     "price_rub": 0
   },
-  "top_tier1_month_9": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_9": {
+    "url": "https://app.lava.top/products/12123982-5430-4661-8555-d8e0dc0c71f1/54417702-ef59-4235-ad2e-364b39069a39",
     "price_rub": 0
   },
-  "top_tier1_month_10": {
-    "url": "ВСТАВЬ_URL",
+  "top_trading_month_10": {
+    "url": "https://app.lava.top/products/02d28f95-96f1-41ff-8597-11e97e5a0c41/5223e8a5-3023-4992-9eae-9a00930416ee",
+    "price_rub": 0
+  },
+  "_comment_5": "=== TIER 1 — SIGNALS (те же цены что TRADING) ===",
+  "top_signals_week_1": {
+    "url": "https://app.lava.top/products/342da05e-7868-4a41-abd5-ef1fa117b2c6/631ec239-313b-4128-9569-417f4744d2e2",
+    "price_rub": 0
+  },
+  "top_signals_week_2": {
+    "url": "https://app.lava.top/products/2ca8198a-261a-4ca2-b734-e8f3f092fe27/518cbb06-de99-49c8-ad5a-b2cf92ea2474",
+    "price_rub": 0
+  },
+  "top_signals_week_3": {
+    "url": "https://app.lava.top/products/bc687800-c8c2-4ec3-818f-a77740203171/2ed56648-9847-42ab-a762-db7d068af23b",
+    "price_rub": 0
+  },
+  "top_signals_week_4": {
+    "url": "https://app.lava.top/products/f370ea6f-e325-4e76-9ee7-784d80d562d5/bc37ce9d-0d8a-44ab-95a1-17cfb7a2c3ce",
+    "price_rub": 0
+  },
+  "top_signals_week_5": {
+    "url": "https://app.lava.top/products/d7698903-c285-4662-abc2-e4ee59451254/e0849cc7-1e00-42eb-9b42-e0a5f2e8ccfe",
+    "price_rub": 0
+  },
+  "top_signals_week_6": {
+    "url": "https://app.lava.top/products/2e03803f-0895-4e7a-9c89-8cf6c072edaf/bff59e78-5a57-4cec-80b1-5099556ad57b",
+    "price_rub": 0
+  },
+  "top_signals_week_7": {
+    "url": "https://app.lava.top/products/a515fcf6-b1ab-4c56-8e74-f3f16d4cfd31/b3e0f428-d0e6-4a1d-a9e4-103eb7d7efb6",
+    "price_rub": 0
+  },
+  "top_signals_week_8": {
+    "url": "https://app.lava.top/products/1c6c39fb-f90b-4c6b-89c7-21a736a52ddb/65a56d96-8f3d-44c3-be79-1c0ea44f60e0",
+    "price_rub": 0
+  },
+  "top_signals_week_9": {
+    "url": "https://app.lava.top/products/ab9734d2-dd83-420f-862c-a4a9956f23c4/15690cef-5cc0-40b3-9083-3e704b8c492c",
+    "price_rub": 0
+  },
+  "top_signals_week_10": {
+    "url": "https://app.lava.top/products/90548c0f-4f74-4c26-831c-c59813cf8892/ccd06c71-529f-430a-aefa-18b31f7e2ddb",
+    "price_rub": 0
+  },
+  "top_signals_month_1": {
+    "url": "https://app.lava.top/products/ff3ca1e2-9936-4eab-bf62-0de832256393/4ed2f1c5-4bd3-4fed-9039-977b24d54cd3",
+    "price_rub": 0
+  },
+  "top_signals_month_2": {
+    "url": "https://app.lava.top/products/25f23fd8-399c-46fb-a4ff-32144a54b737/36f92003-4ae4-40ac-8c20-9c262fe3e46c",
+    "price_rub": 0
+  },
+  "top_signals_month_3": {
+    "url": "https://app.lava.top/products/3c3bfc20-5fc8-49e1-8c57-c08440469d44/f6e048cd-0c34-4034-8a33-25e62872b5a7",
+    "price_rub": 0
+  },
+  "top_signals_month_4": {
+    "url": "https://app.lava.top/products/485107d1-971e-4ff8-a8ad-b54e3c6aba08/9c12dc6a-7f83-4cfb-9a8e-e2c45acd8235",
+    "price_rub": 0
+  },
+  "top_signals_month_5": {
+    "url": "https://app.lava.top/products/87d9dd79-8a9e-42fb-a74c-8e61734dbaef/d23f3c15-2825-4704-8d1f-4877c1fec2fb",
+    "price_rub": 0
+  },
+  "top_signals_month_6": {
+    "url": "https://app.lava.top/products/f960542f-8247-404c-99f1-5f3b71850bfc/da010efd-a9b1-4662-80d3-2a01c3bc1e4e",
+    "price_rub": 0
+  },
+  "top_signals_month_7": {
+    "url": "https://app.lava.top/products/8da304e9-fc8d-49e8-bddd-1400fc2d77dc/728ed71a-742a-4d0b-84f6-6d74152f69bb",
+    "price_rub": 0
+  },
+  "top_signals_month_8": {
+    "url": "https://app.lava.top/products/b15b952f-7af5-4d96-ad7c-5a016d861db5/3c7dc4b3-ef2a-451a-a08d-18901ff0ce11",
+    "price_rub": 0
+  },
+  "top_signals_month_9": {
+    "url": "https://app.lava.top/products/9dd2dabf-edfd-471d-8d16-90190e8e0c45/88d13088-2350-4c25-92c6-4f8e2ecfafe3",
+    "price_rub": 0
+  },
+  "top_signals_month_10": {
+    "url": "https://app.lava.top/products/aa942b20-bb5c-433e-96fc-5e520506090b/d90b1ea5-f5ee-4c12-8549-93894ac51530",
+    "price_rub": 0
+  },
+  "_comment_6": "=== TIER 1 — ARBITRAGE (те же цены что TRADING) ===",
+  "top_arbitrage_week_1": {
+    "url": "https://app.lava.top/products/b9c59965-ca3b-4924-bb16-6d5ee07e5377/54e0d2f5-a7ce-4496-b4d7-768689e253dc",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_2": {
+    "url": "https://app.lava.top/products/76fb9f74-1d8b-4592-bfb3-c0eaf082cb86/03c61194-1701-47bd-89bf-f6f6431ccc5e",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_3": {
+    "url": "https://app.lava.top/products/c126ff65-308d-4ea3-acf1-a4c4cd33def3/5208256b-7a4e-41c5-8039-1df88d7629e0",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_4": {
+    "url": "https://app.lava.top/products/b5191c08-025e-4ed3-a529-54c0d166c2d6/8a2899ab-3418-41a1-b19e-e2ef9142a530",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_5": {
+    "url": "https://app.lava.top/products/aad97ca4-be41-4e4d-aede-156ea63dc09e/acdc3276-7832-4907-bfe2-3d86fa79acb0",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_6": {
+    "url": "https://app.lava.top/products/dd13df3f-2c28-49a7-8829-1e64d9069ac0/2afe58f8-70fc-403c-8561-341e3e2d9fb5",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_7": {
+    "url": "https://app.lava.top/products/2e03803f-0895-4e7a-9c89-8cf6c072edaf/bff59e78-5a57-4cec-80b1-5099556ad57b",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_8": {
+    "url": "https://app.lava.top/products/067cd763-584a-431b-8e3a-59d4c10fbdd4/cca8a8aa-09bf-4124-9f9f-fa1ed89784de",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_9": {
+    "url": "https://app.lava.top/products/595831fe-a32b-44d1-86ad-9ff428a1fe67/14cc17ba-a48a-43cc-ae51-981747b2420f",
+    "price_rub": 0
+  },
+  "top_arbitrage_week_10": {
+    "url": "https://app.lava.top/products/57c62382-e736-4abd-88ce-9d4aa944a19e/07f2ad5d-3668-4371-bffb-5640cfebcdf8",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_1": {
+    "url": "https://app.lava.top/products/efeca66a-8a0e-4310-ad71-f9d20e0a4845/e951bc89-e13f-4645-99d6-3a0b46b16475",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_2": {
+    "url": "https://app.lava.top/products/0e615bf9-5763-4832-b08e-60c7e28396d2/9ab075f5-5ea6-43d7-9416-36c503f1b899",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_3": {
+    "url": "https://app.lava.top/products/a73ffb97-407f-444d-a90b-a1ff9756b80e/7cbfa673-7694-4b6b-b1a8-e5d0263e0cca",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_4": {
+    "url": "https://app.lava.top/products/516cd9ef-7738-4a78-b178-fe30d2efc9a6/936db88f-2570-4a58-a7ad-3e986dca31fd",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_5": {
+    "url": "https://app.lava.top/products/a22c72ec-9f25-43a3-8df3-424b282be1fb/0abf4e55-7d4e-415c-8a4e-ddc6a0b1305f",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_6": {
+    "url": "https://app.lava.top/products/6b2b61d6-716d-4e6e-a34a-a88c963ffe70/0ba97831-2d9b-43ee-8745-ada44b5c8f10",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_7": {
+    "url": "https://app.lava.top/products/96c3fa0c-9363-4a06-b541-556dd87c18e9/ea1db038-e298-4123-bb81-cc296f74ff80",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_8": {
+    "url": "https://app.lava.top/products/e2a61f7b-0a38-40af-af55-190ac603a5cd/5c5cabee-46a1-4821-856e-52d336bde152",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_9": {
+    "url": "https://app.lava.top/products/9dcac2f1-b086-44a2-a2ac-9234adb6749b/f58a78ef-4389-46f7-9dd1-01e27bbd0c4c",
+    "price_rub": 0
+  },
+  "top_arbitrage_month_10": {
+    "url": "https://app.lava.top/products/ba2a0815-8c91-4504-aed6-a9f5895bc313/4a3b650a-3334-47ae-8c4a-0dfc0f2da6d4",
+    "price_rub": 0
+  },
+  "_comment_7": "=== TIER 2 — ANALYTICS (Неделя: #1=$1275 → #10=$390 / Месяц: #1=$3125 → #10=$1090) ===",
+  "top_analytics_week_1": {
+    "url": "https://app.lava.top/products/e6771bd2-1ef0-469d-826e-94cae11e5640/1437240f-3fa1-49d5-b619-fdf5079d159f",
+    "price_rub": 0
+  },
+  "top_analytics_week_2": {
+    "url": "https://app.lava.top/products/8017f50e-78f0-4b36-ac7f-46081b8a22bd/3906147c-1f19-44ec-94b5-0d2f2f7d6dd5",
+    "price_rub": 0
+  },
+  "top_analytics_week_3": {
+    "url": "https://app.lava.top/products/16aa76ba-2211-4e2a-8427-c7605f099eec/d6fbd24a-c244-4100-973b-ace26f56309d",
+    "price_rub": 0
+  },
+  "top_analytics_week_4": {
+    "url": "https://app.lava.top/products/940aa0d9-0b8b-49e8-ad33-070dec1ab7fe/5d1fc220-354b-449b-a235-99bf504756c0",
+    "price_rub": 0
+  },
+  "top_analytics_week_5": {
+    "url": "https://app.lava.top/products/3d469bbd-c40e-4ffb-ad20-d3bcd193bab2/0fb1c2d0-c74a-489d-ab1e-82c70e199597",
+    "price_rub": 0
+  },
+  "top_analytics_week_6": {
+    "url": "https://app.lava.top/products/f89342de-c5ab-4146-8477-6625ad9d7de5/37b6612a-715f-4b42-8aa9-1bfeea2fe4aa",
+    "price_rub": 0
+  },
+  "top_analytics_week_7": {
+    "url": "https://app.lava.top/products/61307879-4bbe-480b-836b-70bc35772fc9/e19a9788-d893-4f37-864c-f842ba52e498",
+    "price_rub": 0
+  },
+  "top_analytics_week_8": {
+    "url": "https://app.lava.top/products/4535bbab-fde6-42c6-979e-18c495bf439a/1c241c64-9345-40d0-91c8-5a57e4c52700",
+    "price_rub": 0
+  },
+  "top_analytics_week_9": {
+    "url": "https://app.lava.top/products/358f12fe-3876-4d83-821d-1a79129e6c1a/977a211f-eae8-4acc-bedd-d672a219e2cc",
+    "price_rub": 0
+  },
+  "top_analytics_week_10": {
+    "url": "https://app.lava.top/products/e5cbd3ac-c282-4034-b73a-4407935c1271/e52b6eab-eb63-4568-911b-b9d383bfe89e",
+    "price_rub": 0
+  },
+  "top_analytics_month_1": {
+    "url": "https://app.lava.top/products/ce112359-d775-4954-86fd-452e25a0b2ec/2e631c0e-0bd8-4bd5-858a-17718bd7dfb9",
+    "price_rub": 0
+  },
+  "top_analytics_month_2": {
+    "url": "https://app.lava.top/products/f1a773df-9369-4f78-b958-48c120624e98/52f84e8c-d2c3-404d-95ea-ac3b5f00999e",
+    "price_rub": 0
+  },
+  "top_analytics_month_3": {
+    "url": "https://app.lava.top/products/07ba3cdd-33ff-4afc-8d84-8d7e57b16cbe/0ee0f2f8-71fe-4fc1-874b-ed4a6cb8e891",
+    "price_rub": 0
+  },
+  "top_analytics_month_4": {
+    "url": "https://app.lava.top/products/f16aed6f-5add-4127-8aeb-d9e96142a9d1/7b2bed81-3cf6-4a07-b2bf-4dabc660df44",
+    "price_rub": 0
+  },
+  "top_analytics_month_5": {
+    "url": "https://app.lava.top/products/04f2d79c-9b35-40e3-9310-f57a49fbec11/34697373-a9f5-4a9b-b777-899fb9d994ad",
+    "price_rub": 0
+  },
+  "top_analytics_month_6": {
+    "url": "https://app.lava.top/products/593e73d7-3629-4bdb-8b5a-48a46dd90594/d9953de0-ca9c-4766-b76e-1d5c4d20ba12",
+    "price_rub": 0
+  },
+  "top_analytics_month_7": {
+    "url": "https://app.lava.top/products/395aa18a-e91d-42db-9243-7eacf526d6b6/ff837989-9116-4cd8-a810-8be912dc7afa",
+    "price_rub": 0
+  },
+  "top_analytics_month_8": {
+    "url": "https://app.lava.top/products/d5beaf0d-152b-4a1c-8635-961dbeb91cc2/cfd4feed-4440-418c-b1e3-7175ccb6eece",
+    "price_rub": 0
+  },
+  "top_analytics_month_9": {
+    "url": "https://app.lava.top/products/2e206898-37ed-49ba-b875-19f3623ffde2/aa8b230f-4f35-4a35-9b2b-4fe0b0b29f83",
+    "price_rub": 0
+  },
+  "top_analytics_month_10": {
+    "url": "https://app.lava.top/products/b32e5924-14f3-495e-874d-9ec522d643c0/056b5b92-d55a-4ffc-aa1d-bde6dc6d2f93",
+    "price_rub": 0
+  },
+  "_comment_8": "=== TIER 2 — DEFI (те же цены что ANALYTICS) ===",
+  "top_defi_week_1": {
+    "url": "https://app.lava.top/products/5643217d-1cfd-4574-ba90-1cc2f209f90c/4a79f41b-ff32-4b74-9d6e-116d45d6caff",
+    "price_rub": 0
+  },
+  "top_defi_week_2": {
+    "url": "https://app.lava.top/products/30007140-f067-4313-88ef-63d8005cada7/cfe7c500-807f-479c-a6bd-dd97e546fb4f",
+    "price_rub": 0
+  },
+  "top_defi_week_3": {
+    "url": "https://app.lava.top/products/6143675a-20af-4ec7-9b02-8d382718e495/ec816129-786e-46ef-88bf-718dc78f27c7",
+    "price_rub": 0
+  },
+  "top_defi_week_4": {
+    "url": "https://app.lava.top/products/a94290c4-cf7a-4e98-9dfc-383c3a4bcc3b/e065bd98-96de-4048-8b43-7e625bd63014",
+    "price_rub": 0
+  },
+  "top_defi_week_5": {
+    "url": "https://app.lava.top/products/3d1ec253-a4a3-4d50-968f-337eb245c05c/6ef5019a-93c9-491c-aef0-b06edb541c92",
+    "price_rub": 0
+  },
+  "top_defi_week_6": {
+    "url": "https://app.lava.top/products/3b1af0c5-7410-4520-81c7-6626bd49f817/cd8f541d-8691-4585-8c20-424a0b22285f",
+    "price_rub": 0
+  },
+  "top_defi_week_7": {
+    "url": "https://app.lava.top/products/2e7eb8d8-937e-4874-9968-ba61ed79ba07/1d2d3199-c8c1-4754-9c4d-0232118fc958",
+    "price_rub": 0
+  },
+  "top_defi_week_8": {
+    "url": "https://app.lava.top/products/d7abeec9-30ef-4852-903f-829997c8dc5c/53c9f9a0-5eae-4a50-98eb-794cdb2f42df",
+    "price_rub": 0
+  },
+  "top_defi_week_9": {
+    "url": "https://app.lava.top/products/65ac4d02-5282-4f1e-88a3-40e09aa49355/15fbdac7-ecac-47e8-8e84-23ed1cedc583",
+    "price_rub": 0
+  },
+  "top_defi_week_10": {
+    "url": "https://app.lava.top/products/1b8056d3-29df-4ecb-821c-a07b7a210101/80d018c9-9aec-43d7-8be2-3a1b191d5226",
+    "price_rub": 0
+  },
+  "top_defi_month_1": {
+    "url": "https://app.lava.top/products/9676566c-7e27-4c94-893f-07e84f7b9830/1d7de0de-a72c-4b62-b5f8-ff5a8d07e109",
+    "price_rub": 0
+  },
+  "top_defi_month_2": {
+    "url": "https://app.lava.top/products/e940d159-641b-4173-ad7f-280ae9e2cdc5/ec5d605a-0f62-4b5b-8d62-6225bd681866",
+    "price_rub": 0
+  },
+  "top_defi_month_3": {
+    "url": "https://app.lava.top/products/967fcdb0-39d6-41f8-ae22-0a72b5746755/1795ffeb-8767-4c5e-8b04-6730ae691c50",
+    "price_rub": 0
+  },
+  "top_defi_month_4": {
+    "url": "https://app.lava.top/products/a588ab50-3c2f-4b32-8527-4e21d0bf2a8c/4447ffb1-b12d-4955-a43c-1e00d7704a6c",
+    "price_rub": 0
+  },
+  "top_defi_month_5": {
+    "url": "https://app.lava.top/products/6bee094a-0f48-4115-91db-f8cf9866017f/cc541eba-8edc-4bc2-a3c0-91541cf4d477",
+    "price_rub": 0
+  },
+  "top_defi_month_6": {
+    "url": "https://app.lava.top/products/4f7ca88e-a3f3-4827-8418-422d3e9143f8/2e56e6d4-2cb9-47dc-ae36-90b1fe2f3186",
+    "price_rub": 0
+  },
+  "top_defi_month_7": {
+    "url": "https://app.lava.top/products/ae174785-449b-4a7c-99cd-2f412eb837c5/0e8d89b1-339f-4f81-b888-dad27284cf73",
+    "price_rub": 0
+  },
+  "top_defi_month_8": {
+    "url": "https://app.lava.top/products/6e962fea-edfc-454e-b77f-68e39527f6e0/75051405-0442-4c6a-8e66-d1e1760dcf4f",
+    "price_rub": 0
+  },
+  "top_defi_month_9": {
+    "url": "https://app.lava.top/products/bd28d5b5-10b4-4052-9775-75c169be21ae/646939c3-23dd-4db3-9f1d-0a349ab3790f",
+    "price_rub": 0
+  },
+  "top_defi_month_10": {
+    "url": "https://app.lava.top/products/6eb117e0-791f-492f-b541-f7a28bb6d6d4/e1afde6c-7b1f-4810-9700-7e76fc6bf0c2",
+    "price_rub": 0
+  },
+  "_comment_9": "=== TIER 2 — ECOSYSTEMS (те же цены что ANALYTICS) ===",
+  "top_ecosystems_week_1": {
+    "url": "https://app.lava.top/products/38c98034-284d-498b-802a-0d97cd8f5a16/c2747bbf-3b64-4763-a5c3-857f613bf623",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_2": {
+    "url": "https://app.lava.top/products/86e1d9ae-e94d-4d03-971c-8b3347f5f758/284abab0-d20b-4f34-820e-7672868039f9",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_3": {
+    "url": "https://app.lava.top/products/e67bfe51-23f2-48ab-a9a8-bb7d0ee6072f/fc153c64-140c-4bbc-8220-8f1a78e52c97",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_4": {
+    "url": "https://app.lava.top/products/900984c8-73ee-401a-b76a-70449f539ff8/632cfe8a-34e3-4df6-b38a-11605db02a6a",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_5": {
+    "url": "https://app.lava.top/products/c733f61f-2ee0-4c2b-b894-b297150203a5/0b7e44fa-41ed-46bf-9868-ba0169643bfa",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_6": {
+    "url": "https://app.lava.top/products/edde9fdd-1479-470a-bd97-45331af5e27e/1783ed8d-c1c3-4bde-bae1-6d0147037619",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_7": {
+    "url": "https://app.lava.top/products/9e729ea1-0d58-40a8-802a-a6590b57db6d/c327b954-1c99-48c2-a7d6-2f6920984a29",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_8": {
+    "url": "https://app.lava.top/products/91bdb326-c2a7-441a-9e32-d22b20461acb/8f1fbaed-d129-4bad-a86f-03b706260126",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_9": {
+    "url": "https://app.lava.top/products/f9488476-004e-4afb-9aba-9f61f880ae0c/e4dcb2e7-e9fe-460f-929e-80e23862777f",
+    "price_rub": 0
+  },
+  "top_ecosystems_week_10": {
+    "url": "https://app.lava.top/products/cadbb4a6-333b-49ca-a977-791a0a472d5f/c4f86561-72f3-41bb-b163-c393bd1570e9",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_1": {
+    "url": "https://app.lava.top/products/9975268f-e989-4342-8c0e-09d28327f3fd/4402d1cf-a065-437a-99f2-71e1dfb4d833",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_2": {
+    "url": "https://app.lava.top/products/a02d8648-4c0f-4d8e-8293-7aa1b9859f17/49fa2b9c-550b-4f0f-a33a-2f075e5fb8ce",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_3": {
+    "url": "https://app.lava.top/products/10dd31d7-70df-40ca-ba9c-28666dc45198/5f69983e-24f5-4ac4-bbe5-0c5c74ed3222",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_4": {
+    "url": "https://app.lava.top/products/80f6bda3-d1d9-4736-aaa7-c50eea9a7dc2/c6387eec-dc71-489c-ac15-9b77a7ca6677",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_5": {
+    "url": "https://app.lava.top/products/026bbd7f-eada-4b83-9b48-ac4e55d4798e/e7b99b85-0136-4cd9-b764-1b42256ed90e",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_6": {
+    "url": "https://app.lava.top/products/245a4c82-c29b-4ced-a2a0-0c4d0074eb52/2363b7dd-dd9a-455a-ada8-8c60a004565d",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_7": {
+    "url": "https://app.lava.top/products/5504b019-9caa-472b-af9d-de7b2318787b/3622528a-891c-46a3-9a0a-7fc576fe2e7c",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_8": {
+    "url": "https://app.lava.top/products/e3599c18-da27-4530-a8dc-349df41341e5/a9710a72-f5a1-45f7-affa-0a551cc0a085",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_9": {
+    "url": "https://app.lava.top/products/d4dd801d-2502-4543-a776-7afc96662b5c/3a59d41a-ff1f-4584-a292-ffdf155cbc48",
+    "price_rub": 0
+  },
+  "top_ecosystems_month_10": {
+    "url": "https://app.lava.top/products/a1894bc7-7c7c-4dcc-a91a-63d11e9f2a74/53175e2f-f986-4f53-9c7a-a4a6e327cd65",
+    "price_rub": 0
+  },
+  "_comment_pr": "=== TIER 2 — PROJECT REVIEWS (те же цены что ANALYTICS) ===",
+  "top_project_reviews_week_1": {
+    "url": "https://app.lava.top/products/b94bb9da-753a-4ae2-8aab-a8de61e1b265/14fc3f7f-6f1f-462b-b51e-e160cb6dcacc",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_2": {
+    "url": "https://app.lava.top/products/d64270d7-1f94-4824-b244-a3f2e72615ba/0e7c8d0b-9d64-4c17-af70-e9ae0cafa8fb",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_3": {
+    "url": "https://app.lava.top/products/fb746b13-d265-4aa7-ac74-63e935b248ba/4dafed1c-7559-4664-8230-247c1357af96",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_4": {
+    "url": "https://app.lava.top/products/c5d7c847-8b9a-482d-b434-25295549dbf2/b713f463-6791-4318-8b34-728ab94d5855",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_5": {
+    "url": "https://app.lava.top/products/c36a5835-eff2-4429-b57d-63deb9a8486f/f99ead3d-ee89-4b85-b52d-b63beb674c13",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_6": {
+    "url": "https://app.lava.top/products/fd1d42f4-81b6-49f7-b7b4-b83aa185ce51/8139f411-1142-4372-ba2c-613584dc1b4c",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_7": {
+    "url": "https://app.lava.top/products/b1503418-f12d-4007-a4f3-0bbe78100d6e/ca273999-bd40-474e-842e-19a28e8fd1c0",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_8": {
+    "url": "https://app.lava.top/products/01ff8e58-6b08-4c42-a656-7ac0d2c741c8/ea8d22cd-0ad3-40d9-9f84-3fb914e75ae0",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_9": {
+    "url": "https://app.lava.top/products/300e0200-dc32-4177-a043-1deff9bc9ff2/d6f8df2d-5e02-4c0f-938b-37a425596219",
+    "price_rub": 0
+  },
+  "top_project_reviews_week_10": {
+    "url": "https://app.lava.top/products/73058791-4a4e-45d5-8160-9ee5802cd9d7/2825be3f-eaa1-4e19-b763-755a44702bb8",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_1": {
+    "url": "https://app.lava.top/products/51d2763a-5815-4def-856c-1361898ff5d3/272625fe-2d17-4c30-a45f-403ac46df684",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_2": {
+    "url": "https://app.lava.top/products/27b1816c-074f-4bc3-a03a-8fc0c5e98dc1/85a7236d-5a25-452b-b563-90dba5b4f18b",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_3": {
+    "url": "https://app.lava.top/products/4fb523af-8f6a-4e5c-bfb7-3fd8f306d3c3/c37bc342-d4fb-4757-857f-e9940cf9ff6d",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_4": {
+    "url": "https://app.lava.top/products/52fa8495-64f3-43f3-a0ab-0928be4a6f1a/751a5b8a-914d-4714-ad29-11be236e2cb6",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_5": {
+    "url": "https://app.lava.top/products/29d2f285-0474-4e2d-94f6-b2b2529fc582/da3e20e6-ce9c-402e-a366-bf9c0ba20828",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_6": {
+    "url": "https://app.lava.top/products/eb8641e9-2f83-4551-84a1-7db98154d30f/eb698aec-9412-408d-84dc-c5e00310bad0",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_7": {
+    "url": "https://app.lava.top/products/375f3066-b3b2-4348-8804-e79dc79cb078/922e91eb-a947-4c73-a283-0e1ce81ed53f",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_8": {
+    "url": "https://app.lava.top/products/95fa88d3-95d3-454e-8f6e-937db7edceda/8f58abed-97c6-454a-be4f-09d94b69233c",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_9": {
+    "url": "https://app.lava.top/products/559a5f77-7b10-4a4e-929d-20eb064fbd1f/3af4a294-126d-454f-9a5a-c704750182ed",
+    "price_rub": 0
+  },
+  "top_project_reviews_month_10": {
+    "url": "https://app.lava.top/products/0e803223-8ce8-4bac-a4b9-3d854b854f57/ab55e449-e05a-45c2-b7d2-833e445d6bed",
+    "price_rub": 0
+  },
+  "_comment_10": "=== TIER 2 — INVESTMENTS (те же цены что ANALYTICS) ===",
+  "top_investments_week_1": {
+    "url": "https://app.lava.top/products/d8003436-1bd7-4a08-bdad-3a64ff521769/ef32b507-3ac1-4714-b82e-72e96a385cd2",
+    "price_rub": 0
+  },
+  "top_investments_week_2": {
+    "url": "https://app.lava.top/products/b1183cc2-0448-4252-87b3-37a33cd338d4/38b183fd-510b-4370-a286-197aa08eb3b5",
+    "price_rub": 0
+  },
+  "top_investments_week_3": {
+    "url": "https://app.lava.top/products/3fe070da-2066-48d5-ae72-adf13e9e8163/e7bf4703-e4b5-4caa-8086-e63c8df630aa",
+    "price_rub": 0
+  },
+  "top_investments_week_4": {
+    "url": "https://app.lava.top/products/18fe44bd-487d-4815-948a-1e7c78775469/063da81e-7dcd-4820-bf6e-6933c772f7e1",
+    "price_rub": 0
+  },
+  "top_investments_week_5": {
+    "url": "https://app.lava.top/products/de336bb9-ba69-474a-8553-eee104ba3118/4f2918ca-a5e7-4880-842e-3e1492eb5f81",
+    "price_rub": 0
+  },
+  "top_investments_week_6": {
+    "url": "https://app.lava.top/products/2f49e587-baf5-4ebc-964a-6319821e77fd/18ad2064-6dde-4012-bc30-2d02afbbd9cc",
+    "price_rub": 0
+  },
+  "top_investments_week_7": {
+    "url": "https://app.lava.top/products/c92e31d6-cfb5-4f71-baf5-b372da6ea1d6/837f4111-840d-434a-bb26-526b79e3c01c",
+    "price_rub": 0
+  },
+  "top_investments_week_8": {
+    "url": "https://app.lava.top/products/0d83508d-6705-499d-a5af-41f583fb2cbf/33286d33-e70a-4a55-9126-e7f245358786",
+    "price_rub": 0
+  },
+  "top_investments_week_9": {
+    "url": "https://app.lava.top/products/8e79a75f-4e55-4666-aa46-9f711fc9b000/6075e0e3-1e2d-4dbb-9a99-7ca8451ebe25",
+    "price_rub": 0
+  },
+  "top_investments_week_10": {
+    "url": "https://app.lava.top/products/2b2bd3d5-be0d-4a7c-81cb-fd6d672ce911/c76b99bd-5a05-4607-8dbd-070f94031c96",
+    "price_rub": 0
+  },
+  "top_investments_month_1": {
+    "url": "https://app.lava.top/products/575d1940-5dc4-41c7-bfa5-27412238b753/7ff3e3ef-5ee7-4668-983f-fb1c8d88a613",
+    "price_rub": 0
+  },
+  "top_investments_month_2": {
+    "url": "https://app.lava.top/products/e1e8149d-adfa-4c6d-a989-c49a902171fc/6b24a644-c495-4a6d-a90a-b6d362751ca9",
+    "price_rub": 0
+  },
+  "top_investments_month_3": {
+    "url": "https://app.lava.top/products/857e4b50-60d6-4a3a-bcb6-a36ddecca89b/1bd48fff-ca15-45cb-a0a1-56d7cae9d93b",
+    "price_rub": 0
+  },
+  "top_investments_month_4": {
+    "url": "https://app.lava.top/products/b500f6f4-a453-469a-ba6c-902820fa77f9/e60dc645-0d7c-493b-b5c9-423706f6c923",
+    "price_rub": 0
+  },
+  "top_investments_month_5": {
+    "url": "https://app.lava.top/products/05e3c8fe-0538-40b8-b78b-e7d581b1c28c/9510bf0d-05c1-4406-b0d1-a5afb42b1946",
+    "price_rub": 0
+  },
+  "top_investments_month_6": {
+    "url": "https://app.lava.top/products/68c2e140-6790-4f06-9ddc-0257bbe9ee7a/1a5d4996-ce4a-4169-946f-6646e1dc0e4a",
+    "price_rub": 0
+  },
+  "top_investments_month_7": {
+    "url": "https://app.lava.top/products/a63f09a0-40ef-4ef4-93f1-ced1f4ed1a24/979c1d87-18b2-4d67-bf8a-72c72e3ba825",
+    "price_rub": 0
+  },
+  "top_investments_month_8": {
+    "url": "https://app.lava.top/products/ce5f5879-450a-42aa-9050-87559f6cda29/686e0ca4-77c6-4eac-987c-e19be2faf545",
+    "price_rub": 0
+  },
+  "top_investments_month_9": {
+    "url": "https://app.lava.top/products/606024ff-b08d-4221-838c-9cbbcd2b7d1e/2bd6147f-fee6-48e2-8372-62f5db1db4e0",
+    "price_rub": 0
+  },
+  "top_investments_month_10": {
+    "url": "https://app.lava.top/products/7ca4e88b-758b-43ab-b1e5-d4a7b3b50daf/fa247e14-fae5-4753-8be2-5a779b8175e9",
+    "price_rub": 0
+  },
+  "_comment_11": "=== TIER 3 — CRYPTO NEWS (Неделя: #1=$800 → #10=$320 / Месяц: #1=$2225 → #10=$890) ===",
+  "top_cryptonews_week_1": {
+    "url": "https://app.lava.top/products/d3e3b554-db3b-41d8-b552-a81ebbf6286b/c6c60b8c-31ae-4bdc-a414-76b353a9ec4c",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_2": {
+    "url": "https://app.lava.top/products/6d323b8b-8716-4512-911f-d64ec7d3206a/28e61e60-1c25-445d-8985-1718cf4615d1",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_3": {
+    "url": "https://app.lava.top/products/7a748ff7-c7b9-4a2b-a755-9d342a677170/7c0d5079-b6d4-4fd4-8b3d-0c5917ea231a",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_4": {
+    "url": "https://app.lava.top/products/2293e1f3-3bec-452e-88ed-b32665cb0fdd/9b5d95fc-ad5c-4950-bca8-0d1120861e6a",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_5": {
+    "url": "https://app.lava.top/products/232eb6f7-a22f-4509-9a59-789e5a375bcb/247c08ee-a49f-4563-a327-f51e63156376",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_6": {
+    "url": "https://app.lava.top/products/900be4a7-c3a1-4249-8a86-3dfea2cbcd9d/65da4f8b-9248-4c08-9b32-b395f16ee3a4",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_7": {
+    "url": "https://app.lava.top/products/7eb2e462-60c4-4ed9-91c1-728603d25c4c/5a1d07ac-babc-4620-b5f5-568ab81c5936",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_8": {
+    "url": "https://app.lava.top/products/80c87284-315b-4536-a1a2-4d9af9b364ac/efede448-bd9f-4079-8f87-32eb2f7a6dc1",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_9": {
+    "url": "https://app.lava.top/products/16d8418d-7fdc-45e2-8409-d990319adc92/7894da50-a105-40d8-934f-9221c5f33b49",
+    "price_rub": 0
+  },
+  "top_cryptonews_week_10": {
+    "url": "https://app.lava.top/products/bf61bf98-f360-4b99-bb26-719376d04a1c/001d9965-43f0-4eac-a261-6f9304a39bcc",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_1": {
+    "url": "https://app.lava.top/products/6f7dcd01-ca07-4d7b-a2c6-f12a2bdc45fb/6156f088-bdc9-408b-af00-edca80b8ff15",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_2": {
+    "url": "https://app.lava.top/products/1b832ac8-e42f-4446-85ee-abd8cf10d373/68fa0aa8-655f-47a5-afc3-a3a8e6a4907f",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_3": {
+    "url": "https://app.lava.top/products/e250d2cf-5a28-453a-8f17-67d73f36dfc4/355cc08e-c689-4dc4-ab97-5f4b12d6f15a",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_4": {
+    "url": "https://app.lava.top/products/cca5cdd5-ecb3-4a94-80aa-a59eccd13266/43c07f9a-7cc2-4551-8c65-28dac23eed6f",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_5": {
+    "url": "https://app.lava.top/products/08948853-8dd4-494e-b05f-e393bbecbfe1/226dc636-4b6a-4bcb-b79e-cbe42ee7db5a",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_6": {
+    "url": "https://app.lava.top/products/ac2bca8e-dc14-4aab-84d8-d8c64a3c3590/86376c30-7c89-4d22-ac57-b8a63b2be7da",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_7": {
+    "url": "https://app.lava.top/products/b46edd2f-c3d4-49f6-8098-6993aeeff9da/b38a6c31-e04d-4af8-81c2-77b5e9721c0c",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_8": {
+    "url": "https://app.lava.top/products/6aa28894-4c53-4627-b649-4cf33e68faad/e9743d34-3c03-46c2-85d6-c680633457b8",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_9": {
+    "url": "https://app.lava.top/products/27c78258-eeeb-4917-a2c4-86a3b4acb1b7/c50ba043-82a9-4921-b05a-8ac7747e7466",
+    "price_rub": 0
+  },
+  "top_cryptonews_month_10": {
+    "url": "https://app.lava.top/products/f2f9c667-18ba-4b7d-b3f2-fb9b3253a32f/6ec5b0ad-4773-4ade-953b-66d09ae5cf81",
+    "price_rub": 0
+  },
+  "_comment_12": "=== TIER 3 — EDUCATION (те же цены что CRYPTO NEWS) ===",
+  "top_education_week_1": {
+    "url": "https://app.lava.top/products/42398496-a9d6-46e5-99fa-234a1803393d/bfbbe1ff-79a1-424f-8ebb-038e551f17c6",
+    "price_rub": 0
+  },
+  "top_education_week_2": {
+    "url": "https://app.lava.top/products/24fb4c24-e7b3-4051-9b81-d6f36498c070/8879953d-453b-460c-93c1-ab3cabeb47f3",
+    "price_rub": 0
+  },
+  "top_education_week_3": {
+    "url": "https://app.lava.top/products/65410d1a-6540-458d-b1ee-c328323307c4/6e54b0e2-2d4a-4417-8756-be7fb8980b2d",
+    "price_rub": 0
+  },
+  "top_education_week_4": {
+    "url": "https://app.lava.top/products/78eaa92e-e17e-40e8-8bf3-3cd53ededa39/5ab1fdac-9fd3-4540-b26a-2e314821056b",
+    "price_rub": 0
+  },
+  "top_education_week_5": {
+    "url": "https://app.lava.top/products/ebcc0420-9a82-43c3-8e32-bdea3e0e181f/25a90e75-cee7-4afd-b153-a1f9cba4ec58",
+    "price_rub": 0
+  },
+  "top_education_week_6": {
+    "url": "https://app.lava.top/products/b25b789b-b4cf-420c-bb62-24f04a8a7f57/47196199-a4e1-45f9-9b41-951c666d377e",
+    "price_rub": 0
+  },
+  "top_education_week_7": {
+    "url": "https://app.lava.top/products/f1dab34b-869c-4e8e-87d8-dc076829e618/5111c5fa-5b40-4466-a117-5f3b68549ee7",
+    "price_rub": 0
+  },
+  "top_education_week_8": {
+    "url": "https://app.lava.top/products/f038a5b3-8d0d-4cda-8933-c30a73a00810/60ac13fb-dde1-48bf-8755-267d2cfc9aa3",
+    "price_rub": 0
+  },
+  "top_education_week_9": {
+    "url": "https://app.lava.top/products/768ad823-b143-48fa-b173-19f98c3ba5c4/d9e1d866-3988-4336-9e98-12267b813d69",
+    "price_rub": 0
+  },
+  "top_education_week_10": {
+    "url": "https://app.lava.top/products/c04d58bf-18ed-48f6-92ed-5f9abbff7e06/f54a1008-5c51-40c5-8e26-74ee4a621b38",
+    "price_rub": 0
+  },
+  "top_education_month_1": {
+    "url": "https://app.lava.top/products/b66a15c9-219e-49ed-8135-88b28fd2e70c/194597e0-69eb-4908-a65d-0b526fbb6db3",
+    "price_rub": 0
+  },
+  "top_education_month_2": {
+    "url": "https://app.lava.top/products/fa592f4d-be45-45d1-a6cc-cde6ee43f203/3e06639e-a34a-4619-a4e3-7e4bf3f8dd8f",
+    "price_rub": 0
+  },
+  "top_education_month_3": {
+    "url": "https://app.lava.top/products/db80879b-ecf8-4356-b67c-458acec3eb29/19d5449c-cc85-48c9-b7c1-7be10b685cbc",
+    "price_rub": 0
+  },
+  "top_education_month_4": {
+    "url": "https://app.lava.top/products/74f1b0b9-3c8f-4b9d-9485-887bc109ee47/2c078036-0889-4f9a-92ce-75fbaf35a483",
+    "price_rub": 0
+  },
+  "top_education_month_5": {
+    "url": "https://app.lava.top/products/40ffd82a-c6a8-46a7-8253-ce8c3a4aef2f/aad72f6b-9086-46a1-bc22-ec1b1389d60c",
+    "price_rub": 0
+  },
+  "top_education_month_6": {
+    "url": "https://app.lava.top/products/e4d2d647-1e0f-4010-8e57-781cd458666b/b52943f5-85ef-4623-9ff5-d340f24b140f",
+    "price_rub": 0
+  },
+  "top_education_month_7": {
+    "url": "https://app.lava.top/products/af9acd5f-0e3c-4af6-ac0b-569919885455/c9ce7c1e-21b2-462c-a71d-a83f5551584c",
+    "price_rub": 0
+  },
+  "top_education_month_8": {
+    "url": "https://app.lava.top/products/b7f871cd-ee03-4ee6-968e-55a34aca2596/0ae24384-9db8-414c-b35a-2180e4a25345",
+    "price_rub": 0
+  },
+  "top_education_month_9": {
+    "url": "https://app.lava.top/products/f052f135-73fa-41df-a706-7f0a17a8b548/1506518a-683b-4bb5-b393-cbf6e3fdc43a",
+    "price_rub": 0
+  },
+  "top_education_month_10": {
+    "url": "https://app.lava.top/products/7cbf578b-f79a-47cf-b213-b870eecbe573/1bb93c93-a879-4b59-b444-9192018f879e",
+    "price_rub": 0
+  },
+  "_comment_13": "=== TIER 3 — GUIDES (те же цены что CRYPTO NEWS) ===",
+  "top_guides_week_1": {
+    "url": "https://app.lava.top/products/61abdc96-96ee-4a78-8a32-f5c9e08998cc/7818a2c6-741a-469f-86fb-88441ce18802",
+    "price_rub": 0
+  },
+  "top_guides_week_2": {
+    "url": "https://app.lava.top/products/f9cdd43c-4a3d-4549-a0d3-69f7a1bd0b56/21ddce79-05c3-4a00-86ae-234e81b32a49",
+    "price_rub": 0
+  },
+  "top_guides_week_3": {
+    "url": "https://app.lava.top/products/516d6d9b-f39f-4cbc-82e8-7e8ccda1a98c/5ae26bab-dfde-4ab9-9b55-dc38b49e1ec4",
+    "price_rub": 0
+  },
+  "top_guides_week_4": {
+    "url": "https://app.lava.top/products/ea339997-0d6c-482f-9b0f-a7b302c9d830/efc196aa-d679-4127-ab87-d81315cba86d",
+    "price_rub": 0
+  },
+  "top_guides_week_5": {
+    "url": "https://app.lava.top/products/0765feb9-d5ed-4378-8436-deeea6c3c72a/c219aab1-ac4e-46cd-9ce8-b0513071ebdb",
+    "price_rub": 0
+  },
+  "top_guides_week_6": {
+    "url": "https://app.lava.top/products/54d0adf0-9d33-4745-9e38-324ed2c61976/ddea0074-3f0a-48f7-9520-0c9c02ede9db",
+    "price_rub": 0
+  },
+  "top_guides_week_7": {
+    "url": "https://app.lava.top/products/d2c2760e-1101-40ed-b538-2571ccef57a4/6a3bd82e-a529-41a9-bd34-89577fae305d",
+    "price_rub": 0
+  },
+  "top_guides_week_8": {
+    "url": "https://app.lava.top/products/f1415d5a-9c93-4ef8-ab85-87aa42861c4f/b7079380-de44-445b-8a53-045d9163c183",
+    "price_rub": 0
+  },
+  "top_guides_week_9": {
+    "url": "https://app.lava.top/products/0b5b711a-9dab-4169-a606-2931754eb373/29a67da6-3516-421e-9961-3e1d94b48b06",
+    "price_rub": 0
+  },
+  "top_guides_week_10": {
+    "url": "https://app.lava.top/products/4aa31811-ad75-4e15-84d8-e88fbed42785/99380f15-2b31-49ee-be6a-51bbfe7deecc",
+    "price_rub": 0
+  },
+  "top_guides_month_1": {
+    "url": "https://app.lava.top/products/6e5a1da8-0ec3-4e06-9eb6-76107337f8d1/a761ea66-d204-4ce6-80d3-929424e3c026",
+    "price_rub": 0
+  },
+  "top_guides_month_2": {
+    "url": "https://app.lava.top/products/f86d3ff2-9f40-4536-af0c-be572b7842d5/fcdb9566-6830-4b56-b5f0-27d8d5111076",
+    "price_rub": 0
+  },
+  "top_guides_month_3": {
+    "url": "https://app.lava.top/products/f1486b5f-c545-4bb0-9a4b-11d11ed56120/bf66abdf-4fa6-4fec-b8de-ab0d1d931224",
+    "price_rub": 0
+  },
+  "top_guides_month_4": {
+    "url": "https://app.lava.top/products/347a97c8-666d-4acc-9a68-15b35c5d298a/5ce79121-76e7-4891-9211-20a5d9c135c6",
+    "price_rub": 0
+  },
+  "top_guides_month_5": {
+    "url": "https://app.lava.top/products/179d849e-5b77-4267-99b0-9fc1ac8df39a/201bc731-b68e-45dd-a65f-f893f5d95b5d",
+    "price_rub": 0
+  },
+  "top_guides_month_6": {
+    "url": "https://app.lava.top/products/61567fb2-9f3f-4ce2-beed-197c91428869/93e149bf-1b17-419b-bcba-66af65a06456",
+    "price_rub": 0
+  },
+  "top_guides_month_7": {
+    "url": "https://app.lava.top/products/9bdf47f8-5e13-43b5-826a-ef72dcebe3d2/9fffa4ff-0079-4e1d-8288-a3a59ea0c3aa",
+    "price_rub": 0
+  },
+  "top_guides_month_8": {
+    "url": "https://app.lava.top/products/f664b9bb-e588-4c6b-9c1f-d492167d09d6/0d3a74e2-0e1a-4705-91a3-47e4eecff50e",
+    "price_rub": 0
+  },
+  "top_guides_month_9": {
+    "url": "https://app.lava.top/products/462a6b75-cade-44d4-98a7-c2de572f29c8/8d52f1c7-c864-423f-b5e0-1d30c55c6f2f",
+    "price_rub": 0
+  },
+  "top_guides_month_10": {
+    "url": "https://app.lava.top/products/462a6b75-cade-44d4-98a7-c2de572f29c8/8d52f1c7-c864-423f-b5e0-1d30c55c6f2f",
     "price_rub": 0
   },
-  "_comment_5": "=== TIER 2 — ANALYTICS / DEFI / ECOSYSTEMS / INVESTMENTS ===",
-  "_comment_5a": "Неделя: #1=$1275, #2=$858, #3=$780, #4=$702, #5=$624, #6=$546, #7=$507, #8=$468, #9=$429, #10=$390",
-  "top_tier2_week_1": {
+  "_comment_15": "=== TIER 4 — NFT (Неделя: #1=$625 → #10=$250 / Месяц: #1=$1725 → #10=$690) ===",
+  "top_nft_week_1": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_2": {
+  "top_nft_week_2": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_3": {
+  "top_nft_week_3": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_4": {
+  "top_nft_week_4": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_5": {
+  "top_nft_week_5": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_6": {
+  "top_nft_week_6": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_7": {
+  "top_nft_week_7": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_8": {
+  "top_nft_week_8": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_9": {
+  "top_nft_week_9": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_week_10": {
+  "top_nft_week_10": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "_comment_5b": "Месяц: #1=$3125, #2=$2398, #3=$2180, #4=$1962, #5=$1744, #6=$1526, #7=$1417, #8=$1308, #9=$1199, #10=$1090",
-  "top_tier2_month_1": {
+  "top_nft_month_1": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_2": {
+  "top_nft_month_2": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_3": {
+  "top_nft_month_3": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_4": {
+  "top_nft_month_4": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_5": {
+  "top_nft_month_5": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_6": {
+  "top_nft_month_6": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_7": {
+  "top_nft_month_7": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_8": {
+  "top_nft_month_8": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_9": {
+  "top_nft_month_9": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier2_month_10": {
+  "top_nft_month_10": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "_comment_6": "=== TIER 3 — CRYPTO NEWS / EDUCATION / GUIDES ===",
-  "_comment_6a": "Неделя: #1=$800, #2=$704, #3=$640, #4=$576, #5=$512, #6=$448, #7=$416, #8=$384, #9=$352, #10=$320",
-  "top_tier3_week_1": {
+  "_comment_16": "=== TIER 4 — AIRDROPS (те же цены что NFT) ===",
+  "top_airdrops_week_1": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_2": {
+  "top_airdrops_week_2": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_3": {
+  "top_airdrops_week_3": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_4": {
+  "top_airdrops_week_4": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_5": {
+  "top_airdrops_week_5": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_6": {
+  "top_airdrops_week_6": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_7": {
+  "top_airdrops_week_7": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_8": {
+  "top_airdrops_week_8": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_9": {
+  "top_airdrops_week_9": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_week_10": {
+  "top_airdrops_week_10": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "_comment_6b": "Месяц: #1=$2225, #2=$1958, #3=$1780, #4=$1602, #5=$1424, #6=$1246, #7=$1157, #8=$1068, #9=$979, #10=$890",
-  "top_tier3_month_1": {
+  "top_airdrops_month_1": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_2": {
+  "top_airdrops_month_2": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_3": {
+  "top_airdrops_month_3": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_4": {
+  "top_airdrops_month_4": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_5": {
+  "top_airdrops_month_5": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_6": {
+  "top_airdrops_month_6": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_7": {
+  "top_airdrops_month_7": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_8": {
+  "top_airdrops_month_8": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_9": {
+  "top_airdrops_month_9": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier3_month_10": {
+  "top_airdrops_month_10": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "_comment_7": "=== TIER 4 — NFT / AIRDROPS / OPINIONS ===",
-  "_comment_7a": "Неделя: #1=$625, #2=$550, #3=$500, #4=$450, #5=$400, #6=$350, #7=$325, #8=$300, #9=$275, #10=$250",
-  "top_tier4_week_1": {
+  "_comment_17": "=== TIER 4 — OPINIONS (те же цены что NFT) ===",
+  "top_opinions_week_1": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_2": {
+  "top_opinions_week_2": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_3": {
+  "top_opinions_week_3": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_4": {
+  "top_opinions_week_4": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_5": {
+  "top_opinions_week_5": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_6": {
+  "top_opinions_week_6": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_7": {
+  "top_opinions_week_7": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_8": {
+  "top_opinions_week_8": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_9": {
+  "top_opinions_week_9": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_week_10": {
+  "top_opinions_week_10": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "_comment_7b": "Месяц: #1=$1725, #2=$1518, #3=$1380, #4=$1242, #5=$1104, #6=$966, #7=$897, #8=$828, #9=$759, #10=$690",
-  "top_tier4_month_1": {
+  "top_opinions_month_1": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_2": {
+  "top_opinions_month_2": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_3": {
+  "top_opinions_month_3": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_4": {
+  "top_opinions_month_4": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_5": {
+  "top_opinions_month_5": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_6": {
+  "top_opinions_month_6": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_7": {
+  "top_opinions_month_7": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_8": {
+  "top_opinions_month_8": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_9": {
+  "top_opinions_month_9": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   },
-  "top_tier4_month_10": {
+  "top_opinions_month_10": {
     "url": "ВСТАВЬ_URL",
     "price_rub": 0
   }
