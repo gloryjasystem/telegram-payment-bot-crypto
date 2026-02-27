@@ -60,9 +60,20 @@ def _get_top_price(tier: str, position: int, period: str) -> int:
     return Config.TOP_PRICES[tier][position][period]
 
 
-def _build_top_service_key(tier: str, position: int, period: str) -> str:
-    """service_key вида 'top_tier1_week_3'."""
-    return f"top_{tier}_{period}_{position}"
+def _build_top_service_key(tier: str, position: int, period: str, category: str = "") -> str:
+    """
+    service_key в формате 'top_{category_slug}_{period}_{position}'.
+    Совпадает с ключами в lava_products.json.
+    Пример: category='AIRDROPS', pos=8, period='month' → 'top_airdrops_month_8'
+    Для Мирового ТОП (category='') → 'top_world_month_1'
+    """
+    if category:
+        # 'ANALYTICS REVIEWS' → 'analytics_reviews', 'DEFI/WEB3' → 'defi_web3'
+        slug = category.lower().replace(' ', '_').replace('/', '_')
+    else:
+        # Мировой ТОП
+        slug = tier  # 'world'
+    return f"top_{slug}_{period}_{position}"
 
 
 def _build_top_service_description(tier: str, position: int, period: str, category: str = "") -> str:
@@ -397,7 +408,7 @@ async def handle_top_position(callback: CallbackQuery, state: FSMContext):
     category = data.get('selected_category', '')
 
     amount = _get_top_price(tier, position, period)
-    service_key = _build_top_service_key(tier, position, period)
+    service_key = _build_top_service_key(tier, position, period, category)
     description = _build_top_service_description(tier, position, period, category)
     lava_slug = _build_lava_slug(service_key)
 
