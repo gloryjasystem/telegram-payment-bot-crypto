@@ -503,13 +503,13 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
                 'payment_url': payment_url
             })
 
-            # WayForPay — доллары
-            result = await card_payment_service.create_waypay_payment(
-                invoice_id=invoice_id,
-                amount_usd=amount_usd,
-                email=email,
-                description=service
-            )
+        # WayForPay — иностранный банк, доллары
+        result = await card_payment_service.create_waypay_payment(
+            invoice_id=invoice_id,
+            amount_usd=amount_usd,
+            email=email,
+            description=service
+        )
         
         if result.get('success'):
             # Сохраняем Lava contractId → external_invoice_id чтобы найти инвойс по webhook
