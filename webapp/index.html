@@ -595,7 +595,14 @@
                 btn1.style.opacity = '0.6';
             }
             try {
-                const resp = await fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-cache' });
+                // Таймаут 3 секунды — чтобы кнопка не зависала
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                const resp = await fetch('https://www.cbr-xml-daily.ru/daily_json.js', {
+                    cache: 'no-cache',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 if (!resp.ok) throw new Error('CBR API unavailable');
                 const json = await resp.json();
                 const cbrRate = json?.Valute?.USD?.Value;
