@@ -85,6 +85,10 @@ class Config:
                     offer_id = v.get("offer_id", "")
                     if url and url != "ВСТАВЬ_URL":
                         LAVA_PRODUCT_MAP[k] = url
+                        # Автоизвлечение offer_id из URL если явно не задан
+                        # URL формат: https://app.lava.top/products/<product_id>/<offer_id>
+                        if not offer_id or offer_id in ("", "ВСТАВЬ_OFFER_ID"):
+                            offer_id = url.rstrip("/").split("/")[-1]
                     if price_rub:
                         LAVA_PRICE_RUB_MAP[k] = int(price_rub)
                     if offer_id and offer_id not in ("", "ВСТАВЬ_OFFER_ID"):
