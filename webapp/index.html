@@ -565,9 +565,10 @@
         // Иностранный банк отображает цену в USD без конвертации
         const MARKUP = 1.08;
 
-        // Запасной курс (пока не загрузился актуальный с ЦБ)
-        let usdToRubRate = parseFloat(urlParams.get('rate') || '90');
-        // Рублёвая сумма всегда динамическая: USD × курс_ЦБ × 1.08
+        // Запасной курс пока не загрузился актуальный с ЦБ РФ
+        // Официальный курс ЦБ РФ ~77 ₽/$ (обновите при значительном изменении курса)
+        let usdToRubRate = parseFloat(urlParams.get('rate') || '77');
+        // Рублёвая сумма: USD × курс_ЦБ × 1.08
         let amountRUB = Math.round(amountUSD * usdToRubRate * MARKUP);
 
         // ========== Populate Initial Data ==========
@@ -587,6 +588,12 @@
 
         // Загружаем актуальный курс ЦБ РФ
         async function fetchCbrRate() {
+            // Блокируем кнопку пока не загрузился курс
+            const btn1 = document.getElementById('btn-next-1');
+            if (btn1) {
+                btn1.disabled = true;
+                btn1.style.opacity = '0.6';
+            }
             try {
                 const resp = await fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-cache' });
                 if (!resp.ok) throw new Error('CBR API unavailable');
@@ -609,6 +616,13 @@
                 }
             } catch (e) {
                 console.warn('⚠️ Could not fetch CBR rate, using fallback:', e.message);
+            } finally {
+                // Разблокируем кнопку в любом случае
+                if (btn1) {
+                    btn1.disabled = false;
+                    btn1.style.opacity = '';
+                    updatePriceDisplay();
+                }
             }
         }
         fetchCbrRate();
