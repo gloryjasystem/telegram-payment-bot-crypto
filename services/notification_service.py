@@ -57,7 +57,8 @@ class NotificationService:
                     'amount': str(invoice.amount),
                     'currency': invoice.currency,
                     'invoice_id': invoice.invoice_id,
-                    'rate': str(Config.USD_TO_RUB_RATE),
+                    # rate НЕ передаём — WebApp сам запрашивает актуальный курс ЦБ РФ
+                    # и применяет наценку 8% один раз
                 }
                 # Добавляем lava_slug если задан (прямой редирект на lava.top)
                 if invoice.lava_slug:
