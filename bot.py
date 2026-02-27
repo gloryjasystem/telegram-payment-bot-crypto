@@ -467,44 +467,42 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             )
         
         if method == 'ru':
-            # Lava.top V3 API: нужен offer_id
-            offer_id = ''
-            price_rub_override = 0  # эту цену отправим в WebApp если тир задан
+            # Lava.top: ищем прямой URL продукта → редирект без API
+            payment_url = ''
             try:
                 inv = await invoice_service.get_invoice_by_id(invoice_id)
                 if inv and inv.service_key:
-                    offer_id = Config.LAVA_OFFER_ID_MAP.get(inv.service_key, '')
-                    # Fallback: custom tier по USD-цене инвойса
-                    if not offer_id:
+                    # 1) Прямой URL из lava_products.json
+                    payment_url = Config.LAVA_PRODUCT_MAP.get(inv.service_key, '')
+                    # 2) Fallback: custom tier по USD-цене инвойса
+                    if not payment_url:
                         tier = _get_custom_tier(amount_usd)
-                        offer_id  = tier.get('offer_id', '')
-                        price_rub_override = tier.get('price_rub', 0)
+                        offer_id = tier.get('offer_id', '')
                         if offer_id:
+                            # Формируем ссылку на страницу продукта Lava.top
+                            payment_url = f"https://app.lava.top/buy/{offer_id}"
                             bot_logger.info(
-                                f"🔍 Custom tier: ${amount_usd} → offer_id={offer_id}, "
-                                f"price_rub={price_rub_override}"
+                                f"🔍 Custom tier fallback: ${amount_usd} → offer_id={offer_id}"
                             )
             except Exception as _e:
                 bot_logger.warning(f"Could not load service_key for {invoice_id}: {_e}")
-            
-            if not offer_id:
+
+            if not payment_url:
                 bot_logger.warning(
-                    f"⚠️ No offer_id for invoice {invoice_id} — cannot create Lava.top invoice via API. "
-                    f"Fill offer_id in lava_products.json for this service."
+                    f"⚠️ No Lava URL for invoice {invoice_id}. "
+                    f"Fill url in lava_products.json for service_key={getattr(inv, 'service_key', '?')}."
                 )
                 return web.json_response({
                     'success': False,
-                    'error': 'Для этой услуги не задан offer_id. Заполните lava_products.json.'
+                    'error': 'Для этой услуги не задан URL в lava_products.json.'
                 }, status=400)
-            
-            result = await card_payment_service.create_lava_payment(
-                invoice_id=invoice_id,
-                offer_id=offer_id,
-                amount_rub=amount_rub,
-                email=email,
-                description=service
-            )
-        else:
+
+            bot_logger.info(f"✅ Lava.top direct redirect: {payment_url[:80]}")
+            return web.json_response({
+                'success': True,
+                'payment_url': payment_url
+            })
+
             # WayForPay — доллары
             result = await card_payment_service.create_waypay_payment(
                 invoice_id=invoice_id,
