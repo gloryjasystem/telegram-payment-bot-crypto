@@ -586,16 +586,9 @@
             }
         }
 
-        // Загружаем актуальный курс ЦБ РФ
+        // Загружаем актуальный курс ЦБ РФ в фоне (кнопка не блокируется)
         async function fetchCbrRate() {
-            // Блокируем кнопку пока не загрузился курс
-            const btn1 = document.getElementById('btn-next-1');
-            if (btn1) {
-                btn1.disabled = true;
-                btn1.style.opacity = '0.6';
-            }
             try {
-                // Таймаут 3 секунды — чтобы кнопка не зависала
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000);
                 const resp = await fetch('https://www.cbr-xml-daily.ru/daily_json.js', {

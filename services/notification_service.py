@@ -1,6 +1,7 @@
 """
 Сервис для отправки уведомлений администраторам и клиентам
 """
+import aiohttp
 from typing import List
 from aiogram import Bot
 from aiogram.types import Message
@@ -13,6 +14,29 @@ from keyboards import (
     get_invoice_keyboard,
     get_payment_success_keyboard
 )
+
+
+async def _fetch_cbr_rate() -> float:
+    """
+    Получает актуальный курс USD/RUB из API ЦБ РФ.
+    Возвращает курс (например, 77.12) или 0 при ошибке.
+    """
+    try:
+        timeout = aiohttp.ClientTimeout(total=3)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.get(
+                'https://www.cbr-xml-daily.ru/daily_json.js',
+                headers={'Accept': 'application/json'}
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json(content_type=None)
+                    rate = data.get('Valute', {}).get('USD', {}).get('Value', 0)
+                    if rate and rate > 0:
+                        bot_logger.info(f"✅ CBR rate fetched: {rate} ₽/$")
+                        return float(rate)
+    except Exception as e:
+        bot_logger.warning(f"⚠️ Could not fetch CBR rate: {e}")
+    return 0.0
 
 
 class NotificationService:
@@ -52,28 +76,22 @@ class NotificationService:
             card_webapp_url = None
             
             if base_url:
+                # Получаем актуальный курс ЦБ РФ с сервера
+                cbr_rate = await _fetch_cbr_rate()
+
                 card_params_dict = {
                     'service': invoice.service_description,
                     'amount': str(invoice.amount),
                     'currency': invoice.currency,
                     'invoice_id': invoice.invoice_id,
-                    # rate НЕ передаём — WebApp сам запрашивает актуальный курс ЦБ РФ
-                    # и применяет наценку 8% один раз
                 }
-                # Добавляем lava_slug если задан (прямой редирект на lava.top)
-                if invoice.lava_slug:
-                    card_params_dict['lava_slug'] = invoice.lava_slug
-                # Если есть фиксированная цена в рублях — передаём её в WebApp напрямую
-                if invoice.service_key:
-                    lava_price_rub = Config.LAVA_PRICE_RUB_MAP.get(invoice.service_key, 0)
-                    if lava_price_rub:
-                        card_params_dict['lava_price_rub'] = str(lava_price_rub)
+                # Передаём живой курс ЦБ, если получили
+                if cbr_rate > 0:
+                    card_params_dict['rate'] = f"{cbr_rate:.4f}"
 
-                
                 card_params = urllib.parse.urlencode(card_params_dict)
                 card_webapp_url = f"{base_url}/webapp/index.html?{card_params}"
-            
-            # Отправка сообщения с кнопками оплаты (крипто + карта)
+
             sent_message = await self.bot.send_message(
                 chat_id=user.telegram_id,
                 text=message_text,
