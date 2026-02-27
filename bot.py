@@ -498,12 +498,14 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
                 }, status=400)
 
             bot_logger.info(f"✅ Lava.top direct redirect: {payment_url[:80]}")
-            # Добавляем locale=ru_RU чтобы страница всегда открывалась в рублях (Россия)
+            # Передаём валюту (RUB) и email клиента чтобы поле email было уже заполнено
+            import urllib.parse as _up
+            params = _up.urlencode({'currency': 'RUB', 'email': email})
             separator = '&' if '?' in payment_url else '?'
-            payment_url_ru = f"{payment_url}{separator}locale=ru_RU"
+            payment_url_final = f"{payment_url}{separator}{params}"
             return web.json_response({
                 'success': True,
-                'payment_url': payment_url_ru
+                'payment_url': payment_url_final
             })
 
         # WayForPay — иностранный банк, доллары
