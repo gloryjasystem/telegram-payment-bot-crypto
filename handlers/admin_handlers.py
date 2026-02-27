@@ -60,20 +60,45 @@ def _get_top_price(tier: str, position: int, period: str) -> int:
     return Config.TOP_PRICES[tier][position][period]
 
 
+
+# Маппинг названий категорий (из callback) → slug в lava_products.json
+# Используется для построения service_key вида top_{slug}_{period}_{pos}
+CATEGORY_SLUG_MAP: dict[str, str] = {
+    # Tier 1
+    "TRADING":           "trading",
+    "SIGNALS":           "signals",
+    "ARBITRAGE":         "arbitrage",
+    # Tier 2
+    "ANALYTICS REVIEWS": "analytics",
+    "DEFI/WEB3":         "defi",
+    "ECOSYSTEMS":        "ecosystems",
+    "PROJECT REVIEWS":   "project_reviews",
+    "INVESTMENTS":       "investments",
+    # Tier 3
+    "CRYPTO NEWS":       "cryptonews",
+    "EDUCATION":         "education",
+    "GUIDES":            "guides",
+    # Tier 4
+    "NFT/GAMEFI":        "nft",
+    "AIRDROPS":          "airdrops",
+    "OPINIONS/BLOG":     "opinions",
+}
+
+
 def _build_top_service_key(tier: str, position: int, period: str, category: str = "") -> str:
     """
-    service_key в формате 'top_{category_slug}_{period}_{position}'.
+    service_key в формате 'top_{slug}_{period}_{position}'.
     Совпадает с ключами в lava_products.json.
-    Пример: category='AIRDROPS', pos=8, period='month' → 'top_airdrops_month_8'
+    Использует CATEGORY_SLUG_MAP для точного маппинга.
+    Пример: category='DEFI/WEB3', pos=7, period='month' → 'top_defi_month_7'
     Для Мирового ТОП (category='') → 'top_world_month_1'
     """
     if category:
-        # 'ANALYTICS REVIEWS' → 'analytics_reviews', 'DEFI/WEB3' → 'defi_web3'
-        slug = category.lower().replace(' ', '_').replace('/', '_')
+        slug = CATEGORY_SLUG_MAP.get(category, category.lower().replace(' ', '_').replace('/', '_'))
     else:
-        # Мировой ТОП
         slug = tier  # 'world'
     return f"top_{slug}_{period}_{position}"
+
 
 
 def _build_top_service_description(tier: str, position: int, period: str, category: str = "") -> str:
