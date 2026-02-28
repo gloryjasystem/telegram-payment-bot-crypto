@@ -187,11 +187,7 @@ async def callback_cancel_invoice_no(callback: CallbackQuery):
     await callback.message.answer("Отмена инвойса прервана.")
 
 
-# Обработка неизвестных callback'ов
-@callback_router.callback_query()
-async def unknown_callback(callback: CallbackQuery):
-    """
-    Обработчик для всех остальных callback'ов
-    """
-    bot_logger.warning(f"Unknown callback data: {callback.data}")
-    await callback.answer("⚠️ Неизвестная команда", show_alert=False)
+# ПРИМЕЧАНИЕ: catch-all обработчик callback'ов намеренно удалён.
+# Он перехватывал payment_history и другие пользовательские callback'и
+# раньше, чем успевал сработать user_router.
+# Неизвестные callback'и теперь просто игнорируются aiogram'ом.
