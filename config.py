@@ -273,7 +273,7 @@ class Config:
     # URL договора оферты (отображается в кнопке инвойса)
     OFERTA_URL: str = os.getenv(
         "OFERTA_URL",
-        "https://telegra.ph/Usloviya-obsluzhivaniya-i-Politika-vozvrata--MarketFilter-02-08"
+        "https://telegra.ph/Dogovor-oferty-02-28-8"
     )
     SUPPORT_USERNAME: str = os.getenv("SUPPORT_USERNAME", "MarketFilterSupport")
     
