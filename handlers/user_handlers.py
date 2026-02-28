@@ -187,18 +187,28 @@ async def callback_payment_history(callback: CallbackQuery):
             emoji = status_emoji.get(inv.status, "❓")
             date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
             
-            text += f"{i}. {emoji} {inv.service_description}\n"
-            text += f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}\n\n"
+            entry = (
+                f"{i}. {emoji} {inv.service_description}\n"
+                f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}\n\n"
+            )
+            # Telegram limit: 4096 chars. Stop adding entries if getting close.
+            if len(text) + len(entry) > 3800:
+                text += f"_...и ещё {len(invoices) - i + 1} записей_\n\n"
+                break
+            text += entry
         
         if total_paid > 0:
             text += f"💰 Всего оплачено: **{format_currency(total_paid, 'USD')}**"
     
-    await callback.message.edit_text(
+    await callback.answer()
+    # Отправляем новым сообщением (edit_text ограничен 4096 символами и не работает
+    # если нажата кнопка из сообщения инвойса с другой разметкой)
+    await callback.message.answer(
         text,
         reply_markup=get_history_keyboard(),
         parse_mode="Markdown"
     )
-    await callback.answer()
+
 
 
 @user_router.callback_query(F.data == "back_to_main")
