@@ -86,6 +86,14 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
     # Кнопка поддержки (на случай вопросов)
     builder.row(
         InlineKeyboardButton(
+            text="📄 Договор оферты",
+            url=Config.OFERTA_URL
+        )
+    )
+    
+    # Кнопка поддержки (на случай вопросов)
+    builder.row(
+        InlineKeyboardButton(
             text="💬 Поддержка",
             url=f"https://t.me/{Config.SUPPORT_USERNAME}"
         )
