@@ -515,6 +515,34 @@ async def process_custom_amount(message: Message, state: FSMContext):
 
     # ── Проверяем кратность $10 для Lava-карточек ──────────────────────────
     amount_int = int(amount)
+    min_tier = min(Config.LAVA_CUSTOM_TIERS.keys()) if Config.LAVA_CUSTOM_TIERS else 10
+
+    # Случай 1: сумма меньше минимального тира ($10)
+    if Config.LAVA_CUSTOM_TIERS and amount_int < min_tier:
+        tier_usd = min_tier
+        await state.update_data(
+            amount=amount,
+            _pending_tier_usd=tier_usd,
+        )
+        await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
+
+        from aiogram.utils.keyboard import InlineKeyboardBuilder
+        kb = InlineKeyboardBuilder()
+        kb.button(text=f"✅ Да, карточка ${tier_usd}", callback_data="tier_confirm:yes")
+        kb.button(text="✏️ Ввести другую сумму", callback_data="tier_confirm:no")
+        kb.adjust(1)
+
+        await message.answer(
+            f"⚠️ <b>Сумма ${amount_int} меньше минимального тира ${min_tier}</b>\n\n"
+            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> "
+            f"(минимальный тир).\n\n"
+            f"Продолжить с карточкой <b>${tier_usd}</b>?",
+            reply_markup=kb.as_markup(),
+            parse_mode="HTML"
+        )
+        return
+
+    # Случай 2: сумма не кратна $10
     if amount_int % 10 != 0 and Config.LAVA_CUSTOM_TIERS:
         # Вычисляем тир который получит клиент
         step = 10
@@ -522,8 +550,6 @@ async def process_custom_amount(message: Message, state: FSMContext):
         # Если переполняет — берём максимальный
         max_tier = max(Config.LAVA_CUSTOM_TIERS.keys()) if Config.LAVA_CUSTOM_TIERS else 2500
         tier_usd = min(tier_usd, max_tier)
-
-        tier_note = ""
 
         await state.update_data(
             amount=amount,
