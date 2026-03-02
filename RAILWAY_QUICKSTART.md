@@ -37,8 +37,8 @@ git push -u origin main
 ```env
 BOT_TOKEN=ваш_токен_от_BotFather
 ADMIN_IDS=ваш_telegram_id
-CRYPTOMUS_API_KEY=ваш_api_key
-CRYPTOMUS_MERCHANT_ID=ваш_merchant_id
+NOWPAYMENTS_API_KEY=ваш_nowpayments_api_key
+NOWPAYMENTS_IPN_SECRET=ваш_ipn_secret
 DATABASE_URL=sqlite+aiosqlite:///./bot_database.db
 LOG_LEVEL=INFO
 ```

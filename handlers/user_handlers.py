@@ -303,3 +303,15 @@ async def cmd_refund(message: Message):
         parse_mode="Markdown",
         disable_web_page_preview=False
     )
+
+
+@user_router.message(Command("cancel"))
+async def cmd_cancel(message: Message):
+    """
+    Обработчик команды /cancel для обычных пользователей.
+    У пользователей нет FSM-состояний — просто сообщаем что нечего отменять.
+    """
+    await message.answer(
+        "ℹ️ Нет активных действий для отмены.\n\n"
+        "Если вам нужна помощь — используйте /help."
+    )

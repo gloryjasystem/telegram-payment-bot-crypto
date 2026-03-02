@@ -11,7 +11,7 @@ cp .env.example .env
 - `BOT_TOKEN` - токен бота от @BotFather
 - `ADMIN_IDS` - ваш Telegram ID (получить: @userinfobot)
 - `DB_PASSWORD` - пароль для PostgreSQL
-- Опционально: `CRYPTOMUS_API_KEY`, `CRYPTOMUS_MERCHANT_ID`, `CRYPTOMUS_WEBHOOK_SECRET`
+- Опционально: `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET`
 
 ### 2. Запустите контейнеры
 ```bash
@@ -101,10 +101,10 @@ DB_NAME=payment_bot
 DB_USER=bot_user
 DB_PASSWORD=change_me_in_production
 
-# Cryptomus (опционально - работает MOCK mode)
-CRYPTOMUS_API_KEY=
-CRYPTOMUS_MERCHANT_ID=
-CRYPTOMUS_WEBHOOK_SECRET=
+# NOWPayments (опционально - работает MOCK mode)
+NOWPAYMENTS_API_KEY=
+NOWPAYMENTS_IPN_SECRET=
+NOWPAYMENTS_WEBHOOK_URL=
 
 # Support
 SUPPORT_USERNAME=YourSupportBot

@@ -1,5 +1,5 @@
 """
-Главный файл Telegram бота для обработки платежей через Cryptomus/NOWPayments
+Главный файл Telegram бота для обработки платежей через NOWPayments
 Поддерживает два режима:
 - Webhook (продакшн, Railway) - aiohttp web-сервер
 - Polling (локальная разработка) - fallback если WEBHOOK_URL не задан
@@ -142,6 +142,18 @@ async def expire_invoices_task():
             
             if expired_count > 0:
                 bot_logger.info(f"⌛️ Expired {expired_count} old invoice(s)")
+                # Уведомляем администраторов о истёкших инвойсах
+                if bot:
+                    from services.notification_service import NotificationService
+                    notifier = NotificationService(bot)
+                    try:
+                        await notifier.broadcast_to_admins(
+                            f"⌛️ *Истекли инвойсы*\n\n"
+                            f"За последние 5 минут истёк срок у *{expired_count}* инвойс(ов).\n"
+                            f"Клиенты уже уведомлены автоматически."
+                        )
+                    except Exception as e:
+                        bot_logger.error(f"Failed to notify admins about expired invoices: {e}")
         
         except asyncio.CancelledError:
             bot_logger.info("Invoice expiration task cancelled")

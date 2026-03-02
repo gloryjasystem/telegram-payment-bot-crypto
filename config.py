@@ -32,13 +32,6 @@ class Config:
     )
     
     # ========================================
-    # CRYPTOMUS API SETTINGS (Legacy - можно удалить после миграции)
-    # ========================================
-    CRYPTOMUS_API_KEY: str = os.getenv("CRYPTOMUS_API_KEY", "")
-    CRYPTOMUS_MERCHANT_ID: str = os.getenv("CRYPTOMUS_MERCHANT_ID", "")
-    CRYPTOMUS_WEBHOOK_SECRET: str = os.getenv("CRYPTOMUS_WEBHOOK_SECRET", "")
-    
-    # ========================================
     # NOWPAYMENTS API SETTINGS
     # ========================================
     NOWPAYMENTS_API_KEY: str = os.getenv("NOWPAYMENTS_API_KEY", "")
@@ -245,10 +238,6 @@ class Config:
     WEBHOOK_URL: str = os.getenv("WEBHOOK_URL", "")
     WEBHOOK_PATH: str = os.getenv("WEBHOOK_PATH", "/webhook/telegram")
     
-    CRYPTOMUS_WEBHOOK_PATH: str = os.getenv(
-        "CRYPTOMUS_WEBHOOK_PATH", 
-        "/webhook/cryptomus"
-    )
     NOWPAYMENTS_WEBHOOK_PATH: str = os.getenv(
         "NOWPAYMENTS_WEBHOOK_PATH",
         "/webhook/nowpayments"

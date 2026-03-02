@@ -96,7 +96,7 @@ async def check_and_migrate_table() -> None:
                     "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS bot_message_id BIGINT;"
                 ))
                 
-                # Переименование cryptomus_invoice_id → external_invoice_id
+                # Переименование external_invoice_id (если осталась старая колонка из старых миграций)
                 result = await conn.execute(text(
                     "SELECT column_name FROM information_schema.columns "
                     "WHERE table_name='invoices' AND column_name='cryptomus_invoice_id';"

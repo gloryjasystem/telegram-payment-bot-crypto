@@ -322,6 +322,59 @@ class NotificationService:
             bot_logger.error(f"Error notifying client about payment success: {e}")
             return False
     
+    async def notify_client_payment_failed(
+        self,
+        invoice: Invoice,
+        user: User,
+        reason: str = ""
+    ) -> bool:
+        """
+        Уведомление клиента о неудачном/истёкшем платеже
+        
+        Args:
+            invoice: Инвойс
+            user: Клиент
+            reason: Причина (failed / expired / partially_paid)
+        
+        Returns:
+            bool: True если успешно отправлено
+        """
+        try:
+            if reason == "expired":
+                status_line = "⌛️ Срок оплаты инвойса истёк."
+                advice_line = "Обратитесь к администратору для создания нового инвойса."
+            elif reason == "partially_paid":
+                status_line = "⚠️ Получена частичная оплата."
+                advice_line = "Пожалуйста, свяжитесь с поддержкой — средства могут быть зачтены вручную."
+            else:
+                status_line = "❌ Платёж не был завершён."
+                advice_line = "Попробуйте создать новый инвойс или обратитесь к администратору."
+
+            message_text = (
+                f"❌ <b>Проблема с оплатой</b>\n\n"
+                f"📋 <b>Инвойс:</b> <code>{invoice.invoice_id}</code>\n"
+                f"💰 <b>Сумма:</b> {format_currency(invoice.amount, invoice.currency)}\n"
+                f"📝 <b>Услуга:</b> {invoice.service_description}\n\n"
+                f"{status_line}\n"
+                f"{advice_line}\n\n"
+                f"Если у вас есть вопросы — обращайтесь в поддержку."
+            )
+
+            from keyboards import get_payment_success_keyboard
+            await self.bot.send_message(
+                chat_id=user.telegram_id,
+                text=message_text,
+                reply_markup=get_payment_success_keyboard(),
+                parse_mode="HTML"
+            )
+
+            bot_logger.info(f"Payment failed notification sent to user {user.telegram_id} ({reason})")
+            return True
+
+        except Exception as e:
+            bot_logger.error(f"Error notifying client about payment failure: {e}")
+            return False
+    
     async def notify_admin_invoice_cancelled(
         self,
         invoice_id: str,

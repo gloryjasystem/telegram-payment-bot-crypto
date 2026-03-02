@@ -135,11 +135,11 @@ async def cmd_invoice_start(message: Message, state: FSMContext):
     await state.set_state(InvoiceCreationStates.WaitingForUserId)
 
     await message.answer(
-        "📝 **Создание инвойса**\n\n"
-        "**Шаг 1:** Введите Telegram ID или @username клиента:\n\n"
-        "_Пример: 123456789 или @username_",
+        "📝 <b>Создание инвойса</b>\n\n"
+        "<b>Шаг 1:</b> Введите Telegram ID или @username клиента:\n\n"
+        "<i>Пример: 123456789 или @username</i>",
         reply_markup=get_fsm_cancel_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
 
 
@@ -154,8 +154,8 @@ async def process_user_id(message: Message, state: FSMContext):
         await message.answer(
             "❌ Некорректный формат.\n\n"
             "Введите числовой Telegram ID или @username:\n"
-            "_Пример: 123456789 или @username_",
-            parse_mode="Markdown"
+            "<i>Пример: 123456789 или @username</i>",
+            parse_mode="HTML"
         )
         return
 
@@ -181,7 +181,7 @@ async def process_user_id(message: Message, state: FSMContext):
                     "• Пользователь еще не запускал бота (/start)\n"
                     "• Неверный ID или username\n\n"
                     "Попросите пользователя сначала запустить бота, затем попробуйте снова.",
-                    parse_mode="Markdown"
+                    parse_mode="HTML"
                 )
                 return
 
@@ -203,10 +203,10 @@ async def process_user_id(message: Message, state: FSMContext):
     user_mention = f"@{user.username}" if user.username else f"ID {user.telegram_id}"
 
     await message.answer(
-        f"✅ Пользователь найден: **{user.first_name}** ({user_mention})\n\n"
-        "**Шаг 2:** Выберите услугу из каталога:",
+        f"✅ Пользователь найден: <b>{html.escape(user.first_name)}</b> ({html.escape(user_mention)})\n\n"
+        "<b>Шаг 2:</b> Выберите услугу из каталога:",
         reply_markup=get_service_category_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
 
 
@@ -260,9 +260,9 @@ async def handle_svc_top_menu(callback: CallbackQuery, state: FSMContext):
     """Переход к выбору ТОП tier."""
     await state.set_state(InvoiceCreationStates.WaitingForTopTier)
     await callback.message.edit_text(
-        "🏆 **ТОП по категории**\n\nВыберите группу категорий:",
+        "🏆 <b>ТОП по категории</b>\n\nВыберите группу категорий:",
         reply_markup=get_top_tier_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
     await callback.answer()
 
@@ -293,10 +293,10 @@ async def handle_svc_back(callback: CallbackQuery, state: FSMContext):
     user_mention = f"@{username}" if username else f"ID {user_id}"
 
     await callback.message.edit_text(
-        f"✅ Пользователь: **{first_name}** ({user_mention})\n\n"
-        "**Шаг 2:** Выберите услугу из каталога:",
+        f"✅ Пользователь: <b>{html.escape(first_name)}</b> ({html.escape(user_mention)})\n\n"
+        "<b>Шаг 2:</b> Выберите услугу из каталога:",
         reply_markup=get_service_category_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
     await callback.answer()
 
@@ -453,9 +453,9 @@ async def handle_top_tier_back(callback: CallbackQuery, state: FSMContext):
     """Назад к вабору tier."""
     await state.set_state(InvoiceCreationStates.WaitingForTopTier)
     await callback.message.edit_text(
-        "🏆 **ТОП по категории**\n\nВыберите группу категорий:",
+        "🏆 <b>ТОП по категории</b>\n\nВыберите группу категорий:",
         reply_markup=get_top_tier_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
     await callback.answer()
 

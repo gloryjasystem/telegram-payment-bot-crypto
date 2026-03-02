@@ -1,6 +1,6 @@
 # MarketFilter Payment Bot 💳
 
-Professional Telegram bot for processing cryptocurrency payments for advertising placement and channel verification services using Cryptomus/Heleket payment gateway.
+Professional Telegram bot for processing cryptocurrency payments for advertising placement and channel verification services using NOWPayments payment gateway.
 
 ---
 
@@ -15,7 +15,7 @@ Professional Telegram bot for processing cryptocurrency payments for advertising
   - [Docker Deployment](#docker-deployment)
 - [Configuration](#configuration)
   - [Environment Variables](#environment-variables)
-  - [Cryptomus API Setup](#cryptomus-api-setup)
+  - [NOWPayments API Setup](#nowpayments-api-setup)
   - [Terms & Policies](#terms--policies)
 - [Database](#database)
   - [Schema](#schema)
@@ -24,7 +24,7 @@ Professional Telegram bot for processing cryptocurrency payments for advertising
   - [User Workflow](#user-workflow)
   - [Admin Commands](#admin-commands)
 - [API Integration](#api-integration)
-  - [Cryptomus Payment Gateway](#cryptomus-payment-gateway)
+  - [NOWPayments Payment Gateway](#nowpayments-payment-gateway)
   - [Webhook Configuration](#webhook-configuration)
 - [Development](#development)
   - [Project Structure Details](#project-structure-details)
@@ -40,7 +40,7 @@ Professional Telegram bot for processing cryptocurrency payments for advertising
 ## ✨ Features
 
 - **Professional Payment Flow**: Guided invoice creation with Web App payment integration
-- **Cryptomus/Heleket Integration**: Secure cryptocurrency payment processing
+- **NOWPayments Integration**: Secure cryptocurrency payment processing
 - **FSM-Based Admin Panel**: Step-by-step invoice creation with validation
 - **Real-time Notifications**: Instant notifications to users and admins on payment events
 - **Anti-Spam Protection**: Rate limiting and spam prevention
@@ -57,7 +57,7 @@ Professional Telegram bot for processing cryptocurrency payments for advertising
 - **Python**: 3.11+
 - **Framework**: aiogram 3.x (async Telegram Bot API)
 - **Database**: SQLAlchemy (async) with SQLite/PostgreSQL
-- **Payment Gateway**: Cryptomus API
+- **Payment Gateway**: NOWPayments API
 - **Web Server**: aiohttp (for webhooks)
 - **Logging**: Python logging module
 - **Containerization**: Docker & Docker Compose
@@ -97,7 +97,7 @@ new tg payment bot crypto/
 │
 ├── services/
 │   ├── __init__.py
-│   ├── payment_service.py          # Cryptomus API integration
+│   ├── payment_service.py          # NOWPayments API integration (compat shim)
 │   ├── invoice_service.py          # Invoice management logic
 │   └── notification_service.py     # User/admin notifications
 │
@@ -128,7 +128,7 @@ new tg payment bot crypto/
 
 - Python 3.11 or higher
 - Telegram Bot Token (from [@BotFather](https://t.me/BotFather))
-- Cryptomus Merchant Account & API Key
+- NOWPayments Account & API Key
 - (Optional) PostgreSQL for production
 - (Optional) Docker & Docker Compose
 
@@ -180,8 +180,8 @@ nano .env     # Linux/macOS
 Fill in **required** values:
 - `BOT_TOKEN` - Your Telegram bot token
 - `ADMIN_IDS` - Comma-separated admin Telegram IDs
-- `CRYPTOMUS_API_KEY` - Your Cryptomus API key
-- `CRYPTOMUS_MERCHANT_ID` - Your Cryptomus merchant ID
+- `NOWPAYMENTS_API_KEY` - Your NOWPayments API key
+- `NOWPAYMENTS_IPN_SECRET` - Your IPN secret for webhook verification
 
 #### Step 5: Initialize Database
 
@@ -257,11 +257,11 @@ DATABASE_URL=sqlite+aiosqlite:///./bot_database.db
 # DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/marketfilter_bot
 
 # ========================================
-# CRYPTOMUS API
+# NOWPAYMENTS API
 # ========================================
-CRYPTOMUS_API_KEY=your_cryptomus_api_key_here
-CRYPTOMUS_MERCHANT_ID=your_merchant_id_here
-CRYPTOMUS_WEBHOOK_SECRET=your_webhook_secret_here
+NOWPAYMENTS_API_KEY=your_nowpayments_api_key_here
+NOWPAYMENTS_IPN_SECRET=your_ipn_secret_here
+NOWPAYMENTS_WEBHOOK_URL=https://yourdomain.com/webhook/nowpayments
 
 # ========================================
 # WEBHOOK (Production Only)
@@ -269,7 +269,7 @@ CRYPTOMUS_WEBHOOK_SECRET=your_webhook_secret_here
 # Leave empty for polling mode (development)
 WEBHOOK_URL=
 WEBHOOK_PATH=/webhook/telegram
-CRYPTOMUS_WEBHOOK_PATH=/webhook/cryptomus
+NOWPAYMENTS_WEBHOOK_PATH=/webhook/nowpayments
 WEB_SERVER_HOST=0.0.0.0
 WEB_SERVER_PORT=8080
 
@@ -293,25 +293,24 @@ REFUND_POLICY_URL=https://telegra.ph/MarketFilter-Refund-Policy-01-01
 SUPPORT_USERNAME=MarketFilterSupport
 ```
 
-### Cryptomus API Setup
+### NOWPayments API Setup
 
-1. **Create Merchant Account**
-   - Go to [Cryptomus](https://cryptomus.com/)
+1. **Create Account**
+   - Go to [NOWPayments](https://nowpayments.io/)
    - Sign up and verify your account
-   - Navigate to **Merchants** → **Create Merchant**
+   - Navigate to **Store Settings** → **API Keys**
 
 2. **Get API Credentials**
-   - Go to **Settings** → **API**
-   - Copy **API Key** and **Merchant UUID**
-   - Set up webhook URL (production only)
+   - Copy **API Key**
+   - Create **IPN Secret** for webhook verification
 
-3. **Configure Webhook**
-   - Webhook URL: `https://yourdomain.com/webhook/cryptomus`
-   - Webhook events: `payment.paid`, `payment.failed`, `payment.expired`
+3. **Configure Webhook (IPN)**
+   - Webhook URL: `https://yourdomain.com/webhook/nowpayments`
+   - Events: `payment_status`
 
 4. **Test Mode**
-   - Use test API keys for development
-   - Switch to live keys for production
+   - Use Sandbox environment for development
+   - Switch to production keys when ready
 
 ### Terms & Policies
 
@@ -412,7 +411,7 @@ CREATE TABLE invoices (
     service_description TEXT NOT NULL,
     status VARCHAR(20) DEFAULT 'pending',
     payment_url TEXT,
-    cryptomus_invoice_id VARCHAR(255),
+    external_invoice_id VARCHAR(255),  -- NOWPayments payment ID
     admin_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     paid_at TIMESTAMP,
@@ -445,7 +444,7 @@ CREATE TABLE payments (
 );
 ```
 
-Stores payment transaction details from Cryptomus.
+Stores payment transaction details from NOWPayments.
 
 ### Migrations
 
@@ -482,7 +481,7 @@ alembic upgrade head
 
 3. **Make Payment**
    - User clicks "💳 Перейти к оплате" button
-   - Opens Cryptomus payment page inside Telegram
+   - Opens NOWPayments page inside Telegram
    - Selects cryptocurrency (BTC, ETH, USDT, etc.)
    - Completes payment
 
@@ -544,91 +543,75 @@ View payment statistics, revenue, etc.
 
 ## 🔌 API Integration
 
-### Cryptomus Payment Gateway
+### NOWPayments Payment Gateway
 
 #### Create Payment Invoice
 
 ```python
 import aiohttp
-import hashlib
 import hmac
+import hashlib
 import json
 
-async def create_payment(amount: float, order_id: str):
-    url = "https://api.cryptomus.com/v1/payment"
+async def create_invoice(amount: float, order_id: str):
+    url = "https://api.nowpayments.io/v1/invoice"
     
     payload = {
-        "amount": str(amount),
-        "currency": "USD",
+        "price_amount": amount,
+        "price_currency": "usd",
         "order_id": order_id,
-        "url_callback": f"{WEBHOOK_URL}/webhook/cryptomus",
-        "url_success": f"https://t.me/{BOT_USERNAME}",
-        "is_payment_multiple": False,
-        "lifetime": 3600  # 1 hour
+        "ipn_callback_url": f"{WEBHOOK_URL}/webhook/nowpayments",
+        "is_fixed_rate": False
     }
     
-    # Calculate signature
-    payload_string = json.dumps(payload, sort_keys=True)
-    signature = hmac.new(
-        API_KEY.encode(),
-        payload_string.encode(),
-        hashlib.sha256
-    ).hexdigest()
-    
     headers = {
-        "merchant": MERCHANT_ID,
-        "sign": signature,
+        "x-api-key": NOWPAYMENTS_API_KEY,
         "Content-Type": "application/json"
     }
     
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
             data = await response.json()
-            return data["result"]["url"]  # Payment URL
+            return data["invoice_url"]  # Payment URL
 ```
 
-#### Verify Webhook Signature
+#### Verify IPN Signature
 
 ```python
-def verify_webhook(request_data: dict, signature: str) -> bool:
-    payload = json.dumps(request_data, sort_keys=True)
-    
-    calculated_signature = hmac.new(
-        WEBHOOK_SECRET.encode(),
-        payload.encode(),
-        hashlib.sha256
+def verify_ipn(raw_body: bytes, signature: str) -> bool:
+    calculated = hmac.new(
+        IPN_SECRET.encode(),
+        raw_body,
+        hashlib.sha512
     ).hexdigest()
-    
-    return hmac.compare_digest(calculated_signature, signature)
+    return hmac.compare_digest(calculated, signature)
 ```
 
 ### Webhook Configuration
 
-**Webhook Endpoint:** `/webhook/cryptomus`
+**Webhook Endpoint:** `/webhook/nowpayments`
 
-**Webhook Payload Example:**
+**IPN Payload Example:**
 
 ```json
 {
-  "uuid": "cryptomus-uuid-here",
+  "payment_id": "5745065052",
   "order_id": "INV-1707398400",
-  "status": "paid",
-  "payment_amount": "150.00",
-  "currency": "USD",
-  "payer_currency": "USDT",
-  "payer_amount": "150.00",
-  "txid": "0xabc123...",
-  "network": "tron"
+  "payment_status": "finished",
+  "pay_amount": 150,
+  "pay_currency": "usdttrc20",
+  "actually_paid": 150,
+  "outcome_amount": 150
 }
 ```
 
-**Handling Webhook:**
+**Handling IPN Webhook:**
 
-1. Verify signature in `sign` header
-2. Check `status` field
+1. Verify signature in `x-nowpayments-sig` header (HMAC SHA512)
+2. Check `payment_status` field (`finished` = paid)
 3. Update invoice status in database
 4. Send notifications to user and admin
-5. Return `200 OK` to Cryptomus
+5. Return `200 OK` to NOWPayments
 
 ---
 
@@ -668,7 +651,7 @@ async def main():
 
 #### `services/` - Business Logic
 
-- **payment_service.py**: Cryptomus API calls
+- **payment_service.py**: NOWPayments API compat shim → nowpayments_service.py
 - **invoice_service.py**: Invoice CRUD operations
 - **notification_service.py**: Send messages to users/admins
 
@@ -703,7 +686,7 @@ class RefundStates(StatesGroup):
 
 ```python
 async def process_refund(invoice_id: str):
-    # Call Cryptomus refund API
+    # Call NOWPayments API
     # Update database
     # Notify user
     pass
@@ -730,7 +713,7 @@ async def process_refund(invoice_id: str):
 
 - [ ] **Payment Flow**
   - [ ] User receives invoice with Web App button
-  - [ ] Click payment button → opens Cryptomus page
+  - [ ] Click payment button → opens NOWPayments page
   - [ ] Complete test payment → webhook received
   - [ ] User receives success message
   - [ ] Admin receives payment notification
@@ -758,7 +741,7 @@ Add unit tests for:
 - [ ] **Environment**
   - [ ] Use PostgreSQL instead of SQLite
   - [ ] Set `DATABASE_URL` to PostgreSQL connection string
-  - [ ] Use strong `CRYPTOMUS_WEBHOOK_SECRET`
+  - [ ] Use strong `NOWPAYMENTS_IPN_SECRET`
 
 - [ ] **Security**
   - [ ] Enable HTTPS for webhooks
@@ -847,7 +830,7 @@ curl https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getMe
 
 **Check:**
 1. Webhook URL is accessible (HTTPS required)
-2. Cryptomus webhook is configured correctly
+2. NOWPayments IPN webhook is configured correctly
 3. Signature verification passes
 4. Firewall allows incoming connections
 
@@ -878,9 +861,9 @@ python -c "from database.db import create_tables; import asyncio; asyncio.run(cr
 ### Payment not confirming
 
 **Check:**
-1. Cryptomus API keys are correct
+1. NOWPayments API keys are correct
 2. Invoice was created successfully
-3. Webhook received `status: "paid"`
+3. IPN webhook received `payment_status: "finished"`
 4. Invoice status updated in database
 
 **Debug:**
@@ -966,7 +949,7 @@ pip list | grep sqlalchemy
 ```bash
 # Verify .env file exists and has values
 cat .env | grep BOT_TOKEN
-cat .env | grep CRYPTOMUS_API_KEY
+cat .env | grep NOWPAYMENTS_API_KEY
 ```
 
 ### 3. Database Check
@@ -1003,9 +986,9 @@ python bot.py
 ### 7. Webhook Check (production only)
 ```bash
 # Test webhook endpoint
-curl -X POST https://yourdomain.com/webhook/cryptomus \
+curl -X POST https://yourdomain.com/webhook/nowpayments \
   -H "Content-Type: application/json" \
-  -H "sign: test" \
+  -H "x-nowpayments-sig: test" \
   -d '{"test": "payload"}'
 
 # Should return 200 OK

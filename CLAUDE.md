@@ -2,7 +2,7 @@
 
 ## Project Overview
 **Project Name:** MarketFilter Payment Bot  
-**Purpose:** Professional Telegram bot for processing payments for advertising placement and verification services through Cryptomus/Heleket payment gateways  
+**Purpose:** Professional Telegram bot for processing payments for advertising placement and verification services through NOWPayments payment gateway  
 **Primary Language:** Python 3.11+  
 **Framework:** aiogram 3.x (async Telegram Bot API framework)
 
@@ -63,7 +63,7 @@ OR
 Клиент: @username (ID: 123456789)
 Сумма: $150
 Услуга: Размещение рекламы на 7 дней
-Система: Cryptomus Gateway
+Система: NOWPayments Gateway
 Статус: Ожидание транзакции...
 
 Invoice ID: #INV-1234567890
@@ -80,7 +80,7 @@ Invoice ID: #INV-1234567890
 К оплате: 150 USD
 
 ────────────────────
-Нажмите на кнопку ниже, чтобы перейти на защищенную страницу оплаты Cryptomus/Heleket.
+Нажмите на кнопку ниже, чтобы перейти на защищенную страницу оплаты NOWPayments.
 Вы сможете выбрать любую удобную криптовалюту.
 ```
 
@@ -174,7 +174,7 @@ new tg payment bot crypto/
 │
 ├── services/
 │   ├── __init__.py
-│   ├── payment_service.py          # Cryptomus/Heleket API integration
+│   ├── payment_service.py          # NOWPayments API integration (compat shim)
 │   ├── invoice_service.py          # Invoice creation and management
 │   └── notification_service.py     # User/admin notification logic
 │
@@ -242,8 +242,8 @@ class Config:
     BOT_TOKEN: str
     ADMIN_IDS: list[int]
     DATABASE_URL: str
-    CRYPTOMUS_API_KEY: str
-    CRYPTOMUS_MERCHANT_ID: str
+    NOWPAYMENTS_API_KEY: str
+    NOWPAYMENTS_IPN_SECRET: str
     WEBHOOK_URL: str (optional)
 ```
 
@@ -277,7 +277,7 @@ class Invoice(Base):
     service_description: str
     status: str (pending/paid/expired/cancelled)
     payment_url: str (nullable)
-    cryptomus_invoice_id: str (nullable)
+    external_invoice_id: str (nullable)
     created_at: datetime
     paid_at: datetime (nullable)
     admin_id: int (who created the invoice)
@@ -288,7 +288,7 @@ class Invoice(Base):
 class Payment(Base):
     id: int (primary key)
     invoice_id: int (foreign key → Invoice)
-    transaction_id: str (from Cryptomus)
+    transaction_id: str (from NOWPayments)
     amount: Decimal
     currency: str
     status: str
@@ -339,7 +339,7 @@ class InvoiceStates(StatesGroup):
 **Purpose:** Handle payment webhooks and callbacks
 
 **Handlers:**
-- Cryptomus webhook handler (POST endpoint)
+- NOWPayments webhook handler (POST endpoint)
 - Payment status updates
 - Payment confirmation logic
 
@@ -355,7 +355,7 @@ class InvoiceStates(StatesGroup):
 ### Services Module
 
 #### `services/payment_service.py`
-**Purpose:** Integrate with Cryptomus/Heleket API
+**Purpose:** Compatibility shim — delegates to `nowpayments_service.py`
 
 **Functions:**
 - `create_payment_invoice(amount, currency, order_id)` → returns payment URL
@@ -364,9 +364,9 @@ class InvoiceStates(StatesGroup):
 - `get_supported_currencies()` → returns list of available cryptocurrencies
 
 **API Integration:**
-- Endpoint: `https://api.cryptomus.com/v1/`
-- Authentication: API Key + Merchant ID
-- Webhook signature verification using HMAC SHA256
+- Endpoint: `https://api.nowpayments.io/v1/`
+- Authentication: API Key in header
+- IPN signature verification using HMAC SHA512
 
 #### `services/invoice_service.py`
 **Purpose:** Invoice creation and management logic
@@ -506,85 +506,68 @@ class InvoiceStates(StatesGroup):
 
 ## API Integration
 
-### Cryptomus API
+### NOWPayments API
 
-**Base URL:** `https://api.cryptomus.com/v1/`
+**Base URL:** `https://api.nowpayments.io/v1/`
 
 **Authentication:**
-- Header: `merchant: {MERCHANT_ID}`
-- Header: `sign: {HMAC_SHA256_SIGNATURE}`
+- Header: `x-api-key: {NOWPAYMENTS_API_KEY}`
 
 **Endpoints:**
 
 #### 1. Create Payment Invoice
 ```http
-POST /payment
+POST /invoice
 Content-Type: application/json
+x-api-key: {NOWPAYMENTS_API_KEY}
 
 {
-  "amount": "150",
-  "currency": "USD",
+  "price_amount": 150,
+  "price_currency": "usd",
   "order_id": "INV-1234567890",
-  "url_callback": "https://yourdomain.com/webhook/cryptomus",
-  "url_success": "https://t.me/YourBillingBot",
-  "is_payment_multiple": false,
-  "lifetime": 3600
+  "ipn_callback_url": "https://yourdomain.com/webhook/nowpayments",
+  "is_fixed_rate": false
 }
 
 Response:
 {
-  "state": 0,
-  "result": {
-    "uuid": "cryptomus-uuid-here",
-    "order_id": "INV-1234567890",
-    "amount": "150",
-    "currency": "USD",
-    "url": "https://pay.cryptomus.com/pay/uuid",
-    "expired_at": 1234567890
-  }
+  "id": "5745065052",
+  "order_id": "INV-1234567890",
+  "price_amount": 150,
+  "price_currency": "usd",
+  "invoice_url": "https://nowpayments.io/payment/?iid=5745065052"
 }
 ```
 
 #### 2. Check Payment Status
 ```http
-POST /payment/info
-Content-Type: application/json
-
-{
-  "uuid": "cryptomus-uuid-here",
-  "order_id": "INV-1234567890"
-}
+GET /payment/{payment_id}
+x-api-key: {NOWPAYMENTS_API_KEY}
 
 Response:
 {
-  "state": 0,
-  "result": {
-    "uuid": "cryptomus-uuid-here",
-    "order_id": "INV-1234567890",
-    "status": "paid",
-    "payment_amount": "150",
-    "payer_amount": "150",
-    "currency": "USD"
-  }
+  "payment_id": "5745065052",
+  "order_id": "INV-1234567890",
+  "payment_status": "finished",
+  "pay_amount": 150,
+  "pay_currency": "usdttrc20"
 }
 ```
 
-#### 3. Webhook Handler
-**Endpoint:** Your server receives POST request from Cryptomus
+#### 3. IPN Webhook
+**Endpoint:** Your server receives POST request from NOWPayments
 
 ```http
-POST /webhook/cryptomus
+POST /webhook/nowpayments
 Content-Type: application/json
-sign: {HMAC_SHA256_SIGNATURE}
+x-nowpayments-sig: {HMAC_SHA512_SIGNATURE}
 
 {
-  "uuid": "cryptomus-uuid-here",
+  "payment_id": "5745065052",
   "order_id": "INV-1234567890",
-  "status": "paid",
-  "payment_amount": "150",
-  "currency": "USD",
-  "payer_currency": "USDT",
-  "payer_amount": "150.00"
+  "payment_status": "finished",
+  "pay_amount": 150,
+  "pay_currency": "usdttrc20"
 }
 ```
 
@@ -594,18 +577,13 @@ import hmac
 import hashlib
 import json
 
-def verify_signature(request_data: dict, signature: str, api_key: str) -> bool:
-    # Sort keys and create string
-    payload = json.dumps(request_data, sort_keys=True)
-    
-    # Calculate HMAC SHA256
-    calculated_signature = hmac.new(
-        api_key.encode(),
-        payload.encode(),
-        hashlib.sha256
+def verify_ipn_signature(raw_body: bytes, signature: str, ipn_secret: str) -> bool:
+    calculated = hmac.new(
+        ipn_secret.encode(),
+        raw_body,
+        hashlib.sha512
     ).hexdigest()
-    
-    return hmac.compare_digest(calculated_signature, signature)
+    return hmac.compare_digest(calculated, signature)
 ```
 
 ---
@@ -623,15 +601,15 @@ ADMIN_IDS=123456789,987654321
 DATABASE_URL=sqlite+aiosqlite:///./bot_database.db
 # For PostgreSQL: postgresql+asyncpg://user:password@localhost/dbname
 
-# Cryptomus API
-CRYPTOMUS_API_KEY=your_cryptomus_api_key_here
-CRYPTOMUS_MERCHANT_ID=your_merchant_id_here
-CRYPTOMUS_WEBHOOK_SECRET=your_webhook_secret_here
+# NOWPayments API
+NOWPAYMENTS_API_KEY=your_nowpayments_api_key_here
+NOWPAYMENTS_IPN_SECRET=your_ipn_secret_here
+NOWPAYMENTS_WEBHOOK_URL=https://yourdomain.com/webhook/nowpayments
 
 # Webhook (optional, for production)
 WEBHOOK_URL=https://yourdomain.com/webhook/telegram
 WEBHOOK_PATH=/webhook/telegram
-CRYPTOMUS_WEBHOOK_PATH=/webhook/cryptomus
+NOWPAYMENTS_WEBHOOK_PATH=/webhook/nowpayments
 WEB_SERVER_HOST=0.0.0.0
 WEB_SERVER_PORT=8080
 
@@ -681,7 +659,7 @@ CREATE TABLE invoices (
     service_description TEXT NOT NULL,
     status VARCHAR(20) DEFAULT 'pending',
     payment_url TEXT,
-    cryptomus_invoice_id VARCHAR(255),
+    external_invoice_id VARCHAR(255),  -- NOWPayments payment ID
     admin_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     paid_at TIMESTAMP,
@@ -720,8 +698,8 @@ CREATE INDEX idx_payments_transaction_id ON payments(transaction_id);
 - Allow `/cancel` to exit any state
 
 ### 2. API Integration
-- Cryptomus API for payment processing
-- Proper signature verification for webhooks
+- NOWPayments API for payment processing
+- Proper IPN signature verification for webhooks
 - Error handling for API failures
 - Retry logic for failed API calls
 
@@ -733,7 +711,7 @@ CREATE INDEX idx_payments_transaction_id ON payments(transaction_id);
 
 ### 4. Navigation
 - Inline keyboards for all user interactions
-- Web App button for payment (opens Cryptomus payment page inside Telegram)
+- Web App button for payment (opens NOWPayments payment page inside Telegram)
 - Back buttons where appropriate
 
 ### 5. Admin Notifications
@@ -786,20 +764,20 @@ def get_payment_keyboard(payment_url: str, amount: float) -> InlineKeyboardMarku
 This opens payment page as overlay inside Telegram (professional look).
 
 ### 2. Webhook Security
-- Always verify `sign` header from Cryptomus
+- Always verify `x-nowpayments-sig` header from NOWPayments
 - Use `hmac.compare_digest()` to prevent timing attacks
 - Log all webhook requests
-- Return 200 OK to Cryptomus even if processing fails (process async)
+- Return 200 OK to NOWPayments even if processing fails (process async)
 
 ### 3. Invoice Expiration
-- Set `lifetime: 3600` (1 hour) in Cryptomus API call
+- NOWPayments invoices expire automatically
 - Run periodic task to mark expired invoices
 - Notify user if invoice expired
 
 ### 4. Idempotency
 - Check if invoice already exists before creating
 - Prevent duplicate payments for same invoice
-- Use unique `order_id` for Cryptomus
+- Use unique `order_id` for NOWPayments
 
 ### 5. Terms of Service & Refund Policy
 **Create Telegraph pages:**
@@ -941,7 +919,7 @@ After creating the project, **MUST CHECK**:
 - [ ] Verify Web App button opens payment page
 
 ### Step 6: Payment Testing
-- [ ] Use Cryptomus test environment
+- [ ] Use NOWPayments Sandbox environment
 - [ ] Create test invoice
 - [ ] Complete test payment
 - [ ] Verify webhook received

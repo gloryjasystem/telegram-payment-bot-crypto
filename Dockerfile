@@ -3,7 +3,7 @@ FROM python:3.11-slim
 
 # Метаданные
 LABEL maintainer="MarketFilter Team"
-LABEL description="Telegram Payment Bot with Cryptomus integration"
+LABEL description="Telegram Payment Bot with NOWPayments integration"
 
 # Переменные окружения
 ENV PYTHONUNBUFFERED=1 \

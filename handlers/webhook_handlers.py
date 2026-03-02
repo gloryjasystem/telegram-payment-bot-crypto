@@ -106,14 +106,56 @@ async def handle_nowpayments_webhook(request_data: dict, bot: Bot) -> dict:
                 bot_logger.error(f"❌ Failed to mark invoice {order_id} as paid in DB")
         
         elif result.get('is_failed'):
-            # Платеж провалился
+            # Платеж провалился — уведомляем клиента и администраторов
             bot_logger.warning(f"Payment failed for {order_id}: {payment_status}")
-            # Можно уведомить пользователя о провале
+            
+            invoice_data = await invoice_service.get_invoice_with_user(order_id)
+            if invoice_data:
+                invoice, user = invoice_data
+                if invoice.status == 'pending':
+                    notifier = NotificationService(bot)
+                    try:
+                        reason = "expired" if payment_status == "expired" else "failed"
+                        await notifier.notify_client_payment_failed(
+                            invoice=invoice,
+                            user=user,
+                            reason=reason
+                        )
+                        bot_logger.info(f"✅ Failure notification sent to {user.telegram_id}")
+                    except Exception as e:
+                        bot_logger.error(f"❌ Failed to send failure notification: {e}")
+                    
+                    # Уведомляем администраторов
+                    try:
+                        await notifier.broadcast_to_admins(
+                            f"⚠️ *Платёж не прошёл*\n\n"
+                            f"📋 Invoice: `{order_id}`\n"
+                            f"📊 Статус NOWPayments: `{payment_status}`\n"
+                            f"👤 Клиент TG ID: `{user.telegram_id}`"
+                        )
+                    except Exception as e:
+                        bot_logger.error(f"❌ Failed to notify admins about failed payment: {e}")
         
         elif result.get('is_partial'):
-            # Частичная оплата
+            # Частичная оплата — уведомляем клиента
             bot_logger.warning(f"Partial payment for {order_id}: {payment_status}")
-            # Можно обработать underpayment
+            
+            invoice_data = await invoice_service.get_invoice_with_user(order_id)
+            if invoice_data:
+                invoice, user = invoice_data
+                notifier = NotificationService(bot)
+                try:
+                    await notifier.notify_client_payment_failed(
+                        invoice=invoice,
+                        user=user,
+                        reason="partially_paid"
+                    )
+                except Exception as e:
+                    bot_logger.error(f"❌ Failed to send partial payment notification: {e}")
+        
+        elif payment_status in ('confirming', 'confirmed', 'sending'):
+            # Промежуточные статусы — только лог, уведомления не нужны
+            bot_logger.info(f"⏳ Payment in progress for {order_id}: {payment_status}")
         
         return {'status': 'ok'}
     
