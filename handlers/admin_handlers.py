@@ -493,7 +493,7 @@ async def process_custom_description(message: Message, state: FSMContext):
     await message.answer(
         f"✅ Описание сохранено.\n\n"
         "✏️ **Своя услуга — Шаг 2/2**\n\n"
-        "Введите **сумму в USD** (например: 150 или 250.50):",
+        "Введите **сумму в USD** (например: 150 или 250):",
         reply_markup=get_back_to_service_keyboard(),
         parse_mode="Markdown"
     )
