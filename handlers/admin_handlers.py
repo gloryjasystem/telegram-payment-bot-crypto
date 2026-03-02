@@ -668,8 +668,7 @@ async def _send_preview_message(message: Message, data: dict):
         "📋 <b>Предпросмотр инвойса</b>\n\n"
         f"👤 <b>Клиент:</b> {html.escape(target_first_name)} ({html.escape(user_mention)})\n"
         f"💰 <b>Сумма:</b> {html.escape(format_currency(amount, 'USD'))}\n"
-        f"📝 <b>Описание:</b> {html.escape(description)}\n"
-        "<i>[Произвольная услуга — без Lava URL]</i>\n\n"
+        f"📝 <b>Описание:</b> {html.escape(description)}\n\n"
         "Подтвердить создание и отправку инвойса клиенту?"
     )
 
