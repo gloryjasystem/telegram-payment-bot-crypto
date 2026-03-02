@@ -523,9 +523,7 @@ async def process_custom_amount(message: Message, state: FSMContext):
         max_tier = max(Config.LAVA_CUSTOM_TIERS.keys()) if Config.LAVA_CUSTOM_TIERS else 2500
         tier_usd = min(tier_usd, max_tier)
 
-        tier_info = Config.LAVA_CUSTOM_TIERS.get(tier_usd, {})
-        tier_has_offer = bool(tier_info.get("offer_id"))
-        tier_note = "" if tier_has_offer else "\n⚠️ <i>Для этого тира offer_id ещё не добавлен — РФ карта будет недоступна.</i>"
+        tier_note = ""
 
         await state.update_data(
             amount=amount,
@@ -542,7 +540,7 @@ async def process_custom_amount(message: Message, state: FSMContext):
         await message.answer(
             f"⚠️ <b>Сумма ${amount_int} не кратна $10</b>\n\n"
             f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> "
-            f"(ближайший тир вверх).{tier_note}\n\n"
+            f"(ближайший тир вверх).\n\n"
             f"Продолжить с карточкой <b>${tier_usd}</b>?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"
