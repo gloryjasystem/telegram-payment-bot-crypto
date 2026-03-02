@@ -335,13 +335,14 @@ async def handle_nowpayments_ipn(request: web.Request) -> web.Response:
         if ipn_secret:
             signature = request.headers.get('x-nowpayments-sig', '')
             if not signature:
-                bot_logger.warning("⚠️ NOWPayments IPN without signature — processing anyway")
+                bot_logger.warning("🚫 NOWPayments IPN: no signature header — rejecting")
+                return web.Response(status=403, text='Forbidden')
             else:
                 is_valid = nowpayments_service.verify_ipn_signature(raw_body, signature)
-                if is_valid:
-                    bot_logger.info("✅ IPN signature verified")
-                else:
-                    bot_logger.warning("⚠️ IPN signature mismatch — processing anyway (check IPN secret)")
+                if not is_valid:
+                    bot_logger.warning("🚫 NOWPayments IPN: signature mismatch — rejecting")
+                    return web.Response(status=403, text='Forbidden')
+                bot_logger.info("✅ NOWPayments IPN signature verified")
         else:
             bot_logger.warning("⚠️ NOWPAYMENTS_IPN_SECRET not set — skipping signature check")
         
@@ -581,7 +582,8 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
                 )
                 return web.Response(status=403, text='Forbidden')
             elif not received_key:
-                bot_logger.warning("⚠️ Lava webhook: no API key in any header — skipping check")
+                bot_logger.warning("🚫 Lava webhook: no API key in any header — rejecting")
+                return web.Response(status=403, text='Forbidden')
         else:
             bot_logger.warning("⚠️ LAVA_WEBHOOK_SECRET not set — skipping secret check")
 
@@ -896,10 +898,10 @@ async def run_webhook():
     app.router.add_post(Config.WAYPAY_WEBHOOK_PATH, handle_waypay_webhook)
     app.router.add_get('/api/payment-status', handle_payment_status)
     
-    # Test mode endpoint
+    # Test mode endpoint — DISABLED in production for security
+    # To test payments use /mark_paid <invoice_id> admin command instead
     if Config.WAYPAY_TEST_MODE:
-        app.router.add_get('/test/waypay-success', handle_waypay_test_success)
-        bot_logger.info("🧪 WAYPAY TEST MODE enabled — /test/waypay-success endpoint active")
+        bot_logger.warning("⚠️ WAYPAY_TEST_MODE is enabled — test endpoint is intentionally disabled for security. Use /mark_paid instead.")
     
     # Статические файлы для WebApp Mini App
     import os
