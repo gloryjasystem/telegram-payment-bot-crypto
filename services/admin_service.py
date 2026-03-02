@@ -5,8 +5,6 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from decimal import Decimal
 from sqlalchemy import select, func, and_, or_
-from sqlalchemy.orm import selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_session
 from database.models import User, Invoice, Payment
@@ -306,9 +304,8 @@ class AdminService:
                 elif period == "month":
                     start_date = now - timedelta(days=30)
                 
-                # Базовый запрос
-                query = select(Invoice).where(Invoice.status == 'paid').options(selectinload(Invoice.payments))
-                
+                # Получаем оплаченные инвойсы (без selectinload — relationship не определён)
+                query = select(Invoice).where(Invoice.status == 'paid')
                 if start_date:
                     query = query.where(Invoice.paid_at >= start_date)
                 
@@ -330,12 +327,23 @@ class AdminService:
                         }
                     }
                 
+                # Загружаем платежи отдельным запросом по invoice_id
+                invoice_ids = [inv.invoice_id for inv in invoices]
+                pay_result = await session.execute(
+                    select(Payment).where(Payment.invoice_id.in_(invoice_ids))
+                )
+                all_payments = pay_result.scalars().all()
+                
+                # Группируем по invoice_id
+                payments_by_inv: Dict[str, list] = {}
+                for p in all_payments:
+                    payments_by_inv.setdefault(p.invoice_id, []).append(p)
+                
                 total_revenue = sum(inv.amount for inv in invoices)
                 invoice_count = len(invoices)
                 average_amount = total_revenue / invoice_count if invoice_count > 0 else Decimal('0.00')
                 
-                # Детальная разбивка по методам + по категориям
-                payment_methods = {}
+                payment_methods: Dict[str, int] = {}
                 by_category = {
                     'crypto': {'count': 0, 'amount': Decimal('0.00')},
                     'card_ru': {'count': 0, 'amount': Decimal('0.00')},
@@ -343,34 +351,26 @@ class AdminService:
                 }
                 
                 for invoice in invoices:
-                    # Инициализируем категорию по умолчанию
                     category = 'crypto'
+                    inv_payments = payments_by_inv.get(invoice.invoice_id, [])
                     
-                    if invoice.payments:
-                        # Берем последний успешный платеж
-                        payment = invoice.payments[-1]
-                        
-                        # Метод оплаты для детальной статистики
+                    if inv_payments:
+                        payment = inv_payments[-1]
                         method_name = payment.payment_method or 'Unknown'
                         payment_methods[method_name] = payment_methods.get(method_name, 0) + 1
                         
-                        # Категория из БД
                         if payment.payment_category:
                             category = payment.payment_category
                         else:
-                            # Fallback для старых записей, если миграция не сработала (на всякий случай)
                             m = (payment.payment_method or '').lower()
                             if 'card_ru' in m or 'lava' in m:
                                 category = 'card_ru'
                             elif 'card_int' in m or 'waypay' in m or 'wayforpay' in m:
                                 category = 'card_int'
-                            else:
-                                category = 'crypto'
                     
-                    # Безопасное обновление счетчиков
                     if category not in by_category:
                         category = 'crypto'
-                        
+                    
                     by_category[category]['count'] += 1
                     by_category[category]['amount'] += invoice.amount
                 
@@ -389,6 +389,7 @@ class AdminService:
         except Exception as e:
             bot_logger.error(f"Error getting revenue report: {e}", exc_info=True)
             return None
+
     
     async def is_user_blocked(self, user_id: int) -> bool:
         """
