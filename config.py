@@ -115,14 +115,24 @@ class Config:
         if os.path.exists(_tiers_path):
             with open(_tiers_path, "r", encoding="utf-8") as _tf:
                 _tiers_raw = json.load(_tf)
-            LAVA_CUSTOM_TIERS: dict = {}  # {amount_usd: {"offer_id": str, "price_rub": int}}
+            LAVA_CUSTOM_TIERS: dict = {}  # {amount_usd: {"url": str, "offer_id": str, "price_rub": int}}
             for _tier in _tiers_raw.get("tiers", []):
-                _usd = int(_tier.get("amount_usd", 0))
-                if _usd > 0:
-                    LAVA_CUSTOM_TIERS[_usd] = {
-                        "offer_id":  _tier.get("offer_id", ""),
-                        "price_rub": int(_tier.get("price_rub", 0)),
-                    }
+                _usd = _tier.get("amount_usd", 0)
+                # Поддержка дробных сумм (e.g. 0.005 для теста), округляем только целые
+                _key = int(_usd) if isinstance(_usd, (int, float)) and _usd == int(_usd) else _usd
+                if not _key or _key <= 0:
+                    continue
+                _url = _tier.get("url", "")
+                _offer_id = _tier.get("offer_id", "")
+                # Автоизвлечение offer_id из URL если явно не задан
+                # URL формат: https://app.lava.top/products/<product_id>/<offer_id>
+                if not _offer_id and _url:
+                    _offer_id = _url.rstrip("/").split("/")[-1]
+                LAVA_CUSTOM_TIERS[_key] = {
+                    "url":       _url,
+                    "offer_id":  _offer_id,
+                    "price_rub": int(_tier.get("price_rub", 0)),
+                }
         else:
             LAVA_CUSTOM_TIERS: dict = {}
     except Exception:

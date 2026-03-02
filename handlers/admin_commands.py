@@ -345,7 +345,7 @@ async def cmd_revenue_report(message: Message):
     
     report = await admin_service.get_revenue_report(period=period)
     
-    if not report:
+    if report is None:
         await message.answer("❌ Не удалось получить отчет")
         return
     

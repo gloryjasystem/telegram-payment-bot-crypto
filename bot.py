@@ -137,8 +137,8 @@ async def expire_invoices_task():
             # Ждем 5 минут перед следующей проверкой
             await asyncio.sleep(300)  # 5 минут = 300 секунд
             
-            # Истекаем старые инвойсы (старше 1 часа)
-            expired_count = await invoice_service.expire_old_invoices(hours=1)
+            # Истекаем старые инвойсы (старше 24 часов) и редактируем их сообщения
+            expired_count = await invoice_service.expire_old_invoices(bot=bot)
             
             if expired_count > 0:
                 bot_logger.info(f"⌛️ Expired {expired_count} old invoice(s)")
@@ -472,17 +472,21 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             try:
                 inv = await invoice_service.get_invoice_by_id(invoice_id)
                 if inv and inv.service_key:
-                    # 1) Прямой URL из lava_products.json
+                    # 1) Прямой URL из lava_products.json по service_key
                     payment_url = Config.LAVA_PRODUCT_MAP.get(inv.service_key, '')
                     # 2) Fallback: custom tier по USD-цене инвойса
                     if not payment_url:
                         tier = _get_custom_tier(amount_usd)
-                        offer_id = tier.get('offer_id', '')
-                        if offer_id:
-                            # Формируем ссылку на страницу продукта Lava.top
-                            payment_url = f"https://app.lava.top/buy/{offer_id}"
+                        # Используем url напрямую — он уже хранится в тире
+                        payment_url = tier.get('url', '')
+                        if not payment_url:
+                            # Последний fallback: реконструируем из offer_id
+                            offer_id = tier.get('offer_id', '')
+                            if offer_id:
+                                payment_url = f"https://app.lava.top/buy/{offer_id}"
+                        if payment_url:
                             bot_logger.info(
-                                f"🔍 Custom tier fallback: ${amount_usd} → offer_id={offer_id}"
+                                f"🔍 Custom tier fallback: ${amount_usd} → {payment_url[:60]}"
                             )
             except Exception as _e:
                 bot_logger.warning(f"Could not load service_key for {invoice_id}: {_e}")

@@ -142,9 +142,10 @@ async def cmd_history(message: Message):
         for i, inv in enumerate(invoices, 1):
             emoji = status_emoji.get(inv.status, "❓")
             date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
+            expired_suffix = " | _срок истёк_" if inv.status == "expired" else ""
             
             text += f"{i}. {emoji} {inv.service_description}\n"
-            text += f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}\n\n"
+            text += f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}{expired_suffix}\n\n"
         
         if total_paid > 0:
             text += f"💰 Всего оплачено: **{format_currency(total_paid, 'USD')}**"
@@ -186,10 +187,11 @@ async def callback_payment_history(callback: CallbackQuery):
         for i, inv in enumerate(invoices, 1):
             emoji = status_emoji.get(inv.status, "❓")
             date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
+            expired_suffix = " | _срок истёк_" if inv.status == "expired" else ""
             
             entry = (
                 f"{i}. {emoji} {inv.service_description}\n"
-                f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}\n\n"
+                f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}{expired_suffix}\n\n"
             )
             # Telegram limit: 4096 chars. Stop adding entries if getting close.
             if len(text) + len(entry) > 3800:

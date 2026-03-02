@@ -388,7 +388,7 @@ class AdminService:
                 
         except Exception as e:
             bot_logger.error(f"Error getting revenue report: {e}", exc_info=True)
-            return {}
+            return None
     
     async def is_user_blocked(self, user_id: int) -> bool:
         """

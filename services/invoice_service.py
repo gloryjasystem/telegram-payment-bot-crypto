@@ -301,36 +301,81 @@ class InvoiceService:
             bot_logger.error(f"Error cancelling invoice: {e}")
             return False
     
-    async def expire_old_invoices(self, hours: int = 1) -> int:
+    async def expire_old_invoices(self, hours: int = 24, bot=None) -> int:
         """
-        Истечение срока старых неоплаченных инвойсов
-        
+        Истечение срока старых неоплаченных инвойсов.
+        Если передан bot — редактирует исходное сообщение инвойса у клиента:
+        убирает кнопки оплаты и показывает баннер "истёк".
+
         Args:
-            hours: Часы до истечения (по умолчанию 1)
-        
+            hours: Часы до истечения (по умолчанию 24)
+            bot: Экземпляр aiogram Bot для редактирования сообщений (опционально)
+
         Returns:
             int: Количество инвойсов с истекшим сроком
         """
         try:
             expiry_time = datetime.utcnow() - timedelta(hours=hours)
-            
+
             async with get_session() as session:
-                result = await session.execute(
+                # Сначала получаем список инвойсов которые истекут, чтобы потом отредактировать их сообщения
+                to_expire_result = await session.execute(
+                    select(Invoice)
+                    .where(Invoice.status == "pending")
+                    .where(Invoice.created_at < expiry_time)
+                )
+                to_expire = list(to_expire_result.scalars().all())
+
+                if not to_expire:
+                    return 0
+
+                # Массово меняем статус на expired
+                await session.execute(
                     update(Invoice)
                     .where(Invoice.status == "pending")
                     .where(Invoice.created_at < expiry_time)
                     .values(status="expired")
                 )
-                
                 # commit выполняется автоматически в get_session()
-                
-                expired_count = result.rowcount
-                
-                if expired_count > 0:
-                    bot_logger.info(f"Expired {expired_count} old invoices")
-                
-                return expired_count
-        
+
+            expired_count = len(to_expire)
+            bot_logger.info(f"⌛️ Expired {expired_count} old invoice(s)")
+
+            # Редактируем исходные сообщения инвойсов у клиентов
+            if bot:
+                from utils.helpers import format_currency
+                for inv in to_expire:
+                    if not inv.bot_message_id or not inv.user_id:
+                        continue
+                    try:
+                        expired_text = (
+                            f"⌛️ *Инвойс истёк*\n\n"
+                            f"📋 Инвойс: `{inv.invoice_id}`\n"
+                            f"💰 Сумма: {format_currency(inv.amount, inv.currency)}\n"
+                            f"📝 Услуга: {inv.service_description}\n\n"
+                            f"Срок оплаты (24 часа) истёк. Оплата по нему больше невозможна.\n"
+                            f"Если вам нужна эта услуга — обратитесь к администратору."
+                        )
+                        await bot.edit_message_text(
+                            chat_id=inv.user_id,
+                            message_id=inv.bot_message_id,
+                            text=expired_text,
+                            reply_markup=None,  # убираем все кнопки
+                            parse_mode="Markdown"
+                        )
+                        bot_logger.info(
+                            f"⌛️ Edited expired invoice message for {inv.invoice_id} "
+                            f"(user={inv.user_id}, msg={inv.bot_message_id})"
+                        )
+                    except Exception as e:
+                        # Сообщение могло быть удалено или слишком старым — не критично
+                        bot_logger.warning(
+                            f"Could not edit expired invoice message "
+                            f"{inv.invoice_id}: {e}"
+                        )
+
+            return expired_count
+
         except Exception as e:
             bot_logger.error(f"Error expiring old invoices: {e}")
             return 0
