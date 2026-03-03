@@ -220,11 +220,7 @@ async def handle_svc_listing_pro(callback: CallbackQuery, state: FSMContext):
     """Выбор LISTING PRO."""
     service_key = "listing_pro"
     amount = 390
-    description = (
-        "LISTING PRO — Размещение канала в каталоге MarketFilter\n"
-        "ℹ️ Условие: каналы от 3 месяцев размещаются в очереди. "
-        "Каналы младше 3 месяцев — добавляются вне очереди (та же цена $390)."
-    )
+    description = "LISTING PRO — Размещение канала в каталоге MarketFilter"
     lava_slug = _build_lava_slug(service_key)
 
     await state.update_data(
