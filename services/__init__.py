@@ -3,13 +3,17 @@ Services package
 Содержит бизнес-логику: платежи, инвойсы, уведомления
 """
 
-from .payment_service import PaymentService, payment_service
+from .nowpayments_service import nowpayments_service, NOWPaymentsAPIError
 from .invoice_service import InvoiceService, invoice_service
 from .notification_service import NotificationService
 from .admin_service import AdminService, admin_service
 
+# Обратная совместимость — payment_service = nowpayments_service
+payment_service = nowpayments_service
+
 __all__ = [
-    "PaymentService",
+    "nowpayments_service",
+    "NOWPaymentsAPIError",
     "payment_service",
     "InvoiceService",
     "invoice_service",
