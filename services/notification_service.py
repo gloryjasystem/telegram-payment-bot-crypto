@@ -58,17 +58,16 @@ class NotificationService:
         """
         try:
             # Формирование сообщения для клиента
-            message_text = f"""
-📋 **Инвойс #{invoice.invoice_id}**
+            message_text = (
+                f"📋 <b>Инвойс #{invoice.invoice_id}</b>\n\n"
+                f"💰 <b>Сумма:</b> {format_currency(invoice.amount, invoice.currency)}\n"
+                f"📝 <b>Услуга:</b> {invoice.service_description}\n\n"
+                f"⏱ Срок оплаты: 24 часа\n\n"
+                f"Для оплаты нажмите кнопку ниже:\n\n"
+                f"📌 Оплачивая данный инвойс, вы автоматически соглашаетесь с "
+                f'<a href="https://telegra.ph/Dogovor-oferty-03-03-2">Договором оферты</a>.'
+            )
 
-💰 **Сумма:** {format_currency(invoice.amount, invoice.currency)}
-📝 **Услуга:** {invoice.service_description}
-
-⏱ Срок оплаты: 1 час
-
-Для оплаты нажмите кнопку ниже:
-"""
-            
             # Формируем URL для WebApp карточной оплаты
             import urllib.parse
             config = Config()
@@ -99,7 +98,8 @@ class NotificationService:
                     payment_url=invoice.payment_url,
                     card_webapp_url=card_webapp_url
                 ),
-                parse_mode="Markdown"
+                parse_mode="HTML",
+                disable_web_page_preview=True
             )
             
             # Сохраняем ID сообщения для возможности редактирования при отмене
