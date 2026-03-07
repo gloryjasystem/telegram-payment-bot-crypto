@@ -111,9 +111,37 @@ def _build_top_service_description(tier: str, position: int, period: str, catego
 
 
 def _build_lava_slug(service_key: str) -> str | None:
-    """Возвращает slug из маппинга или None если не задан."""
+    """Возвращает URL из маппинга по service_key или None если не задан."""
     slug = Config.LAVA_PRODUCT_MAP.get(service_key, "")
     return slug if slug else None
+
+
+def _build_lava_url_for_amount(amount) -> str | None:
+    """
+    Возвращает URL Lava.top для заданной суммы в USD.
+    Ищет точное совпадение, затем ближайший тир вверх из LAVA_CUSTOM_TIERS.
+    Возвращает None если тиры не настроены.
+    """
+    if not Config.LAVA_CUSTOM_TIERS:
+        return None
+    try:
+        amount_int = int(float(str(amount)))
+    except (ValueError, TypeError):
+        return None
+    # Точное совпадение (включая float-ключ 0.65)
+    if amount in Config.LAVA_CUSTOM_TIERS:
+        return Config.LAVA_CUSTOM_TIERS[amount].get("url") or None
+    if amount_int in Config.LAVA_CUSTOM_TIERS:
+        return Config.LAVA_CUSTOM_TIERS[amount_int].get("url") or None
+    # Ближайший тир вверх
+    integer_keys = sorted(k for k in Config.LAVA_CUSTOM_TIERS if isinstance(k, int) and k >= 1)
+    for key in integer_keys:
+        if key >= amount_int:
+            return Config.LAVA_CUSTOM_TIERS[key].get("url") or None
+    # Максимальный тир (если сумма больше всех)
+    if integer_keys:
+        return Config.LAVA_CUSTOM_TIERS[integer_keys[-1]].get("url") or None
+    return None
 
 
 # ===========================================================================
@@ -482,7 +510,7 @@ async def process_custom_description(message: Message, state: FSMContext):
     await state.update_data(
         description=description,
         service_key="custom",
-        lava_slug=None,
+        # lava_slug вычислится позже когда будет известна сумма
     )
     await state.set_state(InvoiceCreationStates.WaitingForCustomAmount)
 
@@ -513,9 +541,11 @@ async def process_custom_amount(message: Message, state: FSMContext):
     if amount <= Decimal("1.0") and Config.LAVA_CUSTOM_TIERS and 0.65 in Config.LAVA_CUSTOM_TIERS:
         # Принудительно заменяем сумму инвойса на $0.65 (фиксированная тестовая карточка)
         test_amount = Decimal("0.65")
+        _lava_url_test = _build_lava_url_for_amount(0.65) or _build_lava_url_for_amount(test_amount)
         await state.update_data(
             amount=test_amount,
             _pending_tier_usd=0.65,
+            lava_slug=_lava_url_test,
         )
         await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
 
@@ -547,9 +577,11 @@ async def process_custom_amount(message: Message, state: FSMContext):
     # Случай 1: сумма меньше минимального тира ($10)
     if Config.LAVA_CUSTOM_TIERS and amount_int < min_tier:
         tier_usd = min_tier
+        _lava_url_min = _build_lava_url_for_amount(tier_usd)
         await state.update_data(
             amount=amount,
             _pending_tier_usd=tier_usd,
+            lava_slug=_lava_url_min,
         )
         await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
 
@@ -578,9 +610,11 @@ async def process_custom_amount(message: Message, state: FSMContext):
         max_tier = max(Config.LAVA_CUSTOM_TIERS.keys()) if Config.LAVA_CUSTOM_TIERS else 2500
         tier_usd = min(tier_usd, max_tier)
 
+        _lava_url_rnd = _build_lava_url_for_amount(tier_usd)
         await state.update_data(
             amount=amount,
             _pending_tier_usd=tier_usd,
+            lava_slug=_lava_url_rnd,
         )
         await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
 
@@ -601,7 +635,8 @@ async def process_custom_amount(message: Message, state: FSMContext):
         return
     # ────────────────────────────────────────────────────────────────────────
 
-    await state.update_data(amount=amount)
+    _lava_url_exact = _build_lava_url_for_amount(int(amount))
+    await state.update_data(amount=amount, lava_slug=_lava_url_exact)
     await state.set_state(InvoiceCreationStates.PreviewInvoice)
 
     data = await state.get_data()
@@ -625,6 +660,13 @@ async def handle_tier_confirm(callback: CallbackQuery, state: FSMContext):
         return
 
     # Продолжаем с сохранённой суммой
+    data = await state.get_data()
+    # Если lava_slug ещё не вычислен — вычисляем по финальной сумме
+    if not data.get('lava_slug'):
+        _pending_usd = data.get('_pending_tier_usd') or float(str(data.get('amount', 0)))
+        _lava_url = _build_lava_url_for_amount(_pending_usd)
+        if _lava_url:
+            await state.update_data(lava_slug=_lava_url)
     await state.set_state(InvoiceCreationStates.PreviewInvoice)
     data = await state.get_data()
     await _send_preview_message(callback.message, data)
