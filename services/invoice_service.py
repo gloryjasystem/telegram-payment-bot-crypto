@@ -266,8 +266,21 @@ class InvoiceService:
         except Exception as e:
             bot_logger.error(f"Error marking invoice as paid: {e}", exc_info=True)
             return False
-    
-    async def cancel_invoice(self, invoice_id: str, admin_id: int) -> bool:
+
+    async def save_client_email(self, invoice_id: str, email: str) -> None:
+        """Сохраняет email клиента в инвойсе (вызывается сразу при создании платежа)."""
+        try:
+            async with get_session() as session:
+                await session.execute(
+                    update(Invoice)
+                    .where(Invoice.invoice_id == invoice_id)
+                    .values(client_email=email)
+                )
+            bot_logger.info(f"💾 Saved client_email={email} for {invoice_id}")
+        except Exception as e:
+            bot_logger.warning(f"Could not save client_email for {invoice_id}: {e}")
+
+
         """
         Отмена инвойса
         

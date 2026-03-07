@@ -530,11 +530,15 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
                     if lava_payment_id:
                         await invoice_service.set_external_invoice_id(invoice_id, lava_payment_id)
                         bot_logger.info(f"💾 Saved Lava contractId={lava_payment_id} for {invoice_id}")
+                    # Сохраняем email сразу — Lava webhook его не возвращает
+                    if email:
+                        await invoice_service.save_client_email(invoice_id, email)
                     bot_logger.info(f"✅ Lava.top V3 invoice created for {invoice_id}: {lava_result['payment_url'][:80]}")
                     return web.json_response({
                         'success': True,
                         'payment_url': lava_result['payment_url']
                     })
+
                 else:
                     bot_logger.warning(f"⚠️ Lava V3 failed ({lava_result.get('error')}), fallback to direct redirect")
 
@@ -690,14 +694,17 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         lava_invoice_id = str(data.get('id', '') or data.get('invoice_id', ''))
 
         # ── Помечаем инвойс как оплаченный ────────────────────────
+        # Если webhook не вернул email — берём из Invoice (сохранён при создании Lava-инвойса)
+        effective_email = client_email or (existing.client_email if existing else None)
         success = await invoice_service.mark_invoice_as_paid(
             invoice_id=order_id,
             transaction_id=lava_invoice_id or order_id,
             payment_category='card_ru',
             payment_provider='lava',
             payment_method='card',
-            client_email=client_email or None
+            client_email=effective_email or None
         )
+
 
         if success and bot:
             invoice_data = await invoice_service.get_invoice_with_user(order_id)
