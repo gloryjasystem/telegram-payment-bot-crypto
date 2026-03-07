@@ -523,6 +523,7 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
                     amount_rub=amount_rub,
                     email=email,
                     description=service,
+                    currency="USD",  # TODO: вернуть "RUB" для продакшена
                 )
                 if lava_result.get('success') and lava_result.get('payment_url'):
                     lava_payment_id = lava_result.get('payment_id', '')
