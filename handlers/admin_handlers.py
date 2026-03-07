@@ -510,9 +510,11 @@ async def process_custom_amount(message: Message, state: FSMContext):
         return
 
     # ── Случай 0: сумма до $1 — тестовая карточка Lava ($0.65) ────────────
-    if amount < Decimal("1.0") and Config.LAVA_CUSTOM_TIERS and 0.65 in Config.LAVA_CUSTOM_TIERS:
+    if amount <= Decimal("1.0") and Config.LAVA_CUSTOM_TIERS and 0.65 in Config.LAVA_CUSTOM_TIERS:
+        # Принудительно заменяем сумму инвойса на $0.65 (фиксированная тестовая карточка)
+        test_amount = Decimal("0.65")
         await state.update_data(
-            amount=amount,
+            amount=test_amount,
             _pending_tier_usd=0.65,
         )
         await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
@@ -524,11 +526,11 @@ async def process_custom_amount(message: Message, state: FSMContext):
         kb.adjust(1)
 
         await message.answer(
-            f"⚠️ <b>Сумма ${amount} — меньше $1.00</b>\n\n"
-            "Для сумм до <b>$1.00</b> в сервисе Lava.top доступна "
+            f"⚠️ <b>Сумма ${amount} — не более $1.00</b>\n\n"
+            "Для сумм до <b>$1.00</b> включительно в сервисе Lava.top доступна "
             "только <b>тестовая оплата</b>.\n\n"
-            "Клиент увидит карточку Lava.top «Тестовая оплата» "
-            "с фиксированной ценой <b>$0.65</b>.\n\n"
+            "Инвойс будет создан на фиксированную сумму <b>$0.65</b>.\n"
+            "Клиент увидит карточку Lava.top «Тестовая оплата» с ценой <b>$0.65</b>.\n\n"
             "Продолжить?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"

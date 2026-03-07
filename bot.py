@@ -409,8 +409,8 @@ def _get_custom_tier(amount_usd: float) -> dict:
     if not tiers:
         return {}
 
-    # До $1.00 — всегда тестовая карточка ($0.65)
-    if amount_usd < 1.0 and 0.65 in tiers:
+    # До $1.00 включительно — всегда тестовая карточка ($0.65)
+    if amount_usd <= 1.0 and 0.65 in tiers:
         return tiers[0.65]
 
     target = int(round(amount_usd))
