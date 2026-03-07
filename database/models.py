@@ -91,9 +91,6 @@ class Invoice(Base):
     # Slug продукта на lava.top для прямого редиректа (None = стандартный API-поток)
     lava_slug: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
 
-    # Email клиента (сохраняется при создании Lava-инвойса через WebApp)
-    client_email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-
     # Администратор, создавший инвойс (telegram_id)
     admin_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     
