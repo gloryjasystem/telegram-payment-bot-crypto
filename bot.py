@@ -34,6 +34,11 @@ from utils.logger import bot_logger
 bot: Bot | None = None
 dp: Dispatcher | None = None
 
+# Временный кэш для передачи email из WebApp в Lava-вебхук
+# Lava.top не возвращает email в payload вебхука, поэтому храним его здесь
+# ключ: invoice_id, значение: email
+_lava_email_cache: dict[str, str] = {}
+
 
 async def on_startup_webhook(**kwargs):
     """
@@ -530,6 +535,9 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
                     if lava_payment_id:
                         await invoice_service.set_external_invoice_id(invoice_id, lava_payment_id)
                         bot_logger.info(f"💾 Saved Lava contractId={lava_payment_id} for {invoice_id}")
+                    # Сохраняем email в кэше — Lava webhook его не возвращает
+                    if email:
+                        _lava_email_cache[invoice_id] = email
                     bot_logger.info(f"✅ Lava.top V3 invoice created for {invoice_id}: {lava_result['payment_url'][:80]}")
                     return web.json_response({
                         'success': True,
@@ -691,13 +699,15 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         lava_invoice_id = str(data.get('id', '') or data.get('invoice_id', ''))
 
         # ── Помечаем инвойс как оплаченный ────────────────────────
+        # Lava не шлёт email в webhook — берём его из кэша (email был сохранён при создании)
+        effective_email = client_email or _lava_email_cache.pop(order_id, None)
         success = await invoice_service.mark_invoice_as_paid(
             invoice_id=order_id,
             transaction_id=lava_invoice_id or order_id,
             payment_category='card_ru',
             payment_provider='lava',
             payment_method='card',
-            client_email=client_email or None
+            client_email=effective_email or None
         )
 
 
