@@ -659,11 +659,16 @@ async def handle_tier_confirm(callback: CallbackQuery, state: FSMContext):
         await callback.answer()
         return
 
-    # Продолжаем с сохранённой суммой
+    # Продолжаем — заменяем amount на сумму тира (именно по ней будет создан инвойс и Lava-карточка)
     data = await state.get_data()
-    # Если lava_slug ещё не вычислен — вычисляем по финальной сумме
+    tier_amount = data.get('_pending_tier_usd')
+    if tier_amount:
+        # Заменяем введённую сумму на сумму тира карточки
+        from decimal import Decimal
+        await state.update_data(amount=Decimal(str(tier_amount)))
+    # Если lava_slug ещё не вычислен — вычисляем по финальной сумме тира
     if not data.get('lava_slug'):
-        _pending_usd = data.get('_pending_tier_usd') or float(str(data.get('amount', 0)))
+        _pending_usd = tier_amount or float(str(data.get('amount', 0)))
         _lava_url = _build_lava_url_for_amount(_pending_usd)
         if _lava_url:
             await state.update_data(lava_slug=_lava_url)
@@ -671,6 +676,7 @@ async def handle_tier_confirm(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await _send_preview_message(callback.message, data)
     await callback.answer()
+
 
 
 
