@@ -554,31 +554,56 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             })
 
 
-        # WayForPay — иностранный банк, доллары
-        result = await card_payment_service.create_waypay_payment(
-            invoice_id=invoice_id,
-            amount_usd=amount_usd,
-            email=email,
-            description=service
-        )
-        
-        if result.get('success'):
-            # Сохраняем Lava contractId → external_invoice_id чтобы найти инвойс по webhook
-            lava_payment_id = result.get('payment_id', '')
-            if lava_payment_id and method == 'ru':
-                await invoice_service.set_external_invoice_id(invoice_id, lava_payment_id)
-                bot_logger.info(f"💾 Saved Lava contractId={lava_payment_id} for {invoice_id}")
-            bot_logger.info(f"✅ Card payment created: {method} — {result.get('payment_url', '')[:80]}")
-            return web.json_response({
-                'success': True,
-                'payment_url': result['payment_url']
-            })
-        else:
-            bot_logger.warning(f"⚠️ Card payment failed: {result.get('error')}")
-            return web.json_response({
-                'success': False,
-                'error': result.get('error', 'Payment creation failed')
-            }, status=400)
+        # Иностранный банк (USD) — Lava.top V3 с currency=USD (для тестов)
+        bot_logger.info(f"💳 International payment via Lava.top USD for {invoice_id}")
+        tier_url_int = ''
+        offer_id_int = ''
+        try:
+            inv_int = await invoice_service.get_invoice_by_id(invoice_id)
+            if inv_int and inv_int.service_key:
+                tier_url_int = Config.LAVA_PRODUCT_MAP.get(inv_int.service_key, '')
+            if not tier_url_int:
+                tier_int = _get_custom_tier(amount_usd)
+                tier_url_int = tier_int.get('url', '')
+                offer_id_int = tier_int.get('offer_id', '')
+            if tier_url_int and not offer_id_int:
+                parts_int = tier_url_int.rstrip('/').split('/')
+                offer_id_int = parts_int[-1] if len(parts_int) >= 2 else ''
+        except Exception as _e:
+            bot_logger.warning(f"Could not load tier (int) for {invoice_id}: {_e}")
+
+        if offer_id_int and Config.LAVA_API_KEY:
+            from services.card_payment_service import card_payment_service as _cps2
+            lava_usd = await _cps2.create_lava_payment(
+                invoice_id=invoice_id,
+                offer_id=offer_id_int,
+                amount_rub=amount_usd,   # используем как сумму для логирования
+                email=email,
+                description=service,
+                currency="USD",
+            )
+            if lava_usd.get('success') and lava_usd.get('payment_url'):
+                pid = lava_usd.get('payment_id', '')
+                if pid:
+                    await invoice_service.set_external_invoice_id(invoice_id, pid)
+                    bot_logger.info(f"💾 Saved Lava contractId={pid} for {invoice_id}")
+                bot_logger.info(f"✅ Lava.top USD invoice created: {lava_usd['payment_url'][:80]}")
+                return web.json_response({
+                    'success': True,
+                    'payment_url': lava_usd['payment_url']
+                })
+            else:
+                bot_logger.warning(f"⚠️ Lava USD failed: {lava_usd.get('error')}")
+                return web.json_response({
+                    'success': False,
+                    'error': lava_usd.get('error', 'Не удалось создать платёж в Lava.top USD')
+                }, status=400)
+
+        return web.json_response({
+            'success': False,
+            'error': 'Не удалось определить offer_id для платежа в USD'
+        }, status=400)
+
     
     except Exception as e:
         bot_logger.error(f"Error in card payment handler: {e}", exc_info=True)

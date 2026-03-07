@@ -30,7 +30,8 @@ class CardPaymentService:
         offer_id: str,
         amount_rub: float,
         email: str,
-        description: str
+        description: str,
+        currency: str = "RUB"
     ) -> Dict[str, Any]:
         """
         Создание платежа через Lava.top V3 API с привязкой к нашему invoice_id.
@@ -41,6 +42,7 @@ class CardPaymentService:
             amount_rub: Сумма в рублях (для логирования)
             email:      Email покупателя
             description: Описание услуги (для логирования)
+            currency:   Валюта платежа ('RUB' или 'USD'), по умолчанию 'RUB'
 
         Returns:
             dict: {'success': bool, 'payment_url': str} или {'success': False, 'error': str}
@@ -54,12 +56,12 @@ class CardPaymentService:
             # Payload по Lava.top V3 Swagger:
             #   offerId   — UUID оффера (определяет продукт и цену на Lava.top)
             #   email     — email покупателя (предзаполняется на странице оплаты)
-            #   currency  — валюта (RUB → показывает рублёвую цену)
+            #   currency  — валюта (RUB или USD)
             #   metadata  — произвольная строка; Lava.top вернёт её в webhook → наш INV-XXXXX
             payload = {
                 "email": email,
                 "offerId": offer_id,
-                "currency": "RUB",
+                "currency": currency,
                 "metadata": invoice_id      # ← ключевое поле: вернётся в webhook
             }
 
