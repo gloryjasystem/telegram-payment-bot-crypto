@@ -115,7 +115,9 @@ async def check_and_migrate_table() -> None:
                 # --- Каталог услуг: service_key и lava_slug ---
                 await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS service_key VARCHAR(100);"))
                 await conn.execute(text("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS lava_slug VARCHAR(200);"))
-                logger.info("✅ Колонки service_key и lava_slug добавлены (если отсутствовали)")
+                # --- Удаляем client_email из invoices (email хранится только в payments) ---
+                await conn.execute(text("ALTER TABLE invoices DROP COLUMN IF EXISTS client_email;"))
+                logger.info("✅ Колонки service_key и lava_slug добавлены; client_email удалён из invoices")
 
                 
                 # --- Payments migration ---
