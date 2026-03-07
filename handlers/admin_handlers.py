@@ -509,9 +509,38 @@ async def process_custom_amount(message: Message, state: FSMContext):
         )
         return
 
+    # ── Случай 0: сумма до $1 — тестовая карточка Lava ($0.65) ────────────
+    if amount < Decimal("1.0") and Config.LAVA_CUSTOM_TIERS and 0.65 in Config.LAVA_CUSTOM_TIERS:
+        await state.update_data(
+            amount=amount,
+            _pending_tier_usd=0.65,
+        )
+        await state.set_state(InvoiceCreationStates.WaitingForCustomAmountConfirm)
+
+        from aiogram.utils.keyboard import InlineKeyboardBuilder
+        kb = InlineKeyboardBuilder()
+        kb.button(text="✅ Да, тестовая оплата $0.65", callback_data="tier_confirm:yes")
+        kb.button(text="✏️ Ввести другую сумму",       callback_data="tier_confirm:no")
+        kb.adjust(1)
+
+        await message.answer(
+            f"⚠️ <b>Сумма ${amount} — меньше $1.00</b>\n\n"
+            "Для сумм до <b>$1.00</b> в сервисе Lava.top доступна "
+            "только <b>тестовая оплата</b>.\n\n"
+            "Клиент увидит карточку Lava.top «Тестовая оплата» "
+            "с фиксированной ценой <b>$0.65</b>.\n\n"
+            "Продолжить?",
+            reply_markup=kb.as_markup(),
+            parse_mode="HTML"
+        )
+        return
+    # ────────────────────────────────────────────────────────────────────────
+
     # ── Проверяем кратность $10 для Lava-карточек ──────────────────────────
     amount_int = int(amount)
-    min_tier = min(Config.LAVA_CUSTOM_TIERS.keys()) if Config.LAVA_CUSTOM_TIERS else 10
+    # Берём только целые тиры (>= 1), чтобы тестовая карточка $0.65 не стала min_tier
+    integer_tier_keys = [k for k in Config.LAVA_CUSTOM_TIERS.keys() if isinstance(k, int) or k >= 1]
+    min_tier = min(integer_tier_keys) if integer_tier_keys else 10
 
     # Случай 1: сумма меньше минимального тира ($10)
     if Config.LAVA_CUSTOM_TIERS and amount_int < min_tier:

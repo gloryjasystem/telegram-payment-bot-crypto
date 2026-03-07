@@ -408,6 +408,11 @@ def _get_custom_tier(amount_usd: float) -> dict:
     tiers = Config.LAVA_CUSTOM_TIERS
     if not tiers:
         return {}
+
+    # До $1.00 — всегда тестовая карточка ($0.65)
+    if amount_usd < 1.0 and 0.65 in tiers:
+        return tiers[0.65]
+
     target = int(round(amount_usd))
     # 1. Точное совпадение
     if target in tiers:
