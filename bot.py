@@ -485,50 +485,74 @@ async def handle_create_card_payment(request: web.Request) -> web.Response:
             )
         
         if method == 'ru':
-            # Lava.top: ищем прямой URL продукта → редирект без API
-            payment_url = ''
+            # Lava.top: определяем тир и offer_id
+            tier_url = ''
+            offer_id = ''
             try:
                 inv = await invoice_service.get_invoice_by_id(invoice_id)
                 if inv and inv.service_key:
-                    # 1) Прямой URL из lava_products.json по service_key
-                    payment_url = Config.LAVA_PRODUCT_MAP.get(inv.service_key, '')
-                    # 2) Fallback: custom tier по USD-цене инвойса
-                    if not payment_url:
-                        tier = _get_custom_tier(amount_usd)
-                        # Используем url напрямую — он уже хранится в тире
-                        payment_url = tier.get('url', '')
-                        if not payment_url:
-                            # Последний fallback: реконструируем из offer_id
-                            offer_id = tier.get('offer_id', '')
-                            if offer_id:
-                                payment_url = f"https://app.lava.top/buy/{offer_id}"
-                        if payment_url:
-                            bot_logger.info(
-                                f"🔍 Custom tier fallback: ${amount_usd} → {payment_url[:60]}"
-                            )
+                    tier_url = Config.LAVA_PRODUCT_MAP.get(inv.service_key, '')
+                if not tier_url:
+                    tier = _get_custom_tier(amount_usd)
+                    tier_url = tier.get('url', '')
+                    offer_id = tier.get('offer_id', '')
+                    if tier_url and not offer_id:
+                        # Извлекаем offer_id из URL: .../products/{product_id}/{offer_id}
+                        parts = tier_url.rstrip('/').split('/')
+                        offer_id = parts[-1] if len(parts) >= 2 else ''
+                    if tier_url:
+                        bot_logger.info(f"🔍 Custom tier fallback: ${amount_usd} → {tier_url[:60]}")
+                elif not offer_id:
+                    parts = tier_url.rstrip('/').split('/')
+                    offer_id = parts[-1] if len(parts) >= 2 else ''
             except Exception as _e:
-                bot_logger.warning(f"Could not load service_key for {invoice_id}: {_e}")
+                bot_logger.warning(f"Could not load tier for {invoice_id}: {_e}")
 
-            if not payment_url:
-                bot_logger.warning(
-                    f"⚠️ No Lava URL for invoice {invoice_id}. "
-                    f"Fill url in lava_products.json for service_key={getattr(inv, 'service_key', '?')}."
-                )
+            if not tier_url and not offer_id:
                 return web.json_response({
                     'success': False,
                     'error': 'Для этой услуги не задан URL в lava_products.json.'
                 }, status=400)
 
-            bot_logger.info(f"✅ Lava.top direct redirect: {payment_url[:80]}")
-            # Передаём валюту (RUB) и email клиента чтобы поле email было уже заполнено
+            # ── Сначала пробуем Lava V3 API (дает webhook → автозакрытие WebApp + уведомления) ──
+            if offer_id and Config.LAVA_API_KEY:
+                from services.card_payment_service import card_payment_service as _cps
+                lava_result = await _cps.create_lava_payment(
+                    invoice_id=invoice_id,
+                    offer_id=offer_id,
+                    amount_rub=amount_rub,
+                    email=email,
+                    description=service,
+                )
+                if lava_result.get('success') and lava_result.get('payment_url'):
+                    lava_payment_id = lava_result.get('payment_id', '')
+                    if lava_payment_id:
+                        await invoice_service.set_external_invoice_id(invoice_id, lava_payment_id)
+                        bot_logger.info(f"💾 Saved Lava contractId={lava_payment_id} for {invoice_id}")
+                    bot_logger.info(f"✅ Lava.top V3 invoice created for {invoice_id}: {lava_result['payment_url'][:80]}")
+                    return web.json_response({
+                        'success': True,
+                        'payment_url': lava_result['payment_url']
+                    })
+                else:
+                    bot_logger.warning(f"⚠️ Lava V3 failed ({lava_result.get('error')}), fallback to direct redirect")
+
+            # ── Fallback: прямой редирект (без webhook) ──
+            if not tier_url:
+                return web.json_response({
+                    'success': False,
+                    'error': 'Для этой услуги не задан URL.'
+                }, status=400)
+
+            bot_logger.info(f"✅ Lava.top direct redirect: {tier_url[:80]}")
             import urllib.parse as _up
             params = _up.urlencode({'currency': 'RUB', 'email': email})
-            separator = '&' if '?' in payment_url else '?'
-            payment_url_final = f"{payment_url}{separator}{params}"
+            separator = '&' if '?' in tier_url else '?'
             return web.json_response({
                 'success': True,
-                'payment_url': payment_url_final
+                'payment_url': f"{tier_url}{separator}{params}"
             })
+
 
         # WayForPay — иностранный банк, доллары
         result = await card_payment_service.create_waypay_payment(
