@@ -274,7 +274,7 @@ class Config:
         "OFERTA_URL",
         "https://telegra.ph/Dogovor-oferty-02-28-8"
     )
-    SUPPORT_USERNAME: str = os.getenv("SUPPORT_USERNAME", "MarketFilterSupport")
+    SUPPORT_USERNAME: str = os.getenv("SUPPORT_USERNAME", "Market_Filter_Support")
     
     @classmethod
     def validate(cls) -> None:
