@@ -47,8 +47,26 @@ class AdminAuthMiddleware(BaseMiddleware):
             bot_logger.warning("Could not determine user_id from event")
             return None
         
-        # Проверка прав администратора
-        if user_id not in Config.ADMIN_IDS:
+        # Проверка прав администратора — сначала быстрая проверка по конфигу
+        is_config_admin = user_id in Config.ADMIN_IDS
+
+        # Если не в конфиге — проверяем флаг is_admin в базе данных
+        is_db_admin = False
+        if not is_config_admin:
+            try:
+                from database import get_session
+                from database.models import User
+                from sqlalchemy import select
+                async with get_session() as session:
+                    db_user = await session.scalar(
+                        select(User).where(User.telegram_id == user_id)
+                    )
+                    if db_user and db_user.is_admin:
+                        is_db_admin = True
+            except Exception as e:
+                bot_logger.error(f"AdminAuthMiddleware DB check failed for {user_id}: {e}")
+
+        if not is_config_admin and not is_db_admin:
             bot_logger.warning(f"Unauthorized admin access attempt from user {user_id}")
             
             # Отправляем сообщение о недостатке прав
