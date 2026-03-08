@@ -347,20 +347,22 @@ async def handle_nowpayments_ipn(request: web.Request) -> web.Response:
         # Читаем тело запроса
         raw_body = await request.read()
 
-        # Проверка IPN подписи (предупреждение, но NOT блокируем — иначе платёж не доходит)
+        # Проверка IPN подписи — строгая защита от поддельных webhook'ов
+        # (invoice_id виден пользователю в Telegram → без подписи легко подделать)
         ipn_secret = Config.NOWPAYMENTS_IPN_SECRET
         if ipn_secret:
             signature = request.headers.get('x-nowpayments-sig', '')
             if not signature:
-                bot_logger.warning("⚠️ NOWPayments IPN: no x-nowpayments-sig header — proceeding anyway")
-            else:
-                is_valid = nowpayments_service.verify_ipn_signature(raw_body, signature)
-                if not is_valid:
-                    bot_logger.warning("⚠️ NOWPayments IPN: signature mismatch — proceeding anyway (warn-only)")
-                else:
-                    bot_logger.info("✅ NOWPayments IPN signature verified")
+                bot_logger.warning("🚫 NOWPayments IPN: no x-nowpayments-sig header — rejecting (possible spoofing)")
+                return web.Response(status=403, text='Forbidden')
+            is_valid = nowpayments_service.verify_ipn_signature(raw_body, signature)
+            if not is_valid:
+                bot_logger.warning("🚫 NOWPayments IPN: signature mismatch — rejecting")
+                return web.Response(status=403, text='Forbidden')
+            bot_logger.info("✅ NOWPayments IPN signature verified")
         else:
             bot_logger.warning("⚠️ NOWPAYMENTS_IPN_SECRET not set — skipping signature check")
+
 
         import json
         data = json.loads(raw_body)
