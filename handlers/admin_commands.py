@@ -320,6 +320,7 @@ async def cmd_statistics(message: Message):
     text += f"   Всего: {stats['total_invoices']}\n"
     text += f"   ✅ Оплачено: {stats['paid_invoices']}\n"
     text += f"   ⏳ В ожидании: {stats['pending_invoices']}\n"
+    text += f"   ⌛ Просрочено: {stats['expired_invoices']}\n"
     text += f"   ❌ Отменено: {stats['cancelled_invoices']}\n\n"
     
     text += f"💰 **Финансы:**\n"

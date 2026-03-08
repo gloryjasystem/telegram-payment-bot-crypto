@@ -255,7 +255,11 @@ class AdminService:
                 cancelled_invoices = await session.scalar(
                     select(func.count()).select_from(Invoice).where(Invoice.status == 'cancelled')
                 )
-                
+
+                expired_invoices = await session.scalar(
+                    select(func.count()).select_from(Invoice).where(Invoice.status == 'expired')
+                )
+
                 # Общий доход
                 total_revenue = await session.scalar(
                     select(func.sum(Invoice.amount)).where(Invoice.status == 'paid')
@@ -272,6 +276,7 @@ class AdminService:
                     'total_invoices': total_invoices or 0,
                     'paid_invoices': paid_invoices or 0,
                     'pending_invoices': pending_invoices or 0,
+                    'expired_invoices': expired_invoices or 0,
                     'cancelled_invoices': cancelled_invoices or 0,
                     'total_revenue': total_revenue,
                     'conversion_rate': round(conversion_rate, 2)
