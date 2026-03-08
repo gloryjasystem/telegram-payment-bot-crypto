@@ -612,7 +612,7 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         # ── Верификация webhook secret ──────────────────────────────
         expected_secret = Config.LAVA_WEBHOOK_SECRET
         if expected_secret:
-            # Lava.top шлёт ключ в одном из заголовков
+            # Lava.top шлёт ключ в X-Api-Key (режим "API key вашего сервиса")
             auth_header = request.headers.get('Authorization', '')
             x_api_key   = request.headers.get('X-Api-Key', '')
             x_lava_sig  = request.headers.get('X-Lava-Signature', '')
@@ -623,19 +623,23 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
                 or x_lava_sig.strip()
             )
 
-            if received_key and received_key != expected_secret:
-                # Ключ пришёл, но явно не совпадает — это чужой запрос, блокируем
+            if not received_key:
+                # Нет ключа — Lava.top настроен слать X-Api-Key всегда,
+                # значит это чужой запрос — отклоняем
+                bot_logger.warning("🚫 Lava webhook: no API key header — rejecting (possible fake request)")
+                return web.Response(status=403, text='Forbidden')
+            elif received_key != expected_secret:
+                # Ключ пришёл, но не совпадает — чужой запрос
                 bot_logger.warning(
                     f"🚫 Lava webhook: invalid API key — rejecting. "
-                    f"Auth='{auth_header[:12]}' X-Api-Key='{x_api_key[:12]}' X-Lava-Sig='{x_lava_sig[:12]}'"
+                    f"Auth='{auth_header[:12]}' X-Api-Key='{x_api_key[:12]}'"
                 )
                 return web.Response(status=403, text='Forbidden')
-            elif not received_key:
-                # Ключ не прислан вообще — предупреждаем, но пропускаем
-                # (Lava.top не всегда добавляет заголовок авторизации)
-                bot_logger.warning("⚠️ Lava webhook: no API key header — proceeding anyway (warn-only)")
+            else:
+                bot_logger.info("✅ Lava webhook API key verified")
         else:
             bot_logger.warning("⚠️ LAVA_WEBHOOK_SECRET not set — skipping secret check")
+
 
 
         data = json.loads(raw_body)
