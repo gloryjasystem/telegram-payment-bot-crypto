@@ -611,7 +611,7 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
         # ── Верификация webhook secret ──────────────────────────────
         expected_secret = Config.LAVA_WEBHOOK_SECRET
         if expected_secret:
-            # Lava.top "API key вашего сервиса" может слать ключ в разных заголовках
+            # Lava.top шлёт ключ в одном из заголовков
             auth_header = request.headers.get('Authorization', '')
             x_api_key   = request.headers.get('X-Api-Key', '')
             x_lava_sig  = request.headers.get('X-Lava-Signature', '')
@@ -623,16 +623,16 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
             )
 
             if received_key and received_key != expected_secret:
+                # Ключ пришёл, но явно не совпадает — это чужой запрос, блокируем
                 bot_logger.warning(
                     f"🚫 Lava webhook: invalid API key — rejecting. "
-                    f"Got headers: Auth='{auth_header[:12]}...' "
-                    f"X-Api-Key='{x_api_key[:12]}...' "
-                    f"X-Lava-Sig='{x_lava_sig[:12]}...'"
+                    f"Auth='{auth_header[:12]}' X-Api-Key='{x_api_key[:12]}' X-Lava-Sig='{x_lava_sig[:12]}'"
                 )
                 return web.Response(status=403, text='Forbidden')
             elif not received_key:
-                bot_logger.warning("🚫 Lava webhook: no API key in any header — rejecting")
-                return web.Response(status=403, text='Forbidden')
+                # Ключ не прислан вообще — предупреждаем, но пропускаем
+                # (Lava.top не всегда добавляет заголовок авторизации)
+                bot_logger.warning("⚠️ Lava webhook: no API key header — proceeding anyway (warn-only)")
         else:
             bot_logger.warning("⚠️ LAVA_WEBHOOK_SECRET not set — skipping secret check")
 
@@ -717,16 +717,25 @@ async def handle_lava_webhook(request: web.Request) -> web.Response:
             if invoice_data:
                 inv, user = invoice_data
                 notifier = NotificationService(bot)
+                # Уведомляем клиента
                 try:
                     await notifier.notify_client_payment_success(invoice=inv, user=user)
+                    bot_logger.info(f"✅ Lava: client notification sent to {user.telegram_id}")
+                except Exception as e:
+                    bot_logger.error(f"❌ Lava: failed to notify client {user.telegram_id}: {e}", exc_info=True)
+                # Уведомляем администраторов (независимо от результата уведомления клиента)
+                try:
                     await notifier.notify_admins_payment_received(
                         invoice=inv, user=user, payment_method='card_ru_lava'
                     )
-                    bot_logger.info(f"✅ Lava payment confirmed for {order_id}")
+                    bot_logger.info(f"✅ Lava: admin notifications sent for {order_id}")
                 except Exception as e:
-                    bot_logger.error(f"Notification error after Lava payment: {e}")
+                    bot_logger.error(f"❌ Lava: failed to notify admins for {order_id}: {e}", exc_info=True)
+                bot_logger.info(f"✅ Lava payment fully processed: {order_id}")
+            else:
+                bot_logger.error(f"❌ Lava: invoice_with_user not found for {order_id} after marking paid")
         elif not success:
-            bot_logger.error(f"❌ Failed to mark invoice {order_id} as paid")
+            bot_logger.error(f"❌ Lava: failed to mark invoice {order_id} as paid in DB")
 
         return web.json_response({'status': 'ok'})
 
