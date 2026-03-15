@@ -588,17 +588,18 @@ async def process_custom_amount(message: Message, state: FSMContext):
 
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
-        kb.button(text=f"✅ Да, карточка ${tier_usd}",  callback_data="tier_confirm:yes")
+        kb.button(text=f"✅ Поднять до ${tier_usd}",   callback_data="tier_confirm:yes")
         kb.button(text=f"💵 Оставить ${amount_int}",    callback_data="tier_confirm:original")
         kb.button(text="✏️ Ввести другую сумму",        callback_data="tier_confirm:no")
         kb.adjust(1)
 
         await message.answer(
-            f"⚠️ <b>Сумма ${amount_int} меньше минимального тира ${min_tier}</b>\n\n"
-            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> (минимальный тир).\n\n"
-            f"• <b>Карточка ${tier_usd}</b> — инвойс и карточка на ${tier_usd}\n"
-            f"• <b>Оставить ${amount_int}</b> — инвойс на ${amount_int}, карточка Lava.top на ${tier_usd}\n\n"
-            f"Продолжить?",
+            f"⚠️ <b>Сумма ${amount_int} меньше минимальной (${min_tier})</b>\n\n"
+            f"Выберите, на какую сумму выставить инвойс клиенту:\n\n"
+            f"• <b>Поднять до ${tier_usd}</b> — клиент получит инвойс на ${tier_usd}\n"
+            f"• <b>Оставить ${amount_int}</b> — клиент получит инвойс ровно на ${amount_int}\n"
+            f"• <b>Ввести другую сумму</b> — начать ввод заново\n\n"
+            f"Что выбираем?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"
         )
@@ -623,17 +624,18 @@ async def process_custom_amount(message: Message, state: FSMContext):
 
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
-        kb.button(text=f"✅ Да, карточка ${tier_usd}",  callback_data="tier_confirm:yes")
-        kb.button(text=f"💵 Оставить ${amount_int}",    callback_data="tier_confirm:original")
-        kb.button(text="✏️ Ввести другую сумму",        callback_data="tier_confirm:no")
+        kb.button(text=f"✅ Округлить до ${tier_usd}",  callback_data="tier_confirm:yes")
+        kb.button(text=f"💵 Оставить ${amount_int}",     callback_data="tier_confirm:original")
+        kb.button(text="✏️ Ввести другую сумму",         callback_data="tier_confirm:no")
         kb.adjust(1)
 
         await message.answer(
             f"⚠️ <b>Сумма ${amount_int} не кратна $10</b>\n\n"
-            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> (ближайший тир вверх).\n\n"
-            f"• <b>Карточка ${tier_usd}</b> — инвойс и карточка на ${tier_usd}\n"
-            f"• <b>Оставить ${amount_int}</b> — инвойс на ${amount_int}, карточка Lava.top на ${tier_usd}\n\n"
-            f"Продолжить?",
+            f"Выберите, на какую сумму выставить инвойс клиенту:\n\n"
+            f"• <b>Округлить до ${tier_usd}</b> — клиент получит инвойс на ${tier_usd}\n"
+            f"• <b>Оставить ${amount_int}</b> — клиент получит инвойс ровно на ${amount_int}\n"
+            f"• <b>Ввести другую сумму</b> — начать ввод заново\n\n"
+            f"Что выбираем?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"
         )
