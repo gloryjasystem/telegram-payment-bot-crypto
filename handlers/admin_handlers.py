@@ -552,15 +552,16 @@ async def process_custom_amount(message: Message, state: FSMContext):
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
         kb.button(text="✅ Да, тестовая оплата $0.65", callback_data="tier_confirm:yes")
-        kb.button(text="✏️ Ввести другую сумму",       callback_data="tier_confirm:no")
+        kb.button(text=f"💵 Оставить ${amount}",        callback_data="tier_confirm:original")
+        kb.button(text="✏️ Ввести другую сумму",        callback_data="tier_confirm:no")
         kb.adjust(1)
 
         await message.answer(
             f"⚠️ <b>Сумма ${amount} — не более $1.00</b>\n\n"
             "Для сумм до <b>$1.00</b> включительно в сервисе Lava.top доступна "
             "только <b>тестовая оплата</b>.\n\n"
-            "Инвойс будет создан на фиксированную сумму <b>$0.65</b>.\n"
-            "Клиент увидит карточку Lava.top «Тестовая оплата» с ценой <b>$0.65</b>.\n\n"
+            f"• <b>Тестовая оплата $0.65</b> — карточка Lava.top будет на $0.65\n"
+            f"• <b>Оставить ${amount}</b> — инвойс на введённую сумму, карточка округлится\n\n"
             "Продолжить?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"
@@ -587,15 +588,17 @@ async def process_custom_amount(message: Message, state: FSMContext):
 
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
-        kb.button(text=f"✅ Да, карточка ${tier_usd}", callback_data="tier_confirm:yes")
-        kb.button(text="✏️ Ввести другую сумму", callback_data="tier_confirm:no")
+        kb.button(text=f"✅ Да, карточка ${tier_usd}",  callback_data="tier_confirm:yes")
+        kb.button(text=f"💵 Оставить ${amount_int}",    callback_data="tier_confirm:original")
+        kb.button(text="✏️ Ввести другую сумму",        callback_data="tier_confirm:no")
         kb.adjust(1)
 
         await message.answer(
             f"⚠️ <b>Сумма ${amount_int} меньше минимального тира ${min_tier}</b>\n\n"
-            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> "
-            f"(минимальный тир).\n\n"
-            f"Продолжить с карточкой <b>${tier_usd}</b>?",
+            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> (минимальный тир).\n\n"
+            f"• <b>Карточка ${tier_usd}</b> — инвойс и карточка на ${tier_usd}\n"
+            f"• <b>Оставить ${amount_int}</b> — инвойс на ${amount_int}, карточка Lava.top на ${tier_usd}\n\n"
+            f"Продолжить?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"
         )
@@ -620,15 +623,17 @@ async def process_custom_amount(message: Message, state: FSMContext):
 
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
-        kb.button(text=f"✅ Да, карточка ${tier_usd}", callback_data="tier_confirm:yes")
-        kb.button(text="✏️ Ввести другую сумму", callback_data="tier_confirm:no")
+        kb.button(text=f"✅ Да, карточка ${tier_usd}",  callback_data="tier_confirm:yes")
+        kb.button(text=f"💵 Оставить ${amount_int}",    callback_data="tier_confirm:original")
+        kb.button(text="✏️ Ввести другую сумму",        callback_data="tier_confirm:no")
         kb.adjust(1)
 
         await message.answer(
             f"⚠️ <b>Сумма ${amount_int} не кратна $10</b>\n\n"
-            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> "
-            f"(ближайший тир вверх).\n\n"
-            f"Продолжить с карточкой <b>${tier_usd}</b>?",
+            f"Клиент будет направлен на карточку Lava.top <b>${tier_usd}</b> (ближайший тир вверх).\n\n"
+            f"• <b>Карточка ${tier_usd}</b> — инвойс и карточка на ${tier_usd}\n"
+            f"• <b>Оставить ${amount_int}</b> — инвойс на ${amount_int}, карточка Lava.top на ${tier_usd}\n\n"
+            f"Продолжить?",
             reply_markup=kb.as_markup(),
             parse_mode="HTML"
         )
@@ -647,7 +652,7 @@ async def process_custom_amount(message: Message, state: FSMContext):
                               InvoiceCreationStates.WaitingForCustomAmountConfirm)
 async def handle_tier_confirm(callback: CallbackQuery, state: FSMContext):
     """Подтверждение или отмена нестандартной цены."""
-    action = callback.data.split(":")[1]  # "yes" | "no"
+    action = callback.data.split(":")[1]  # "yes" | "no" | "original"
 
     if action == "no":
         # Возвращаем к вводу суммы
@@ -659,11 +664,25 @@ async def handle_tier_confirm(callback: CallbackQuery, state: FSMContext):
         await callback.answer()
         return
 
-    # Продолжаем — заменяем amount на сумму тира (именно по ней будет создан инвойс и Lava-карточка)
     data = await state.get_data()
     tier_amount = data.get('_pending_tier_usd')
+
+    if action == "original":
+        # Сохраняем оригинальную введённую сумму (amount уже лежит в FSM как есть).
+        # lava_slug остаётся на тире — для карточки Lava.top это обязательно.
+        # Если lava_slug ещё не вычислен — вычисляем по тиру
+        if not data.get('lava_slug') and tier_amount:
+            _lava_url = _build_lava_url_for_amount(tier_amount)
+            if _lava_url:
+                await state.update_data(lava_slug=_lava_url)
+        await state.set_state(InvoiceCreationStates.PreviewInvoice)
+        data = await state.get_data()
+        await _send_preview_message(callback.message, data)
+        await callback.answer()
+        return
+
+    # action == "yes" — заменяем amount на сумму тира карточки
     if tier_amount:
-        # Заменяем введённую сумму на сумму тира карточки
         from decimal import Decimal
         await state.update_data(amount=Decimal(str(tier_amount)))
     # Если lava_slug ещё не вычислен — вычисляем по финальной сумме тира
