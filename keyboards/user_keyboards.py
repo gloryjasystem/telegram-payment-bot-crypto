@@ -77,8 +77,13 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
         )
     
     # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
-    config = Config()
-    base_url = config.BASE_WEBHOOK_URL
+    try:
+        from config import Config
+        config = Config()
+        base_url = config.BASE_WEBHOOK_URL
+    except Exception:
+        base_url = None
+        
     if base_url:
         encoded_url = urllib.parse.quote(payment_url, safe='')
         crypto_url = f"{base_url}/webapp/redirect.html?url={encoded_url}"
