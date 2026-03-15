@@ -64,6 +64,7 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
     Returns:
         InlineKeyboardMarkup: Клавиатура с кнопками оплаты и поддержкой
     """
+    import urllib.parse
     builder = InlineKeyboardBuilder()
     
     # Кнопка оплаты картой через Mini App (первая, приоритетная)
@@ -76,10 +77,18 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
         )
     
     # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
+    config = Config()
+    base_url = config.BASE_WEBHOOK_URL
+    if base_url:
+        encoded_url = urllib.parse.quote(payment_url, safe='')
+        crypto_url = f"{base_url}/webapp/redirect.html?url={encoded_url}"
+    else:
+        crypto_url = payment_url
+
     builder.row(
         InlineKeyboardButton(
             text="₿ Оплатить крипто",
-            web_app=WebAppInfo(url=payment_url)
+            web_app=WebAppInfo(url=crypto_url)
         )
     )
     
