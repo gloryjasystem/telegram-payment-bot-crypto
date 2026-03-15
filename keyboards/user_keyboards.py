@@ -67,14 +67,13 @@ def get_invoice_keyboard(payment_url: str, card_webapp_url: str = None) -> Inlin
     import urllib.parse
     builder = InlineKeyboardBuilder()
     
-    # Кнопка оплаты картой через Mini App (первая, приоритетная)
-    if card_webapp_url:
-        builder.row(
-            InlineKeyboardButton(
-                text="💳 Оплатить картой",
-                web_app=WebAppInfo(url=card_webapp_url)
-            )
+    # Кнопка оплаты картой (временно заморожена — показывает всплывающее уведомление)
+    builder.row(
+        InlineKeyboardButton(
+            text="💳 Оплатить картой",
+            callback_data="card_payment_disabled"
         )
+    )
     
     # Кнопка оплаты крипто с WebApp (открывается внутри Telegram)
     try:

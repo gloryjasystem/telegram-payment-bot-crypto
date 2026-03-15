@@ -187,6 +187,19 @@ async def callback_cancel_invoice_no(callback: CallbackQuery):
     await callback.message.answer("Отмена инвойса прервана.")
 
 
+
+@callback_router.callback_query(F.data == "card_payment_disabled")
+async def callback_card_payment_disabled(callback: CallbackQuery):
+    """
+    Временная заморозка оплаты картой — показывает всплывающее уведомление
+    """
+    await callback.answer(
+        "Этот способ оплаты временно не доступен. "
+        "Пожалуйста, воспользуйтесь оплатой в криптовалюте или обратитесь в поддержку за помощью.",
+        show_alert=True
+    )
+
+
 # ПРИМЕЧАНИЕ: catch-all обработчик callback'ов намеренно удалён.
 # Он перехватывал payment_history и другие пользовательские callback'и
 # раньше, чем успевал сработать user_router.
