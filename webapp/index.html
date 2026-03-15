@@ -533,13 +533,6 @@
         if (tg) {
             tg.ready();
             tg.expand();
-            try {
-                if (tg.requestFullscreen) {
-                    tg.requestFullscreen();
-                }
-            } catch (e) {
-                console.warn('requestFullscreen err:', e);
-            }
         }
 
         // ========== Haptic Feedback Helper ==========
