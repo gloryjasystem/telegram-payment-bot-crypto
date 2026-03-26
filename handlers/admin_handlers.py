@@ -834,7 +834,7 @@ async def confirm_invoice_creation(callback: CallbackQuery, state: FSMContext):
         await notif_service.notify_admins_invoice_created(invoice, user, admin_id)
 
         await callback.message.edit_reply_markup(reply_markup=None)
-        await callback.answer("✅ Инвойс создан и отправлен!", show_alert=False)
+        await callback.answer("☑️ Инвойс создан и отправлен!", show_alert=False)
 
         await state.clear()
 

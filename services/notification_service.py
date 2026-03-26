@@ -149,7 +149,7 @@ class NotificationService:
             )
             
             message_text = f"""
-✅ **Инвойс создан успешно**
+☑️ **Инвойс создан успешно**
 
 📋 **Invoice ID:** `{invoice.invoice_id}`
 👤 **Клиент:** {user_mention}
