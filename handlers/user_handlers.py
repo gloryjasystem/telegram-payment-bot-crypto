@@ -143,7 +143,7 @@ async def cmd_history(message: Message):
             date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
             expired_suffix = " | _срок истёк_" if inv.status == "expired" else ""
             
-            text += f"{emoji} **{inv.service_description}**\n"
+            text += f"**#{i}** | {emoji} **{inv.service_description}**\n"
             text += f"💵 {format_currency(inv.amount, inv.currency)}  •  🕐 {date_str}{expired_suffix}\n\n"
         
         if total_paid > 0:
@@ -188,7 +188,7 @@ async def callback_payment_history(callback: CallbackQuery):
             expired_suffix = " | _срок истёк_" if inv.status == "expired" else ""
             
             entry = (
-                f"{emoji} **{inv.service_description}**\n"
+                f"**#{i}** | {emoji} **{inv.service_description}**\n"
                 f"💵 {format_currency(inv.amount, inv.currency)}  •  🕐 {date_str}{expired_suffix}\n\n"
             )
             # Telegram limit: 4096 chars. Stop adding entries if getting close.
