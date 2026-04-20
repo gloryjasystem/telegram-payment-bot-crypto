@@ -136,16 +136,15 @@ async def cmd_history(message: Message):
         
         total_paid = sum(inv.amount for inv in invoices if inv.status == "paid")
         
-        text = f"📜 **История платежей** ({len(invoices)})\n"
-        text += "━━━━━━━━━━━━━━━━━━━━\n\n"
+        text = f"📜 **История платежей** ({len(invoices)})\n\n"
         
         for i, inv in enumerate(invoices, 1):
             emoji = status_emoji.get(inv.status, "❓")
             date_str = format_datetime(inv.created_at, "short") if inv.created_at else "—"
             expired_suffix = " | _срок истёк_" if inv.status == "expired" else ""
             
-            text += f"{i}. {emoji} {inv.service_description}\n"
-            text += f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}{expired_suffix}\n\n"
+            text += f"{emoji} **{inv.service_description}**\n"
+            text += f"💵 {format_currency(inv.amount, inv.currency)}  •  🕐 {date_str}{expired_suffix}\n\n"
         
         if total_paid > 0:
             text += f"💰 Всего оплачено: **{format_currency(total_paid, 'USD')}**"
@@ -181,8 +180,7 @@ async def callback_payment_history(callback: CallbackQuery):
         
         total_paid = sum(inv.amount for inv in invoices if inv.status == "paid")
         
-        text = f"📜 **История платежей** ({len(invoices)})\n"
-        text += "━━━━━━━━━━━━━━━━━━━━\n\n"
+        text = f"📜 **История платежей** ({len(invoices)})\n\n"
         
         for i, inv in enumerate(invoices, 1):
             emoji = status_emoji.get(inv.status, "❓")
@@ -190,8 +188,8 @@ async def callback_payment_history(callback: CallbackQuery):
             expired_suffix = " | _срок истёк_" if inv.status == "expired" else ""
             
             entry = (
-                f"{i}. {emoji} {inv.service_description}\n"
-                f"   💵 {format_currency(inv.amount, inv.currency)} | 🕐 {date_str}{expired_suffix}\n\n"
+                f"{emoji} **{inv.service_description}**\n"
+                f"💵 {format_currency(inv.amount, inv.currency)}  •  🕐 {date_str}{expired_suffix}\n\n"
             )
             # Telegram limit: 4096 chars. Stop adding entries if getting close.
             if len(text) + len(entry) > 3800:
@@ -202,14 +200,18 @@ async def callback_payment_history(callback: CallbackQuery):
         if total_paid > 0:
             text += f"💰 Всего оплачено: **{format_currency(total_paid, 'USD')}**"
     
-    await callback.answer()
-    # Отправляем новым сообщением (edit_text ограничен 4096 символами и не работает
-    # если нажата кнопка из сообщения инвойса с другой разметкой)
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        bot_logger.error(f"Failed to delete old message: {e}")
+        
     await callback.message.answer(
         text,
         reply_markup=get_history_keyboard(),
         parse_mode="Markdown"
     )
+    
+    await callback.answer()
 
 
 
@@ -237,7 +239,12 @@ async def callback_back_to_main(callback: CallbackQuery):
 Если у вас есть вопросы — обращайтесь в поддержку! 💬
 """
     
-    await callback.message.edit_text(
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        bot_logger.error(f"Failed to delete old message: {e}")
+        
+    await callback.message.answer(
         welcome_text,
         reply_markup=get_welcome_keyboard(),
         parse_mode="Markdown"
